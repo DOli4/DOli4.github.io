@@ -2,6 +2,7 @@ import { Component, lazy, Suspense, useEffect, useState, type ReactNode } from "
 import { motion } from "framer-motion";
 import siteContent from "../content/site";
 import useReducedMotion from "../hooks/useReducedMotion";
+import { usePlayground } from "../playground/ThemeContext";
 
 const ChromeScene = lazy(() => import("../components/ChromeScene"));
 
@@ -86,7 +87,9 @@ const nameGlitch = {
 };
 
 function Hero() {
-  const prefersReducedMotion = useReducedMotion();
+  const osReducedMotion = useReducedMotion();
+  const { motion: motionPref } = usePlayground();
+  const prefersReducedMotion = osReducedMotion || motionPref === "reduced";
   const isNarrowViewport = useIsNarrowViewport();
   const useStaticFallback = prefersReducedMotion || isNarrowViewport;
 

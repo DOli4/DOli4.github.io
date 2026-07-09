@@ -2,10 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Brand colors live as space-separated RGB channels so Tailwind's
+ * `rgb(var(--x) / <alpha>)` tokens work AND the visitor playground can
+ * overwrite them at runtime. --accent is user-editable; --base/--ink flip
+ * with the light/dark theme.
+ */
+:root {
+  --accent: 255 45 66;   /* #ff2d42 */
+  --base: 10 7 8;        /* #0a0708 */
+  --ink: 232 220 222;    /* #e8dcde */
+}
+
+:root[data-theme="light"] {
+  --base: 244 242 243;   /* near-white */
+  --ink: 24 18 20;       /* near-black ink */
+}
+
 html, body, #root {
   margin: 0;
-  background: #0a0708;
-  color: #e8dcde;
+  background: rgb(var(--base));
+  color: rgb(var(--ink));
   overflow-x: hidden;
 }
 
@@ -13,13 +30,26 @@ html {
   scroll-behavior: smooth;
 }
 
+/*
+ * The playground's "reduced motion" toggle sets data-motion="reduced" on the
+ * root, mirroring the OS media query so visitors can opt in/out regardless of
+ * their system setting.
+ */
 @media (prefers-reduced-motion: reduce) {
   * {
     animation: none !important;
     transition: none !important;
   }
-
   html {
     scroll-behavior: auto;
   }
+}
+
+:root[data-motion="reduced"] * {
+  animation: none !important;
+  transition: none !important;
+}
+
+:root[data-motion="reduced"] {
+  scroll-behavior: auto;
 }
