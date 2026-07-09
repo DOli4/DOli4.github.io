@@ -12,7 +12,7 @@ export default function Contact() {
   return (
     <section id="contact" className="mx-auto w-full max-w-5xl px-6 py-32 sm:py-44 text-center">
       <p className="mb-6 font-mono text-xs uppercase tracking-[0.3em] text-accent">
-        05 — Contact
+        06 — Contact
       </p>
       <p className="font-mono text-sm text-ink/50">
         <span className="text-accent">&gt;</span> looking for a frontend-leaning full-stack dev?
