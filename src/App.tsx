@@ -1,6 +1,7 @@
 import { MotionConfig, motion, useScroll } from "framer-motion";
 import GrainOverlay from "./components/GrainOverlay";
 import Footer from "./components/Footer";
+import Marquee from "./components/Marquee";
 import Hero from "./sections/Hero";
 import About from "./sections/About";
 import Skills from "./sections/Skills";
@@ -28,9 +29,12 @@ function Shell() {
 
         <Hero />
         <About />
+        <Marquee text="Frontend-leaning full-stack" direction="left" />
         <Skills />
+        <Marquee text="Selected work" direction="right" />
         <Work />
         <Experience />
+        <Marquee text="Your turn — go break something" direction="left" />
         <Sandbox />
         <Contact />
         <Footer />

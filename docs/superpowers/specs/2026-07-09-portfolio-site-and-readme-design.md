@@ -2,7 +2,50 @@
 
 **Date:** 2026-07-09
 **Author:** Dieter Olivier (with Claude)
-**Status:** Approved — ready for implementation planning
+**Status:** Approved — v2 revision in progress (see Addendum below)
+
+---
+
+## ADDENDUM (2026-07-09, revision) — Style-Morph Journey + Visitor Playground
+
+Two new pillars added mid-build after the hero (Task 4) shipped. These
+supersede the flat "one dark style throughout" direction of §4 where they
+conflict. Awaiting user-curated 21st.dev inspiration before final per-section
+styling.
+
+### A. Style-Morph Journey
+The page **evolves through web-design archetypes as you scroll** — itself the
+proof of frontend range. Provisional mapping (to be refined with user's
+21st.dev picks):
+1. **Hero** — Brutalist / Creative (built; keep). Dark, chrome, grain, red.
+2. **About** — Editorial / kinetic typography (bridge out of chaos).
+3. **Skills** — Clean product / minimal (Linear/Vercel; the "professional turn").
+4. **Work** — Glassmorphism / modern showcase; richer case-study cards (not flat tag cards).
+5. **Experience** — Corporate / timeline (trust-builder).
+6. **Contact** — Playful / interactive send-off (optional terminal callback).
+- **Open decision:** transitions abrupt (hard cuts between "worlds") vs.
+  smooth/morphing. User to decide while browsing.
+- Work section to be deepened into 2-3 mini case studies (problem → what I
+  built → tech decision → result), anonymized per §7.
+
+### B. Visitor Playground ("Customize" panel)
+Client-side only, no backend, ephemeral per-visitor:
+- Floating "Customize" button → slide-out panel.
+- **Accent color** (preset swatches + free picker), **theme** dark⇄light,
+  **motion** full⇄reduced.
+- Persist in `localStorage`; "Reset to default" button.
+- **Architectural requirement:** accent color moves from a static Tailwind hex
+  to a runtime **CSS custom property** (`--accent`) so the whole site repaints
+  live. Tailwind `accent` token to reference `rgb(var(--accent) / <alpha>)`.
+- Respect existing `prefers-reduced-motion`; the motion toggle layers on top.
+
+### Impact on plan
+- New task: CSS-variable theming refactor (accent → `--accent`) BEFORE the
+  playground and before per-section restyle.
+- New task: Playground context + panel + persistence.
+- Tasks 5-9 (About/Skills/Work/Experience/Contact) now each carry their
+  archetype styling from §A, not a uniform dark look.
+- README + deployment (later tasks) unchanged.
 
 ---
 

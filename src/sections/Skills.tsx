@@ -2,51 +2,81 @@ import { motion } from "framer-motion";
 import siteContent from "../content/site";
 
 /**
- * SKILLS — clean product / bento-grid style. Deliberately calm and precise
- * after the editorial About: thin borders, generous padding, restrained
- * motion. The lead group (Frontend & Mobile) spans a larger cell.
+ * SKILLS — luxury / corporate style (à la a premium product landing page).
+ * Generous whitespace, hairline rules, refined type. Each group SWIPES IN:
+ * a left-to-right clip-path wipe with a sweeping accent bar, revealing the
+ * row like a high-end product reveal.
  */
+
+function SwipeRow({ index, children }: { index: number; children: React.ReactNode }) {
+  return (
+    <div className="relative overflow-hidden">
+      {/* sweeping accent bar */}
+      <motion.span
+        aria-hidden="true"
+        className="absolute inset-y-0 left-0 z-10 w-full bg-accent"
+        initial={{ scaleX: 0, originX: 0 }}
+        whileInView={{ scaleX: [0, 1, 0], originX: [0, 0, 1] }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.9, delay: index * 0.12, ease: [0.7, 0, 0.3, 1] }}
+        style={{ transformOrigin: "left" }}
+      />
+      {/* content wipes in behind the bar */}
+      <motion.div
+        initial={{ clipPath: "inset(0 100% 0 0)", opacity: 0 }}
+        whileInView={{ clipPath: "inset(0 0% 0 0)", opacity: 1 }}
+        viewport={{ once: true, amount: 0.5 }}
+        transition={{ duration: 0.7, delay: index * 0.12 + 0.25, ease: "easeOut" }}
+      >
+        {children}
+      </motion.div>
+    </div>
+  );
+}
+
 export default function Skills() {
   const groups = siteContent.skills;
 
   return (
-    <section id="skills" className="mx-auto w-full max-w-6xl px-6 py-28 sm:py-36">
-      <div className="mb-14 flex items-baseline justify-between">
-        <h2 className="text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-          Skills
+    <section id="skills" className="mx-auto w-full max-w-6xl px-6 py-40 sm:py-56">
+      <div className="mb-20 max-w-3xl">
+        <p className="mb-6 font-mono text-xs uppercase tracking-[0.4em] text-accent">
+          02 — Capabilities
+        </p>
+        <h2 className="text-4xl font-light leading-tight tracking-tight text-ink sm:text-6xl">
+          Engineered across the stack, <span className="italic text-ink/50">crafted</span> on the
+          front.
         </h2>
-        <p className="font-mono text-xs uppercase tracking-[0.3em] text-accent">02</p>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="divide-y divide-ink/10 border-y border-ink/10">
         {groups.map((group, i) => (
-          <motion.div
-            key={group.heading}
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.2 }}
-            transition={{ duration: 0.5, delay: i * 0.08, ease: "easeOut" }}
-            className={`rounded-xl border border-ink/10 bg-ink/[0.02] p-6 transition-colors hover:border-accent/40 ${
-              group.lead ? "md:col-span-2 md:row-span-1" : ""
-            }`}
-          >
-            <div className="mb-4 flex items-center gap-3">
-              <span className="h-2 w-2 rounded-full bg-accent" />
-              <h3 className={`font-medium text-ink ${group.lead ? "text-xl" : "text-base"}`}>
-                {group.heading}
-              </h3>
-            </div>
-            <ul className="flex flex-wrap gap-2">
-              {group.items.map((item) => (
-                <li
-                  key={item}
-                  className="rounded-md border border-ink/10 px-3 py-1.5 font-mono text-xs text-ink/70"
+          <SwipeRow key={group.heading} index={i}>
+            <div className="grid grid-cols-1 gap-6 py-12 md:grid-cols-[280px_1fr] md:gap-16">
+              <div className="flex items-start gap-4">
+                <span className="font-mono text-xs text-accent">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3
+                  className={`tracking-tight text-ink ${
+                    group.lead ? "text-2xl font-medium sm:text-3xl" : "text-xl font-light"
+                  }`}
                 >
-                  {item}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
+                  {group.heading}
+                </h3>
+              </div>
+              <ul className="flex flex-wrap gap-x-8 gap-y-3">
+                {group.items.map((item) => (
+                  <li
+                    key={item}
+                    className="text-base font-light text-ink/70 transition-colors hover:text-ink"
+                  >
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </SwipeRow>
         ))}
       </div>
     </section>
