@@ -109,7 +109,7 @@ function Hero() {
 
       <div className="relative z-10 mx-auto w-full max-w-6xl px-6">
         <p className="font-mono text-xs uppercase tracking-[0.25em] text-accent">
-          {siteContent.role} · frontend-leaning · {siteContent.location}
+          {siteContent.role} · {siteContent.location}
         </p>
 
         {prefersReducedMotion ? (
