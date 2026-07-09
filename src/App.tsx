@@ -1,16 +1,13 @@
 import GrainOverlay from "./components/GrainOverlay";
 import Section from "./components/Section";
+import Hero from "./sections/Hero";
 
 function App() {
   return (
     <main className="min-h-screen bg-base text-ink">
       <GrainOverlay />
 
-      <Section id="hero">
-        <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl">
-          <span className="text-accent">Dieter</span> Oliveira
-        </h1>
-      </Section>
+      <Hero />
 
       <Section id="about" title="About">
         <p className="text-ink/80">Placeholder about copy.</p>
