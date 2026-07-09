@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist -t true -b gh-pages"
+    "deploy": "npm run build && gh-pages -d dist --dotfiles -b gh-pages"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.7",
