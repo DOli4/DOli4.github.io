@@ -121,6 +121,16 @@ export default function AnomalousMatter() {
       mesh.rotation.y = t * 0.12 + s.scroll * Math.PI * 2.2 + s.mx * 0.4;
       mesh.rotation.x = t * 0.05 + s.my * 0.3;
       core.rotation.copy(mesh.rotation);
+
+      // Keep the object clear of the name: shift right on desktop, up on mobile.
+      const wide = innerWidth > 900;
+      const offX = wide ? 1.5 : 0;
+      const offY = wide ? 0 : 1.15;
+      mesh.position.x += (offX - mesh.position.x) * 0.06;
+      mesh.position.y += (offY - mesh.position.y) * 0.06;
+      core.position.x = mesh.position.x;
+      core.position.y = mesh.position.y;
+
       const scale = 1 + Math.sin(t * 0.8) * 0.02 - s.scroll * 0.15;
       mesh.scale.setScalar(scale);
 

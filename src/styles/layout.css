@@ -98,16 +98,39 @@
   justify-content: center;
 }
 
+/* Contrast scrim so the name reads over the object — dark on the left,
+   fading to clear on the right where the object lives. */
+.hero-x::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    100deg,
+    rgba(5, 6, 10, 0.92) 0%,
+    rgba(5, 6, 10, 0.7) 32%,
+    rgba(5, 6, 10, 0) 60%
+  );
+}
+
 .hero-x-inner {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 22px;
+  max-width: 620px;
+  /* Pin the name to the left instead of centering (overrides .wrap's auto).
+     Matches the left gutter of the centered .wrap used by other sections. */
+  margin-left: max(0px, calc((100vw - var(--maxw)) / 2));
+  margin-right: auto;
 }
 
 .hero-x-title {
-  font-size: clamp(3.4rem, 13vw, 11rem);
+  font-size: clamp(3.2rem, 8.5vw, 7.5rem);
   font-weight: 300;
-  line-height: 0.9;
+  line-height: 0.92;
   letter-spacing: -0.03em;
   text-transform: uppercase;
 }
@@ -128,11 +151,34 @@
 
 .hero-x-scroll {
   position: absolute;
+  z-index: 1;
   bottom: 30px;
   left: 32px;
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+/* Mobile: object floats up top, name drops to the lower third */
+@media (max-width: 900px) {
+  .hero-x {
+    justify-content: flex-end;
+    padding-bottom: 16vh;
+  }
+  .hero-x::before {
+    background: linear-gradient(
+      to top,
+      rgba(5, 6, 10, 0.94) 0%,
+      rgba(5, 6, 10, 0.6) 46%,
+      rgba(5, 6, 10, 0) 78%
+    );
+  }
+  .hero-x-inner {
+    max-width: 100%;
+  }
+  .hero-x-title {
+    font-size: clamp(3rem, 15vw, 5rem);
+  }
 }
 
 .hero-x-arrow {
