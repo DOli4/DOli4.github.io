@@ -1,0 +1,55 @@
+.scene {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Clouds drift slowly across the sky and loop back */
+.cloud {
+  will-change: transform;
+}
+.cloud-a {
+  animation: drift 90s linear infinite;
+}
+.cloud-b {
+  animation: drift 120s linear infinite;
+}
+.cloud-c {
+  animation: drift 150s linear infinite;
+}
+
+@keyframes drift {
+  from {
+    transform: translateX(-260px);
+  }
+  to {
+    transform: translateX(1460px);
+  }
+}
+
+/* The canopy sways ever so gently, pivoting near the trunk */
+.canopy {
+  transform-box: fill-box;
+  transform-origin: 470px 410px;
+  animation: sway 9s ease-in-out infinite;
+  will-change: transform;
+}
+
+@keyframes sway {
+  0%,
+  100% {
+    transform: rotate(-1deg);
+  }
+  50% {
+    transform: rotate(1.4deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud,
+  .canopy {
+    animation: none !important;
+  }
+}

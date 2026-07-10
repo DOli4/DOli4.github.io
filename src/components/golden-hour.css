@@ -1,0 +1,65 @@
+.golden {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* The sun breathes very slowly */
+.gh-sun-group {
+  transform-box: fill-box;
+  transform-origin: 600px 470px;
+  animation: gh-breathe 8s ease-in-out infinite;
+}
+
+@keyframes gh-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.96;
+  }
+  50% {
+    transform: scale(1.03);
+    opacity: 1;
+  }
+}
+
+/* Grass blades sway from their base */
+.gh-blade {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: gh-sway 5.5s ease-in-out infinite;
+}
+
+@keyframes gh-sway {
+  0%,
+  100% {
+    transform: rotate(-2.5deg);
+  }
+  50% {
+    transform: rotate(2.5deg);
+  }
+}
+
+/* Birds drift slowly across */
+.gh-birds {
+  animation: gh-drift 40s linear infinite;
+}
+
+@keyframes gh-drift {
+  from {
+    transform: translateX(-80px);
+  }
+  to {
+    transform: translateX(500px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gh-sun-group,
+  .gh-blade,
+  .gh-birds {
+    animation: none;
+  }
+}

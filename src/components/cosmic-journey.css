@@ -1,0 +1,96 @@
+/* Tall region that provides the scroll distance for the descent */
+.cosmic {
+  position: relative;
+  height: 320vh;
+}
+
+/* The Three.js canvas stays fixed while you scroll through the region */
+.cosmic-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  display: block;
+}
+
+/* Starlight cursor-trail sits just above the space canvas, below the captions */
+.cosmic-trail {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cosmic-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.cosmic-caption {
+  position: absolute;
+  left: 8vw;
+  top: 50%;
+  transform: translateY(-40%);
+  opacity: 0;
+  transition: opacity 0.9s ease, transform 0.9s ease;
+  max-width: 34ch;
+}
+
+.cosmic-caption.is-active {
+  opacity: 1;
+  transform: translateY(-50%);
+}
+
+.cosmic-title {
+  font-family: "Fraunces", Georgia, serif;
+  font-size: clamp(2.6rem, 8vw, 6rem);
+  color: #fff;
+  letter-spacing: 0.06em;
+  margin: 0;
+  text-shadow: 0 0 40px rgba(120, 160, 255, 0.4);
+}
+
+.cosmic-line {
+  margin: 14px 0 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: clamp(1rem, 2.2vw, 1.3rem);
+  letter-spacing: 0.02em;
+}
+
+.cosmic-scrollcue {
+  position: absolute;
+  right: 5vw;
+  bottom: 8vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.cosmic-scrollcue-track {
+  width: 2px;
+  height: 90px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.cosmic-scrollcue-fill {
+  width: 100%;
+  background: linear-gradient(to bottom, #fff, rgba(255, 220, 150, 0.8));
+  transition: height 0.5s ease;
+}
+
+@media (max-width: 640px) {
+  .cosmic-caption {
+    left: 7vw;
+    right: 7vw;
+  }
+}

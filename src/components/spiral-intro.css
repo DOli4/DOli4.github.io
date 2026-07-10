@@ -1,0 +1,94 @@
+.spiral-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  background: #000;
+  overflow: hidden;
+  transition: opacity 0.9s ease, filter 0.9s ease;
+}
+
+.spiral-intro.is-leaving {
+  opacity: 0;
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.spiral-intro-canvas {
+  position: absolute;
+  inset: 0;
+}
+
+.spiral-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.spiral-cta {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  opacity: 0;
+  transition: opacity 1.4s ease, transform 1.4s ease;
+  pointer-events: none;
+}
+
+.spiral-cta.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.spiral-kicker {
+  font-family: "Fraunces", Georgia, serif;
+  color: rgba(255, 245, 225, 0.85);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  margin: 0 0 22px;
+}
+
+.spiral-enter {
+  background: none;
+  border: none;
+  color: #fff;
+  font-family: "Nunito Sans", sans-serif;
+  font-size: 1.8rem;
+  font-weight: 300;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  padding: 0 0 0 0.35em;
+  cursor: pointer;
+  transition: letter-spacing 0.7s ease, text-shadow 0.7s ease;
+  animation: enter-pulse 3s ease-in-out infinite;
+}
+
+.spiral-enter:hover {
+  letter-spacing: 0.5em;
+  text-shadow: 0 0 22px rgba(255, 220, 150, 0.9);
+}
+
+.spiral-hint {
+  margin: 26px 0 0;
+  color: rgba(255, 245, 225, 0.45);
+  font-size: 0.82rem;
+  letter-spacing: 0.05em;
+}
+
+@keyframes enter-pulse {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spiral-enter {
+    animation: none;
+  }
+}

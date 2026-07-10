@@ -1,0 +1,82 @@
+.tron-cursor {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  pointer-events: none;
+}
+
+.tc-ring,
+.tc-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  will-change: transform;
+}
+
+.tc-ring {
+  width: 34px;
+  height: 34px;
+  margin: -17px 0 0 -17px;
+  border: 1px solid rgba(53, 230, 255, 0.6);
+  border-radius: 50%;
+  transition: width 0.25s var(--ease), height 0.25s var(--ease),
+    border-color 0.25s var(--ease), background 0.25s var(--ease);
+}
+
+/* crosshair ticks */
+.tc-ring::before,
+.tc-ring::after {
+  content: "";
+  position: absolute;
+  background: rgba(53, 230, 255, 0.7);
+}
+.tc-ring::before {
+  left: 50%;
+  top: -6px;
+  width: 1px;
+  height: 6px;
+  margin-left: -0.5px;
+  box-shadow: 0 40px 0 rgba(53, 230, 255, 0.7);
+}
+.tc-ring::after {
+  top: 50%;
+  left: -6px;
+  height: 1px;
+  width: 6px;
+  margin-top: -0.5px;
+  box-shadow: 40px 0 0 rgba(53, 230, 255, 0.7);
+}
+
+.tc-dot {
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  background: #eaf6ff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px 2px rgba(53, 230, 255, 0.8);
+}
+
+.tc-read {
+  position: absolute;
+  left: 26px;
+  top: 12px;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  color: rgba(53, 230, 255, 0.75);
+  white-space: nowrap;
+}
+
+/* Grows over interactive elements */
+body.cursor-hot .tc-ring {
+  width: 54px;
+  height: 54px;
+  margin: -27px 0 0 -27px;
+  border-color: var(--err);
+  background: rgba(255, 46, 77, 0.06);
+}
+body.cursor-hot .tc-ring::before,
+body.cursor-hot .tc-ring::after {
+  background: var(--err);
+  box-shadow: none;
+}
