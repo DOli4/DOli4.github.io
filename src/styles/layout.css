@@ -449,3 +449,42 @@
     font-size: 0.72rem;
   }
 }
+
+/* ---- page tabs (CV / DRILL / SHAKE) ------------------------------------ */
+/* Sits where "◉ ONLINE" used to. The hud-top uses mix-blend-mode: difference,
+   so these read against whatever passes underneath. */
+.page-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+}
+
+.page-tab {
+  color: var(--ink);
+  opacity: 0.5;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  transition: opacity 0.25s var(--ease), border-color 0.25s var(--ease),
+    color 0.25s var(--ease);
+}
+
+.page-tab:hover {
+  opacity: 1;
+  border-color: var(--line-bright);
+}
+
+.page-tab.is-on {
+  opacity: 1;
+  color: var(--cyan);
+  border-color: var(--line-bright);
+}
+
+@media (max-width: 640px) {
+  .hud-links {
+    display: none;
+  }
+}

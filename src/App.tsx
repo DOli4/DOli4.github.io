@@ -1,7 +1,6 @@
 import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import TronCursor from "./components/TronCursor";
 import AnomalousMatter from "./components/AnomalousMatter";
 import GlitchText from "./components/GlitchText";
 import ThermodynamicGrid from "./components/ui/interactive-thermodynamic-grid";
@@ -41,27 +40,10 @@ export default function App() {
 
   return (
     <div ref={root}>
-      <TronCursor />
       <AnomalousMatter />
 
-      {/* Fixed chrome */}
-      <nav className="hud-top">
-        <a className="hud-mark" href="#top" aria-label="Home">
-          ⟠
-        </a>
-        <div className="hud-links">
-          <a href="#about" data-hover>
-            About
-          </a>
-          <a href="#work" data-hover>
-            Work
-          </a>
-          <a href="#contact" data-hover>
-            Contact
-          </a>
-        </div>
-        <div className="hud-status tag tag-dim">◉ ONLINE</div>
-      </nav>
+      {/* The top chrome and the cursor now live in main.tsx, shared by all
+          three pages. Only the CV page's own furniture stays here. */}
 
       <div className="rail rail-left">
         <a href={profile.github.url} target="_blank" rel="noreferrer" data-hover>

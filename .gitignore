@@ -4,3 +4,7 @@ dist-ssr
 *.local
 .DS_Store
 .vite
+
+# Plaintext interview drills. NEVER commit these - they are generated from work
+# commits and are only ever published as public/drills.enc (AES-GCM ciphertext).
+drill-data/
