@@ -165,7 +165,7 @@ export default function Drill() {
 
       <section className="drill-sec">
         <h2 className="drill-h2">
-          <span className="drill-num">04</span> Ask Tean tomorrow
+          <span className="drill-num">04</span> Ask Trevor tomorrow
         </h2>
         <p className="ask">{drill.askSenior}</p>
       </section>
