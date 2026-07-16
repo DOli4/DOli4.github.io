@@ -1318,3 +1318,9 @@
   background: var(--cyan) !important;
   border: 2px solid var(--void) !important;
 }
+
+/* pop-out switch on card titles + small popped windows */
+.intel-card h3 { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.card-pop { font-size: 12px; color: var(--ink-faint); flex: none; }
+.card-pop:hover { color: var(--cyan); }
+.intel-small .intel-bd { padding: 12px; }
