@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { LampHeader } from "../../components/ui/lamp";
+import NeonTitle from "../../components/NeonTitle";
 import type { Tier } from "../../lib/drill-crypto";
 import {
   hostOf,
@@ -22,11 +22,13 @@ export default function Artifacts({ tier }: { tier: Tier }) {
 
   return (
     <>
-      <LampHeader
-        eyebrow={`${artifacts.length} SAVED`}
-        title="ARTIFACTS"
-        sub="links worth keeping — shared Claude artifacts, docs, dashboards"
-      />
+      <div className='wrap drill-wrap' style={{ paddingTop: 130 }}>
+        <NeonTitle
+          eyebrow={`${artifacts.length} SAVED`}
+          title='ARTIFACTS'
+          sub='links worth keeping — shared Claude artifacts, docs, dashboards'
+        />
+      </div>
 
       <div className="wrap drill-wrap dash-wrap">
         <section className="drill-sec">

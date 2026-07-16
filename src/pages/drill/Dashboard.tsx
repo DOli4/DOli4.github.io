@@ -16,6 +16,7 @@ import {
   type Artifact,
 } from "../../lib/artifacts";
 import DotEdge from "./canvas/DotEdge";
+import FloatPanel from "./canvas/FloatPanel";
 import {
   AnomalyNode,
   ArtifactsNode,
@@ -80,48 +81,12 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
   const pct = stats.mustSayTotal === 0 ? 0 : Math.round((stats.saidCount / stats.mustSayTotal) * 100);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
-    {
-      id: "drill",
-      type: "drill",
-      position: { x: 40, y: 250 },
-      dragHandle: ".nd-hd",
-      data: { drill: latest, count: drills.length },
-    },
-    {
-      id: "word",
-      type: "word",
-      position: { x: 360, y: 40 },
-      dragHandle: ".nd-hd",
-      data: { drill: latest },
-    },
-    {
-      id: "bank",
-      type: "bank",
-      position: { x: 360, y: 300 },
-      dragHandle: ".nd-hd",
-      data: { drills },
-    },
-    {
-      id: "stats",
-      type: "stats",
-      position: { x: 740, y: 80 },
-      dragHandle: ".nd-hd",
-      data: { stats },
-    },
-    {
-      id: "arts",
-      type: "arts",
-      position: { x: 740, y: 420 },
-      dragHandle: ".nd-hd",
-      data: { artifacts, tier, onChange: setAllArtifacts },
-    },
-    {
-      id: "anomaly",
-      type: "anomaly",
-      position: { x: 1120, y: 170 },
-      dragHandle: ".nd-hd",
-      data: { pct },
-    },
+    { id: "anomaly", type: "anomaly", position: { x: 560, y: 160 }, dragHandle: ".nd-hd", data: { pct } },
+    { id: "drill", type: "drill", position: { x: 120, y: 60 }, dragHandle: ".nd-hd", data: { drill: latest, count: drills.length, tpos: "right" } },
+    { id: "word", type: "word", position: { x: 90, y: 460 }, dragHandle: ".nd-hd", data: { drill: latest, tpos: "right" } },
+    { id: "stats", type: "stats", position: { x: 1120, y: 40 }, dragHandle: ".nd-hd", data: { stats, tpos: "left" } },
+    { id: "bank", type: "bank", position: { x: 1150, y: 400 }, dragHandle: ".nd-hd", data: { drills, tpos: "left" } },
+    { id: "arts", type: "arts", position: { x: 560, y: 760 }, dragHandle: ".nd-hd", data: { artifacts, tier, onChange: setAllArtifacts, tpos: "top" } },
   ]);
 
   // Positions live in React Flow's state; data has to follow ours.
@@ -130,15 +95,15 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
       nds.map((n) => {
         switch (n.id) {
           case "drill":
-            return { ...n, data: { drill: latest, count: drills.length } };
+            return { ...n, data: { ...n.data, drill: latest, count: drills.length } };
           case "word":
-            return { ...n, data: { drill: latest } };
+            return { ...n, data: { ...n.data, drill: latest } };
           case "bank":
-            return { ...n, data: { drills } };
+            return { ...n, data: { ...n.data, drills } };
           case "stats":
-            return { ...n, data: { stats } };
+            return { ...n, data: { ...n.data, stats } };
           case "arts":
-            return { ...n, data: { artifacts, tier, onChange: setAllArtifacts } };
+            return { ...n, data: { ...n.data, artifacts, tier, onChange: setAllArtifacts } };
           case "anomaly":
             return { ...n, data: { pct } };
           default:
@@ -150,12 +115,11 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
 
   const edges = useMemo<Edge[]>(
     () => [
-      { id: "e-dw", source: "drill", sourceHandle: "word", target: "word", type: "flow", style: EDGE_STYLE, data: { dur: "3.4s" } },
-      { id: "e-db", source: "drill", sourceHandle: "bank", target: "bank", type: "flow", style: EDGE_STYLE, data: { dur: "2.8s", begin: "0.6s" } },
-      { id: "e-ws", source: "word", target: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "3.1s", begin: "1.1s" } },
-      { id: "e-bs", source: "bank", target: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "3.6s", begin: "0.3s" } },
-      { id: "e-sa", source: "stats", target: "anomaly", targetHandle: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "2.6s", begin: "0.9s" } },
-      { id: "e-aa", source: "arts", target: "anomaly", targetHandle: "arts", type: "flow", style: EDGE_STYLE, data: { dur: "4s", begin: "1.4s" } },
+      { id: "c-drill", source: "anomaly", sourceHandle: "w1", target: "drill", type: "flow", style: EDGE_STYLE, data: { dur: "3.2s" } },
+      { id: "c-word", source: "anomaly", sourceHandle: "w2", target: "word", type: "flow", style: EDGE_STYLE, data: { dur: "2.7s", begin: "0.5s" } },
+      { id: "c-stats", source: "anomaly", sourceHandle: "e1", target: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "3.5s", begin: "1s" } },
+      { id: "c-bank", source: "anomaly", sourceHandle: "e2", target: "bank", type: "flow", style: EDGE_STYLE, data: { dur: "2.9s", begin: "0.3s" } },
+      { id: "c-arts", source: "anomaly", sourceHandle: "s1", target: "arts", type: "flow", style: EDGE_STYLE, data: { dur: "3.8s", begin: "1.3s" } },
     ],
     [],
   );
@@ -181,9 +145,11 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
 
       <AmbientCursors tier={tier} />
 
+      <FloatPanel drills={drills} />
+
       {tier === "full" && latest?.askSenior && (
         <div className="flow-prompt">
-          <p className="flow-prompt-k">ask trevor tomorrow</p>
+          <p className="flow-prompt-k">system manager · ask tomorrow</p>
           <p className="flow-prompt-v">{latest.askSenior}</p>
         </div>
       )}
@@ -198,14 +164,14 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
   );
 }
 
-/** Ambient collaborator cursors, PicGen style. Trevor only exists on the
- *  personal tier — his name is personal data. Frozen under reduced motion. */
+/** Ambient collaborator cursors, PicGen style. The System Manager cursor only
+ *  exists on the personal tier. Frozen under reduced motion. */
 function AmbientCursors({ tier }: { tier: Tier }) {
   const cursors = useMemo(
     () =>
       tier === "full"
         ? [
-            { name: "Trevor", color: "#d8a94a", x: 24, y: 62 },
+            { name: "SYS MANAGER", color: "#d8a94a", x: 24, y: 62 },
             { name: "Claude", color: "#35e6ff", x: 68, y: 30 },
           ]
         : [{ name: "Claude", color: "#35e6ff", x: 62, y: 34 }],

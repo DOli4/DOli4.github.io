@@ -1,0 +1,26 @@
+{
+  "date": "2026-07-16",
+  "items": [
+    {
+      "title": "Claude Sonnet 5 is out",
+      "what": "Anthropic released Claude Sonnet 5 — stronger long-run coding, tool use and debugging, at a lower price.",
+      "why": "The models devs use daily keep getting better AND cheaper at the same time.",
+      "impact": "Coding assistants get noticeably better at multi-step work. Worth retrying tasks that failed on older models.",
+      "source": "https://llm-stats.com/ai-news"
+    },
+    {
+      "title": "Agent frameworks go to work",
+      "what": "Major platforms shipped agent frameworks businesses can trust with narrow, well-defined jobs.",
+      "why": "AI is moving from answering questions to COMPLETING work end-to-end.",
+      "impact": "Devs who can orchestrate agents (tools, guardrails, retries) become more valuable than devs who just prompt.",
+      "source": "https://www.crescendo.ai/news/latest-ai-news-and-updates"
+    },
+    {
+      "title": "AI catches brain bleeds in seconds",
+      "what": "Hospitals report AI detecting life-threatening conditions like brain hemorrhages on scans before physicians can.",
+      "why": "AI is now trusted in life-critical, regulated domains — not just chatbots.",
+      "impact": "Expect more strict testing, audit trails and accountability questions in every AI job interview.",
+      "source": "https://www.marketingprofs.com/opinions/2026/55247/ai-update-july-10-2026-ai-news-and-views-from-the-past-week"
+    }
+  ]
+}

@@ -33,6 +33,15 @@ function Card({
   );
 }
 
+/** Target port facing the core; side comes from node data so the layout
+ *  decides which edge of the card the cable lands on. */
+function SatPort({ data, blue }: { data: Record<string, unknown>; blue?: boolean }) {
+  const side = (data.tpos as string) ?? "left";
+  const pos =
+    side === "right" ? Position.Right : side === "top" ? Position.Top : side === "bottom" ? Position.Bottom : Position.Left;
+  return <Handle type="target" position={pos} className={`rf-port ${blue ? "blue" : "on"}`} />;
+}
+
 /* --- latest drill (the "Model" of the graph) --- */
 export function DrillNode({ data }: NodeProps) {
   const drill = data.drill as Drill;
@@ -51,8 +60,7 @@ export function DrillNode({ data }: NodeProps) {
         <span className="nd-chip">{(data.count as number)} days</span>
       </div>
       <p className="nd-note">{drill.focus}</p>
-      <Handle type="source" position={Position.Right} id="word" style={{ top: 44 }} className="rf-port on" />
-      <Handle type="source" position={Position.Right} id="bank" style={{ top: 70 }} className="rf-port on" />
+      <SatPort data={data} />
     </Card>
   );
 }
@@ -67,8 +75,7 @@ export function WordNode({ data }: NodeProps) {
       <a className="nd-ghost" href="#/drill/today" data-hover>
         say it out loud, then reveal
       </a>
-      <Handle type="target" position={Position.Left} className="rf-port on" style={{ top: 44 }} />
-      <Handle type="source" position={Position.Right} className="rf-port on" style={{ top: 44 }} />
+      <SatPort data={data} />
     </Card>
   );
 }
@@ -100,8 +107,7 @@ export function BankNode({ data }: NodeProps) {
           </div>
         ))}
       </div>
-      <Handle type="target" position={Position.Left} className="rf-port on" style={{ top: 44 }} />
-      <Handle type="source" position={Position.Right} className="rf-port on" style={{ top: 44 }} />
+      <SatPort data={data} />
     </Card>
   );
 }
@@ -134,8 +140,7 @@ export function StatsNode({ data }: NodeProps) {
         <span>Coverage</span>
         <b className="nd-pct">{pct}%</b>
       </div>
-      <Handle type="target" position={Position.Left} className="rf-port on" style={{ top: 44 }} />
-      <Handle type="source" position={Position.Right} className="rf-port on" style={{ top: 44 }} />
+      <SatPort data={data} />
     </Card>
   );
 }
@@ -170,31 +175,33 @@ export function ArtifactsNode({ data }: NodeProps) {
       <a className="nd-ghost" href="#/drill/artifacts" data-hover>
         open the vault →
       </a>
-      <Handle type="source" position={Position.Right} className="rf-port blue" style={{ top: 44 }} />
+      <SatPort data={data} blue />
     </Card>
   );
 }
 
-/* --- the anomaly as the "Preview Image" node --- */
+/* --- the CORE: the anomaly, big and glowing, every cable starts here --- */
 export function AnomalyNode({ data }: NodeProps) {
   const pct = data.pct as number;
   return (
-    <Card title="Preview · Anomaly" dot="#35e6ff" wide>
-      <div className="nd-anomaly nowheel nodrag">
-        <AnomalyHub nodes={[]} hint="drag to rotate" />
-        <div className="nd-anomaly-cap">
-          <b>Training state</b>
-          <span>{pct}% of must-say words spoken. The mass grows when you talk.</span>
-          <div className="nd-prog">
-            <i style={{ width: `${pct}%` }} />
-          </div>
-        </div>
+    <div className="core">
+      <div className="core-hub nowheel nodrag">
+        <AnomalyHub nodes={[]} hint="" />
       </div>
-      <a className="nd-cta" href="#/drill/today" data-hover>
+      <div className="core-cap nd-hd">
+        <span className="nd-dot" style={{ background: "#35e6ff", boxShadow: "0 0 8px #35e6ff99" }} />
+        ANOMALY · {pct}% spoken
+        <span className="core-prog"><i style={{ width: `${pct}%` }} /></span>
+      </div>
+      <a className="nd-cta core-cta" href="#/drill/today" data-hover>
         open today&rsquo;s drill →
       </a>
-      <Handle type="target" position={Position.Left} id="stats" className="rf-port on" style={{ top: 44 }} />
-      <Handle type="target" position={Position.Left} id="arts" className="rf-port blue" style={{ top: 74 }} />
-    </Card>
+      {/* cables leave from every side */}
+      <Handle type="source" position={Position.Left} id="w1" className="rf-port on" style={{ top: "34%" }} />
+      <Handle type="source" position={Position.Left} id="w2" className="rf-port on" style={{ top: "62%" }} />
+      <Handle type="source" position={Position.Right} id="e1" className="rf-port on" style={{ top: "34%" }} />
+      <Handle type="source" position={Position.Right} id="e2" className="rf-port on" style={{ top: "62%" }} />
+      <Handle type="source" position={Position.Bottom} id="s1" className="rf-port blue" style={{ left: "50%" }} />
+    </div>
   );
 }
