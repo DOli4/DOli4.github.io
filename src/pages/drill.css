@@ -1408,3 +1408,15 @@
 @media (prefers-reduced-motion: reduce) {
   .gate.is-leaving, .gate-anomaly.is-leaving { animation: none; opacity: 0; }
 }
+
+/* the bloom pass renders an opaque square - fade EVERY hub canvas into the
+   void, not just the dashboard core's, and let the gate anomaly glow softly */
+.hub-canvas {
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 50%, transparent 72%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 50%, transparent 72%);
+}
+.gate-anomaly .hub-glow {
+  inset: 8%;
+  background: radial-gradient(circle, rgba(53, 230, 255, 0.13) 0%, transparent 62%);
+  filter: blur(6px);
+}
