@@ -23,6 +23,7 @@ export default function AnomalyHub({
   hint = "drag the anomaly",
   anchorCount = 0,
   onAnchors,
+  spinning = false,
 }: {
   nodes: HubNode[];
   hint?: string;
@@ -30,9 +31,13 @@ export default function AnomalyHub({
   anchorCount?: number;
   /** receives projected {x,y,front} pixel positions - drives the dashboard cables */
   onAnchors?: (pts: { x: number; y: number; front: boolean }[]) => void;
+  /** true = the mass itself revolves (the unlock ceremony) */
+  spinning?: boolean;
 }) {
   const onAnchorsRef = useRef(onAnchors);
   onAnchorsRef.current = onAnchors;
+  const spinningRef = useRef(spinning);
+  spinningRef.current = spinning;
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chipRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -190,6 +195,8 @@ export default function AnomalyHub({
       const t = clock.getElapsedTime();
       // Reduced motion: noise and spin freeze, drag still works, glow stays.
       uniforms.uTime.value = reduced ? 0 : t;
+      // The ceremony spin: one full 3D revolution in ~2.2s, same axis a drag uses.
+      if (spinningRef.current && !reduced) userY += 0.048;
       const idleY = reduced ? 0 : t * 0.1;
       const idleX = reduced ? 0 : Math.sin(t * 0.4) * 0.08;
       group.rotation.y = idleY + userY;

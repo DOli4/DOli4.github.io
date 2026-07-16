@@ -65,7 +65,7 @@ export default function DrillArea({ route }: { route: Route }) {
         setTier(result.tier);
         setBooting(true);
         setTimeout(() => setBooting(false), 1500);
-      }, 1150);
+      }, 2200);
     } finally {
       setBusy(false);
     }
@@ -94,7 +94,7 @@ export default function DrillArea({ route }: { route: Route }) {
       <main className="drill-page">
         <div className="wrap drill-wrap">
           <div className={`gate-anomaly${leaving ? " is-leaving" : ""}`} aria-hidden>
-            <AnomalyHub nodes={[]} hint="" />
+            <AnomalyHub nodes={[]} hint="" spinning={leaving} />
           </div>
           <form
             className={`gate${leaving ? " is-leaving" : ""}`}

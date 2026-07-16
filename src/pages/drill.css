@@ -1400,10 +1400,10 @@
   75% { opacity: 0.55; clip-path: inset(70% 0 2% 0); }
   100% { opacity: 0; clip-path: inset(50% 0 50% 0); transform: translateX(2px); }
 }
-.gate-anomaly.is-leaving { animation: anomaly-dock 1.15s cubic-bezier(0.5, 0, 0.3, 1) both; }
+.gate-anomaly.is-leaving { animation: anomaly-dock 2.2s cubic-bezier(0.5, 0, 0.3, 1) both; }
 @keyframes anomaly-dock {
-  0% { transform: translate(-50%, -50%) rotate(0deg) scale(1); }
-  100% { transform: translate(-50%, -50%) rotate(360deg) scale(0.6); opacity: 1; }
+  0% { transform: translate(-50%, -50%) scale(1); }
+  100% { transform: translate(-50%, -50%) scale(0.6); opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   .gate.is-leaving, .gate-anomaly.is-leaving { animation: none; opacity: 0; }
