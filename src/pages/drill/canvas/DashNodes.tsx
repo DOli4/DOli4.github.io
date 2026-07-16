@@ -1,5 +1,5 @@
 import { useCallback, useRef } from "react";
-import { Handle, Position, useUpdateNodeInternals, type NodeProps } from "@xyflow/react";
+import { Handle, NodeResizer, Position, useUpdateNodeInternals, type NodeProps } from "@xyflow/react";
 import AnomalyHub, { type HubNode } from "../../../components/AnomalyHub";
 import type { Drill, Tier } from "../../../lib/drill-crypto";
 import { hostOf, removeArtifact, type Artifact } from "../../../lib/artifacts";
@@ -25,6 +25,8 @@ function Card({
 }) {
   return (
     <div className={`nd${wide ? " nd-wide" : ""}`}>
+      {/* click a card to select it - the resize handles appear */}
+      <NodeResizer minWidth={190} minHeight={90} lineClassName="nd-rz-line" handleClassName="nd-rz-dot" />
       <div className="nd-hd">
         <span className="nd-dot" style={{ background: dot, boxShadow: `0 0 8px ${dot}99` }} />
         {title}
@@ -229,7 +231,7 @@ export function AnomalyNode({ data }: NodeProps) {
 
   return (
     <div className="core core-bare" ref={wrapRef}>
-      <div className="core-hub nowheel nodrag">
+      <div className="core-hub nowheel nodrag nopan">
         <AnomalyHub nodes={(data.chips as HubNode[]) ?? EMPTY_CHIPS} hint="" anchorCount={anchors} onAnchors={onAnchors} />
       </div>
       {Array.from({ length: anchors }, (_, i) => i).map((i) => (

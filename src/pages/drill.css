@@ -1304,3 +1304,17 @@
 /* cables from the mass to its orbiting artifact chips */
 .hub-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .hub-lines line { stroke: rgba(150, 200, 230, 0.5); stroke-width: 1.2; transition: opacity 0.25s; }
+
+/* --- resizable satellite cards --- */
+.react-flow__node .nd { width: 100%; }
+.react-flow__node[style*="height"] .nd { height: 100%; display: flex; flex-direction: column; }
+.react-flow__node[style*="height"] .nd .nd-bd { flex: 1; overflow-y: auto; min-height: 0; }
+.react-flow__node[style*="height"] .nd .nd-scroll { max-height: none; }
+.nd-rz-line { border-color: rgba(53, 230, 255, 0.5) !important; }
+.nd-rz-dot {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 50% !important;
+  background: var(--cyan) !important;
+  border: 2px solid var(--void) !important;
+}

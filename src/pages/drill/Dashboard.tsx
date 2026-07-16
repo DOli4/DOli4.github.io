@@ -176,49 +176,50 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
  *  exists on the personal tier. Frozen under reduced motion. */
 function AmbientCursors({ tier, ask }: { tier: Tier; ask?: string }) {
   const [openPop, setOpenPop] = useState<string | null>(null);
-  const cursors = useMemo(
-    () =>
-      tier === "full"
-        ? [
-            { name: "SYS MANAGER", color: "#d8a94a", x: 24, y: 62 },
-            { name: "Claude", color: "#35e6ff", x: 68, y: 30 },
-          ]
-        : [{ name: "Claude", color: "#35e6ff", x: 62, y: 34 }],
-    [tier],
-  );
-  const [tick, setTick] = useState(0);
+  const [pos, setPos] = useState<Record<string, { x: number; y: number }>>(() => {
+    try { return JSON.parse(localStorage.getItem("dash-cursors") ?? "{}"); } catch { return {}; }
+  });
+  const cursors = tier === "full"
+    ? [{ name: "SYS MANAGER", color: "#d8a94a", x: 180, y: 520 }, { name: "Claude", color: "#35e6ff", x: 540, y: 200 }]
+    : [{ name: "Claude", color: "#35e6ff", x: 500, y: 260 }];
 
-  useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const iv = setInterval(() => setTick((t) => t + 1), 2200);
-    return () => clearInterval(iv);
-  }, []);
+  function drag(e: React.PointerEvent, name: string, def: { x: number; y: number }) {
+    const start = pos[name] ?? def;
+    const sx = e.clientX, sy = e.clientY;
+    let moved = false;
+    const onMove = (ev: PointerEvent) => {
+      moved = true;
+      setPos((p) => {
+        const next = { ...p, [name]: { x: start.x + ev.clientX - sx, y: start.y + ev.clientY - sy } };
+        localStorage.setItem("dash-cursors", JSON.stringify(next));
+        return next;
+      });
+    };
+    const onUp = () => {
+      removeEventListener("pointermove", onMove);
+      removeEventListener("pointerup", onUp);
+      if (!moved) setOpenPop((o) => (o === name ? null : name));
+    };
+    addEventListener("pointermove", onMove, { passive: true });
+    addEventListener("pointerup", onUp, { passive: true });
+  }
 
   return (
     <>
-      {cursors.map((c, i) => {
-        const dx = Math.sin(tick * 1.3 + i * 2.1) * 26;
-        const dy = Math.cos(tick * 0.9 + i * 1.7) * 18;
-        const pop =
-          c.name === "SYS MANAGER"
-            ? { k: "system manager · ask tomorrow", v: ask ?? "No question today." }
-            : {
-                k: "claude · prompting tip",
-                v: "Shape it: ROLE → CONTEXT → TASK → FORMAT. Then iterate — point at the wrong bit instead of rewriting.",
-              };
+      {cursors.map((c) => {
+        const p = pos[c.name] ?? { x: c.x, y: c.y };
+        const pop = c.name === "SYS MANAGER"
+          ? { k: "system manager · ask tomorrow", v: ask ?? "No question today." }
+          : { k: "claude · prompting tip", v: "Shape it: ROLE → CONTEXT → TASK → FORMAT. Then iterate — point at the wrong bit instead of rewriting." };
         return (
-          <div
-            key={c.name}
-            className="flow-cursor flow-cursor-live"
-            style={{ left: `${c.x}%`, top: `${c.y}%`, transform: `translate(${dx}px, ${dy}px)` }}
-            onClick={() => setOpenPop(openPop === c.name ? null : c.name)}
-          >
+          <div key={c.name} className="flow-cursor flow-cursor-live" style={{ left: p.x, top: p.y }}
+            onPointerDown={(e) => drag(e, c.name, { x: c.x, y: c.y })}>
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path d="M5 3l14 6.5-6 1.8-2.2 5.9L5 3z" fill={c.color} stroke="#05060a" strokeWidth="1" />
             </svg>
             <span style={{ background: c.color }}>{c.name}</span>
             {openPop === c.name && (
-              <div className="cursor-pop" onClick={(e) => e.stopPropagation()}>
+              <div className="cursor-pop" onPointerDown={(e) => e.stopPropagation()}>
                 <p className="flow-prompt-k">{pop.k}</p>
                 <p className="flow-prompt-v">{pop.v}</p>
               </div>
