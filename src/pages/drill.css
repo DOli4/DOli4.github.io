@@ -1186,3 +1186,44 @@
   -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 50%, transparent 73%);
   mask-image: radial-gradient(circle at 50% 50%, #000 50%, transparent 73%);
 }
+
+/* --- v4.1: boxless core, riding anchors, glassier panels --- */
+
+/* anchor dots ON the anomaly - React Flow handles that move every frame.
+   right/bottom must release so left/top from inline style win. */
+.flow-wrap .react-flow__handle.rf-anchor {
+  right: auto !important;
+  bottom: auto !important;
+  transform: translate(-50%, -50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--cyan);
+  border: 2px solid rgba(5, 6, 10, 0.9);
+  box-shadow: 0 0 10px rgba(53, 230, 255, 0.8);
+  transition: opacity 0.2s;
+}
+.flow-wrap .react-flow__handle.rf-anchor.is-back { opacity: 0.25; box-shadow: none; }
+
+/* the core is bare - no card, just the mass */
+.core-bare { pointer-events: none; }
+.core-bare .core-hub { pointer-events: auto; }
+.core-hub .hub-glow {
+  inset: 10%;
+  background: radial-gradient(circle, rgba(53, 230, 255, 0.07) 0%, transparent 60%);
+}
+
+/* glassier, more see-through popups */
+.intel {
+  background: rgba(13, 16, 23, 0.42);
+  backdrop-filter: blur(28px) saturate(140%);
+  -webkit-backdrop-filter: blur(28px) saturate(140%);
+  border-color: rgba(255, 255, 255, 0.16);
+}
+.intel-card { background: rgba(255, 255, 255, 0.05); }
+.flow-prompt {
+  background: rgba(13, 16, 23, 0.45);
+  backdrop-filter: blur(26px) saturate(140%);
+  -webkit-backdrop-filter: blur(26px) saturate(140%);
+  border-color: rgba(255, 255, 255, 0.14);
+}

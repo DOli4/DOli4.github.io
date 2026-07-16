@@ -21,10 +21,18 @@ export type HubNode = {
 export default function AnomalyHub({
   nodes,
   hint = "drag the anomaly",
+  anchorCount = 0,
+  onAnchors,
 }: {
   nodes: HubNode[];
   hint?: string;
+  /** number of surface anchor points to project each frame */
+  anchorCount?: number;
+  /** receives projected {x,y,front} pixel positions - drives the dashboard cables */
+  onAnchors?: (pts: { x: number; y: number; front: boolean }[]) => void;
 }) {
+  const onAnchorsRef = useRef(onAnchors);
+  onAnchorsRef.current = onAnchors;
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chipRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -45,7 +53,7 @@ export default function AnomalyHub({
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
-    const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.5, 0.55, 0.32);
+    const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.3, 0.5, 0.4);
     composer.addPass(bloom);
 
     const uniforms = {
@@ -119,6 +127,20 @@ export default function AnomalyHub({
     group.add(mesh, core);
     scene.add(group);
 
+    // Surface anchors that ride the rotation - the dashboard's cables attach here.
+    const AR = 1.72;
+    const surface = Array.from({ length: anchorCount }, (_, i) => {
+      const t = anchorCount === 1 ? 0.5 : i / Math.max(1, anchorCount - 1);
+      const phi = Math.acos(1 - 2 * (0.2 + 0.6 * t));
+      const theta = i * 2.399963;
+      return new THREE.Vector3(
+        AR * Math.sin(phi) * Math.cos(theta),
+        AR * Math.cos(phi),
+        AR * Math.sin(phi) * Math.sin(theta),
+      );
+    });
+    let frame = 0;
+
     // Anchors for the optional orbiting link chips.
     const R = 2.15;
     const anchors = nodes.map((_, i) => {
@@ -176,6 +198,19 @@ export default function AnomalyHub({
 
       const w = wrap.clientWidth;
       group.updateMatrixWorld();
+
+      // Report the rotating surface anchors every other frame.
+      if (onAnchorsRef.current && surface.length && frame++ % 2 === 0) {
+        onAnchorsRef.current(
+          surface.map((a) => {
+            world.copy(a).applyMatrix4(group.matrixWorld);
+            const front = world.z > -0.2;
+            world.project(camera);
+            return { x: (world.x * 0.5 + 0.5) * w, y: (-world.y * 0.5 + 0.5) * w, front };
+          }),
+        );
+      }
+
       anchors.forEach((a, i) => {
         const chip = chipRefs.current[i];
         if (!chip) return;
@@ -203,7 +238,7 @@ export default function AnomalyHub({
       composer.dispose();
       renderer.dispose();
     };
-  }, [nodes]);
+  }, [nodes, anchorCount]);
 
   return (
     <div className="hub" ref={wrapRef} aria-label="The anomaly — drag to rotate">

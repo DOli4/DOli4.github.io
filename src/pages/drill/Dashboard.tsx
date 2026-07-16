@@ -81,7 +81,7 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
   const pct = stats.mustSayTotal === 0 ? 0 : Math.round((stats.saidCount / stats.mustSayTotal) * 100);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
-    { id: "anomaly", type: "anomaly", position: { x: 560, y: 160 }, dragHandle: ".nd-hd", data: { pct } },
+    { id: "anomaly", type: "anomaly", position: { x: 560, y: 160 }, draggable: false, data: {} },
     { id: "drill", type: "drill", position: { x: 120, y: 60 }, dragHandle: ".nd-hd", data: { drill: latest, count: drills.length, tpos: "right" } },
     { id: "word", type: "word", position: { x: 90, y: 460 }, dragHandle: ".nd-hd", data: { drill: latest, tpos: "right" } },
     { id: "stats", type: "stats", position: { x: 1120, y: 40 }, dragHandle: ".nd-hd", data: { stats, tpos: "left" } },
@@ -105,7 +105,7 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
           case "arts":
             return { ...n, data: { ...n.data, artifacts, tier, onChange: setAllArtifacts } };
           case "anomaly":
-            return { ...n, data: { pct } };
+            return n;
           default:
             return n;
         }
@@ -115,11 +115,11 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
 
   const edges = useMemo<Edge[]>(
     () => [
-      { id: "c-drill", source: "anomaly", sourceHandle: "w1", target: "drill", type: "flow", style: EDGE_STYLE, data: { dur: "3.2s" } },
-      { id: "c-word", source: "anomaly", sourceHandle: "w2", target: "word", type: "flow", style: EDGE_STYLE, data: { dur: "2.7s", begin: "0.5s" } },
-      { id: "c-stats", source: "anomaly", sourceHandle: "e1", target: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "3.5s", begin: "1s" } },
-      { id: "c-bank", source: "anomaly", sourceHandle: "e2", target: "bank", type: "flow", style: EDGE_STYLE, data: { dur: "2.9s", begin: "0.3s" } },
-      { id: "c-arts", source: "anomaly", sourceHandle: "s1", target: "arts", type: "flow", style: EDGE_STYLE, data: { dur: "3.8s", begin: "1.3s" } },
+      { id: "c-drill", source: "anomaly", sourceHandle: "a0", target: "drill", type: "flow", style: EDGE_STYLE, data: { dur: "3.2s" } },
+      { id: "c-word", source: "anomaly", sourceHandle: "a1", target: "word", type: "flow", style: EDGE_STYLE, data: { dur: "2.7s", begin: "0.5s" } },
+      { id: "c-stats", source: "anomaly", sourceHandle: "a2", target: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "3.5s", begin: "1s" } },
+      { id: "c-bank", source: "anomaly", sourceHandle: "a3", target: "bank", type: "flow", style: EDGE_STYLE, data: { dur: "2.9s", begin: "0.3s" } },
+      { id: "c-arts", source: "anomaly", sourceHandle: "a4", target: "arts", type: "flow", style: EDGE_STYLE, data: { dur: "3.8s", begin: "1.3s" } },
     ],
     [],
   );

@@ -131,10 +131,10 @@ export default function FloatPanel({ drills }: { drills: Drill[] }) {
         <span className="intel-title">INTEL</span>
         <nav className="intel-tabs">
           <button className={tab === "news" ? "is-on" : ""} onClick={() => setTab("news")} data-hover>
-            AI news
+            News
           </button>
           <button className={tab === "prompts" ? "is-on" : ""} onClick={() => setTab("prompts")} data-hover>
-            Prompting
+            Intel
           </button>
         </nav>
         <button className="intel-x" onClick={() => setOpen(false)} aria-label="Close panel" data-hover>

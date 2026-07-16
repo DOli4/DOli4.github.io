@@ -1,5 +1,6 @@
-import { Handle, Position, type NodeProps } from "@xyflow/react";
-import AnomalyHub from "../../../components/AnomalyHub";
+import { useCallback, useRef } from "react";
+import { Handle, Position, useUpdateNodeInternals, type NodeProps } from "@xyflow/react";
+import AnomalyHub, { type HubNode } from "../../../components/AnomalyHub";
 import type { Drill, Tier } from "../../../lib/drill-crypto";
 import { hostOf, removeArtifact, type Artifact } from "../../../lib/artifacts";
 import { ArtifactQuickAdd } from "../ArtifactQuickAdd";
@@ -180,28 +181,49 @@ export function ArtifactsNode({ data }: NodeProps) {
   );
 }
 
-/* --- the CORE: the anomaly, big and glowing, every cable starts here --- */
-export function AnomalyNode({ data }: NodeProps) {
-  const pct = data.pct as number;
+/* --- the CORE: the anomaly, boxless and centered. The five cable anchors
+   are points ON the rotating mass: the hub projects them each frame, the
+   handles move to match, and updateNodeInternals makes the edges follow. --- */
+const EMPTY_CHIPS: HubNode[] = []; // stable — a fresh [] each render re-runs the hub's effect forever
+
+export function AnomalyNode() {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const tick = useRef(0);
+  const updateInternals = useUpdateNodeInternals();
+
+  // Hot path at ~30/s: move the anchor DOM directly (no React state), and
+  // only ask React Flow to re-measure the handles every few frames.
+  const onAnchors = useCallback(
+    (pts: { x: number; y: number; front: boolean }[]) => {
+      const els = wrapRef.current?.querySelectorAll<HTMLElement>(".rf-anchor");
+      if (!els) return;
+      pts.forEach((p, i) => {
+        const el = els[i];
+        if (!el) return;
+        el.style.left = `${p.x}px`;
+        el.style.top = `${p.y}px`;
+        el.style.opacity = p.front ? "1" : "0.25";
+      });
+      if (tick.current++ % 4 === 0) updateInternals("anomaly");
+    },
+    [updateInternals],
+  );
+
   return (
-    <div className="core">
+    <div className="core core-bare" ref={wrapRef}>
       <div className="core-hub nowheel nodrag">
-        <AnomalyHub nodes={[]} hint="" />
+        <AnomalyHub nodes={EMPTY_CHIPS} hint="" anchorCount={5} onAnchors={onAnchors} />
       </div>
-      <div className="core-cap nd-hd">
-        <span className="nd-dot" style={{ background: "#35e6ff", boxShadow: "0 0 8px #35e6ff99" }} />
-        ANOMALY · {pct}% spoken
-        <span className="core-prog"><i style={{ width: `${pct}%` }} /></span>
-      </div>
-      <a className="nd-cta core-cta" href="#/drill/today" data-hover>
-        open today&rsquo;s drill →
-      </a>
-      {/* cables leave from every side */}
-      <Handle type="source" position={Position.Left} id="w1" className="rf-port on" style={{ top: "34%" }} />
-      <Handle type="source" position={Position.Left} id="w2" className="rf-port on" style={{ top: "62%" }} />
-      <Handle type="source" position={Position.Right} id="e1" className="rf-port on" style={{ top: "34%" }} />
-      <Handle type="source" position={Position.Right} id="e2" className="rf-port on" style={{ top: "62%" }} />
-      <Handle type="source" position={Position.Bottom} id="s1" className="rf-port blue" style={{ left: "50%" }} />
+      {[0, 1, 2, 3, 4].map((i) => (
+        <Handle
+          key={i}
+          type="source"
+          id={`a${i}`}
+          position={Position.Right}
+          isConnectable={false}
+          className="rf-anchor"
+        />
+      ))}
     </div>
   );
 }
