@@ -162,6 +162,7 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
 
       <FloatPanel drills={drills} />
 
+      <LiveStats />
       <div className="flow-stats">
         <div>D: <b>{stats.days}</b></div>
         <div>Q: <b>{stats.questions}</b></div>
@@ -174,6 +175,37 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
 
 /** Ambient collaborator cursors, PicGen style. The System Manager cursor only
  *  exists on the personal tier. Frozen under reduced motion. */
+/** Moving telemetry: real render FPS and real ping to the site's own host. */
+function LiveStats() {
+  const [fps, setFps] = useState(0);
+  const [ping, setPing] = useState<number | null>(null);
+  useEffect(() => {
+    let frames = 0, raf = 0, last = performance.now(), alive = true;
+    const loop = (t: number) => {
+      frames++;
+      if (t - last >= 1000) { setFps(frames); frames = 0; last = t; }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    const measure = async () => {
+      const t0 = performance.now();
+      try {
+        await fetch("news.json", { method: "HEAD", cache: "no-store" });
+        if (alive) setPing(Math.round(performance.now() - t0));
+      } catch { if (alive) setPing(null); }
+    };
+    void measure();
+    const iv = setInterval(measure, 4000);
+    return () => { alive = false; cancelAnimationFrame(raf); clearInterval(iv); };
+  }, []);
+  return (
+    <div className="flow-stats flow-stats-live">
+      <div>FPS: <b>{fps}</b></div>
+      <div>PING: <b>{ping === null ? "—" : `${ping}ms`}</b></div>
+    </div>
+  );
+}
+
 function AmbientCursors({ tier, ask }: { tier: Tier; ask?: string }) {
   const [openPop, setOpenPop] = useState<string | null>(null);
   const [pos, setPos] = useState<Record<string, { x: number; y: number }>>(() => {

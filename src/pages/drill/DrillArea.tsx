@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import GlitchText from "../../components/GlitchText";
+import AnomalyHub from "../../components/AnomalyHub";
 import { unlockAny, type Drill, type Tier } from "../../lib/drill-crypto";
 import type { Route } from "../../router";
 import Dashboard from "./Dashboard";
@@ -33,6 +34,8 @@ export default function DrillArea({ route }: { route: Route }) {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const [missing, setMissing] = useState(false);
+  const [leaving, setLeaving] = useState(false);
+  const [booting, setBooting] = useState(false);
 
   async function unlock(password: string, quiet = false) {
     setBusy(true);
@@ -48,9 +51,21 @@ export default function DrillArea({ route }: { route: Route }) {
         if (!quiet) setError("Wrong password.");
         return;
       }
-      setDrills(result.drills);
-      setTier(result.tier);
       sessionStorage.setItem(SESSION_KEY, password);
+      if (quiet) {
+        setDrills(result.drills);
+        setTier(result.tier);
+        return;
+      }
+      // The anomaly accepts: gate fades and zooms away, then the UI
+      // glitch-loads in around it.
+      setLeaving(true);
+      setTimeout(() => {
+        setDrills(result.drills);
+        setTier(result.tier);
+        setBooting(true);
+        setTimeout(() => setBooting(false), 1500);
+      }, 650);
     } finally {
       setBusy(false);
     }
@@ -78,8 +93,11 @@ export default function DrillArea({ route }: { route: Route }) {
     return (
       <main className="drill-page">
         <div className="wrap drill-wrap">
+          <div className="gate-anomaly" aria-hidden>
+            <AnomalyHub nodes={[]} hint="" />
+          </div>
           <form
-            className="gate"
+            className={`gate${leaving ? " is-leaving" : ""}`}
             onSubmit={(e) => {
               e.preventDefault();
               void unlock(pass);
@@ -122,7 +140,7 @@ export default function DrillArea({ route }: { route: Route }) {
   }
 
   return (
-    <main className="drill-page">
+    <main className={`drill-page${booting ? " is-booting" : ""}`}>
       <nav className={`edge-nav${navH ? " is-h" : ""}${navHidden ? " is-hidden" : ""}`} aria-label="Pages">
         <button className="edge-tab edge-switch" onClick={foldNav} title={navHidden ? "Show menu" : "Hide menu"} data-hover>
           {navHidden ? "☰" : "✕"}
@@ -132,11 +150,11 @@ export default function DrillArea({ route }: { route: Route }) {
             ⇄
           </button>
         )}
-        {!navHidden && <a href="#/" className="edge-tab" data-hover>CV</a>}
+        {!navHidden && <a href="#/" className="edge-tab edge-ext" data-hover>CV</a>}
         {!navHidden && <a href="#/drill" className={`edge-tab${route === "drill" ? " is-on" : ""}`} data-hover>Dashboard</a>}
         {!navHidden && <a href="#/drill/today" className={`edge-tab${route === "drill-today" ? " is-on" : ""}`} data-hover>Today&rsquo;s drill</a>}
         {!navHidden && <a href="#/drill/artifacts" className={`edge-tab${route === "drill-artifacts" ? " is-on" : ""}`} data-hover>Artifacts</a>}
-        {!navHidden && <a href="#/shake" className="edge-tab" data-hover>Shake</a>}
+        {!navHidden && <a href="#/shake" className="edge-tab edge-ext" data-hover>Shake</a>}
         {!navHidden && tier === "open" && <span className="tier-badge edge-badge">GUEST</span>}
       </nav>
 
