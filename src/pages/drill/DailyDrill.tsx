@@ -151,7 +151,9 @@ function Question({
   );
 
   function toggle(w: string) {
-    const next = { ...said, [keyFor(w)]: !said[keyFor(w)] };
+    // Re-read before writing: sync (or another Question) may have updated
+    // the map since this component mounted — never stomp it with stale state.
+    const next = { ...loadSaid(), [keyFor(w)]: !said[keyFor(w)] };
     setSaid(next);
     localStorage.setItem(SAID_KEY, JSON.stringify(next));
   }

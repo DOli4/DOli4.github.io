@@ -7,6 +7,7 @@ import Dashboard from "./Dashboard";
 import DailyDrill from "./DailyDrill";
 import Artifacts from "./Artifacts";
 import Mentor from "./mentor/Mentor";
+import SyncWidget from "./SyncWidget";
 import "../drill.css";
 
 const SESSION_KEY = "drill-pass";
@@ -164,6 +165,10 @@ export default function DrillArea({ route }: { route: Route }) {
       {route === "drill-today" && <DailyDrill drills={drills} />}
       {route === "drill-artifacts" && <Artifacts tier={tier} />}
       {route === "drill-mentor" && <Mentor />}
+
+      {/* git-backed sync pill: only on the personal tier — guests never
+          see the token flow or the private repo */}
+      {tier === "full" && <SyncWidget />}
     </main>
   );
 }

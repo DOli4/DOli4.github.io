@@ -1442,3 +1442,31 @@
   font-size: 10.5px;
   padding: 4px 8px;
 }
+
+/* --- git sync pill + window --- */
+.sync-pill {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 30;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.2em;
+  padding: 8px 18px;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  background: rgba(10, 13, 20, 0.8);
+  backdrop-filter: blur(8px);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.sync-pill:hover { color: var(--ink); border-color: var(--cyan-deep); box-shadow: 0 0 22px -6px rgba(53, 230, 255, 0.6); }
+.sync-pill.is-linked { color: var(--cyan); border-color: var(--cyan-deep); }
+.sync-last { margin-top: 8px; font-family: var(--mono); font-size: 9.5px; color: var(--ink-faint); }
+.sync-ok { margin-top: 6px; font-size: 11.5px; color: var(--ok, #7bdf8f); }
+.sync-pill.is-err { color: var(--err); border-color: var(--err); }
