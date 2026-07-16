@@ -1227,3 +1227,80 @@
   -webkit-backdrop-filter: blur(26px) saturate(140%);
   border-color: rgba(255, 255, 255, 0.14);
 }
+
+/* --- v4.2: edge nav, chip satellites, cursor popups --- */
+#root:has(.drill-page) .hud-top .page-tabs { display: none; }
+.edge-nav {
+  position: fixed;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.edge-tab {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  padding: 13px 8px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-decoration: none;
+  background: rgba(13, 16, 23, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  border-left: none;
+  border-radius: 0 10px 10px 0;
+}
+.edge-tab:hover { color: var(--ink); border-color: var(--line-bright); }
+.edge-tab.is-on {
+  color: var(--cyan);
+  border-color: var(--cyan-deep);
+  box-shadow: 0 0 20px -6px rgba(53, 230, 255, 0.5);
+}
+.edge-badge { writing-mode: vertical-rl; transform: rotate(180deg); align-self: flex-start; margin-left: 4px; }
+.drill-page:has(.flow-wrap) .edge-nav { z-index: 30; }
+/* the old sticky subnav is gone; give scrolling drill pages their padding back */
+.drill-page:not(:has(.flow-wrap)) { padding-top: 110px; }
+
+.chip-node {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  color: var(--ink);
+  text-decoration: none;
+  background: rgba(13, 16, 23, 0.55);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+.chip-node:hover { color: var(--cyan); border-color: var(--cyan); }
+
+.flow-cursor-live { pointer-events: auto; cursor: pointer; }
+.cursor-pop {
+  position: absolute;
+  left: 18px;
+  top: 26px;
+  width: 280px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: rgba(13, 16, 23, 0.45);
+  backdrop-filter: blur(26px) saturate(140%);
+  -webkit-backdrop-filter: blur(26px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.85);
+  cursor: default;
+}
+
+/* cables from the mass to its orbiting artifact chips */
+.hub-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.hub-lines line { stroke: rgba(150, 200, 230, 0.5); stroke-width: 1.2; transition: opacity 0.25s; }

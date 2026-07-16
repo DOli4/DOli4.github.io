@@ -19,6 +19,7 @@ import DotEdge from "./canvas/DotEdge";
 import FloatPanel from "./canvas/FloatPanel";
 import {
   AnomalyNode,
+  ChipNode,
   ArtifactsNode,
   BankNode,
   DrillNode,
@@ -45,6 +46,7 @@ const nodeTypes = {
   stats: StatsNode,
   arts: ArtifactsNode,
   anomaly: AnomalyNode,
+  chip: ChipNode,
 };
 const edgeTypes = { flow: DotEdge };
 
@@ -60,6 +62,19 @@ const EDGE_STYLE = { stroke: "rgba(150, 190, 220, 0.35)", strokeWidth: 1.4 };
 export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tier }) {
   const [allArtifacts, setAllArtifacts] = useState<Artifact[]>(loadArtifacts);
   const artifacts = visibleArtifacts(allArtifacts, tier);
+  // Shareable (non-personal) artifacts become satellite chips on the canvas.
+  const chips = allArtifacts.filter((a) => !a.personal).slice(0, 4);
+  const hubChips = useMemo(
+    () =>
+      chips.map((a) => ({
+        id: a.id,
+        label: a.title.length > 16 ? `${a.title.slice(0, 15)}…` : a.title,
+        href: a.url,
+        external: true,
+      })),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [JSON.stringify(chips.map((a) => a.id + a.title + a.url))],
+  );
   const latest = drills[0];
 
   const stats = useMemo(() => {
@@ -81,7 +96,7 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
   const pct = stats.mustSayTotal === 0 ? 0 : Math.round((stats.saidCount / stats.mustSayTotal) * 100);
 
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
-    { id: "anomaly", type: "anomaly", position: { x: 560, y: 160 }, draggable: false, data: {} },
+    { id: "anomaly", type: "anomaly", position: { x: 560, y: 160 }, draggable: false, data: { anchors: 5, chips: hubChips } },
     { id: "drill", type: "drill", position: { x: 120, y: 60 }, dragHandle: ".nd-hd", data: { drill: latest, count: drills.length, tpos: "right" } },
     { id: "word", type: "word", position: { x: 90, y: 460 }, dragHandle: ".nd-hd", data: { drill: latest, tpos: "right" } },
     { id: "stats", type: "stats", position: { x: 1120, y: 40 }, dragHandle: ".nd-hd", data: { stats, tpos: "left" } },
@@ -105,13 +120,13 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
           case "arts":
             return { ...n, data: { ...n.data, artifacts, tier, onChange: setAllArtifacts } };
           case "anomaly":
-            return n;
+            return { ...n, data: { anchors: 5, chips: hubChips } };
           default:
             return n;
         }
       }),
     );
-  }, [drills, latest, stats, artifacts, tier, pct, setNodes]);
+  }, [drills, latest, stats, artifacts, tier, pct, hubChips, setNodes]);
 
   const edges = useMemo<Edge[]>(
     () => [
@@ -143,16 +158,9 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
         <Controls position="bottom-left" showInteractive={false} />
       </ReactFlow>
 
-      <AmbientCursors tier={tier} />
+      <AmbientCursors tier={tier} ask={latest?.askSenior} />
 
       <FloatPanel drills={drills} />
-
-      {tier === "full" && latest?.askSenior && (
-        <div className="flow-prompt">
-          <p className="flow-prompt-k">system manager · ask tomorrow</p>
-          <p className="flow-prompt-v">{latest.askSenior}</p>
-        </div>
-      )}
 
       <div className="flow-stats">
         <div>D: <b>{stats.days}</b></div>
@@ -166,7 +174,8 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
 
 /** Ambient collaborator cursors, PicGen style. The System Manager cursor only
  *  exists on the personal tier. Frozen under reduced motion. */
-function AmbientCursors({ tier }: { tier: Tier }) {
+function AmbientCursors({ tier, ask }: { tier: Tier; ask?: string }) {
+  const [openPop, setOpenPop] = useState<string | null>(null);
   const cursors = useMemo(
     () =>
       tier === "full"
@@ -190,16 +199,30 @@ function AmbientCursors({ tier }: { tier: Tier }) {
       {cursors.map((c, i) => {
         const dx = Math.sin(tick * 1.3 + i * 2.1) * 26;
         const dy = Math.cos(tick * 0.9 + i * 1.7) * 18;
+        const pop =
+          c.name === "SYS MANAGER"
+            ? { k: "system manager · ask tomorrow", v: ask ?? "No question today." }
+            : {
+                k: "claude · prompting tip",
+                v: "Shape it: ROLE → CONTEXT → TASK → FORMAT. Then iterate — point at the wrong bit instead of rewriting.",
+              };
         return (
           <div
             key={c.name}
-            className="flow-cursor"
+            className="flow-cursor flow-cursor-live"
             style={{ left: `${c.x}%`, top: `${c.y}%`, transform: `translate(${dx}px, ${dy}px)` }}
+            onClick={() => setOpenPop(openPop === c.name ? null : c.name)}
           >
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path d="M5 3l14 6.5-6 1.8-2.2 5.9L5 3z" fill={c.color} stroke="#05060a" strokeWidth="1" />
             </svg>
             <span style={{ background: c.color }}>{c.name}</span>
+            {openPop === c.name && (
+              <div className="cursor-pop" onClick={(e) => e.stopPropagation()}>
+                <p className="flow-prompt-k">{pop.k}</p>
+                <p className="flow-prompt-v">{pop.v}</p>
+              </div>
+            )}
           </div>
         );
       })}

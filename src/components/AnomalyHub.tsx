@@ -36,6 +36,7 @@ export default function AnomalyHub({
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chipRefs = useRef<(HTMLAnchorElement | null)[]>([]);
+  const lineRefs = useRef<(SVGLineElement | null)[]>([]);
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -217,10 +218,24 @@ export default function AnomalyHub({
         world.copy(a).applyMatrix4(group.matrixWorld);
         const front = world.z > -0.4;
         world.project(camera);
-        chip.style.left = `${(world.x * 0.5 + 0.5) * w}px`;
-        chip.style.top = `${(-world.y * 0.5 + 0.5) * w}px`;
+        const cx = (world.x * 0.5 + 0.5) * w;
+        const cy = (-world.y * 0.5 + 0.5) * w;
+        chip.style.left = `${cx}px`;
+        chip.style.top = `${cy}px`;
         chip.style.opacity = front ? "1" : "0.18";
         chip.style.pointerEvents = front ? "auto" : "none";
+        // Cable: from the point ON the mass surface (same direction, ~72%
+        // of the orbit radius) out to the chip. Both ends ride the rotation.
+        const line = lineRefs.current[i];
+        if (line) {
+          world.copy(a).multiplyScalar(0.72).applyMatrix4(group.matrixWorld);
+          world.project(camera);
+          line.setAttribute("x1", String((world.x * 0.5 + 0.5) * w));
+          line.setAttribute("y1", String((-world.y * 0.5 + 0.5) * w));
+          line.setAttribute("x2", String(cx));
+          line.setAttribute("y2", String(cy));
+          line.style.opacity = front ? "0.7" : "0.12";
+        }
       });
     };
     tick();
@@ -244,6 +259,13 @@ export default function AnomalyHub({
     <div className="hub" ref={wrapRef} aria-label="The anomaly — drag to rotate">
       <div className="hub-glow" aria-hidden />
       <canvas ref={canvasRef} className="hub-canvas" />
+      {nodes.length > 0 && (
+        <svg className="hub-lines" aria-hidden>
+          {nodes.map((n, i) => (
+            <line key={n.id} ref={(el) => (lineRefs.current[i] = el)} />
+          ))}
+        </svg>
+      )}
       {nodes.map((n, i) => (
         <a
           key={n.id}

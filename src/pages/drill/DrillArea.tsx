@@ -113,25 +113,13 @@ export default function DrillArea({ route }: { route: Route }) {
 
   return (
     <main className="drill-page">
-      <nav className="subnav" aria-label="Drill pages">
-        <a href="#/drill" className={`subtab${route === "drill" ? " is-on" : ""}`} data-hover>
-          Dashboard
-        </a>
-        <a
-          href="#/drill/today"
-          className={`subtab${route === "drill-today" ? " is-on" : ""}`}
-          data-hover
-        >
-          Today&rsquo;s drill
-        </a>
-        <a
-          href="#/drill/artifacts"
-          className={`subtab${route === "drill-artifacts" ? " is-on" : ""}`}
-          data-hover
-        >
-          Artifacts
-        </a>
-        {tier === "open" && <span className="tier-badge">GUEST</span>}
+      <nav className="edge-nav" aria-label="Pages">
+        <a href="#/" className="edge-tab" data-hover>CV</a>
+        <a href="#/drill" className={`edge-tab${route === "drill" ? " is-on" : ""}`} data-hover>Dashboard</a>
+        <a href="#/drill/today" className={`edge-tab${route === "drill-today" ? " is-on" : ""}`} data-hover>Today&rsquo;s drill</a>
+        <a href="#/drill/artifacts" className={`edge-tab${route === "drill-artifacts" ? " is-on" : ""}`} data-hover>Artifacts</a>
+        <a href="#/shake" className="edge-tab" data-hover>Shake</a>
+        {tier === "open" && <span className="tier-badge edge-badge">GUEST</span>}
       </nav>
 
       {route === "drill" && <Dashboard drills={drills} tier={tier} />}

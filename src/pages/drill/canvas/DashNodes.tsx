@@ -186,7 +186,25 @@ export function ArtifactsNode({ data }: NodeProps) {
    handles move to match, and updateNodeInternals makes the edges follow. --- */
 const EMPTY_CHIPS: HubNode[] = []; // stable — a fresh [] each render re-runs the hub's effect forever
 
-export function AnomalyNode() {
+/* --- small satellite chip: a shareable artifact link cabled to the core --- */
+export function ChipNode({ data }: NodeProps) {
+  return (
+    <a
+      className="chip-node"
+      href={data.url as string}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-hover
+    >
+      <span className="hub-node-dot" aria-hidden />
+      {data.title as string}
+      <SatPort data={data} />
+    </a>
+  );
+}
+
+export function AnomalyNode({ data }: NodeProps) {
+  const anchors = (data.anchors as number) ?? 5;
   const wrapRef = useRef<HTMLDivElement>(null);
   const tick = useRef(0);
   const updateInternals = useUpdateNodeInternals();
@@ -212,9 +230,9 @@ export function AnomalyNode() {
   return (
     <div className="core core-bare" ref={wrapRef}>
       <div className="core-hub nowheel nodrag">
-        <AnomalyHub nodes={EMPTY_CHIPS} hint="" anchorCount={5} onAnchors={onAnchors} />
+        <AnomalyHub nodes={(data.chips as HubNode[]) ?? EMPTY_CHIPS} hint="" anchorCount={anchors} onAnchors={onAnchors} />
       </div>
-      {[0, 1, 2, 3, 4].map((i) => (
+      {Array.from({ length: anchors }, (_, i) => i).map((i) => (
         <Handle
           key={i}
           type="source"
