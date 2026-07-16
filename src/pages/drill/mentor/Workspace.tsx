@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import GlassWin, { loadLayout, type Box } from "../canvas/GlassWin";
-import { analyseCode, clearApiKey, getApiKey, setApiKey, type MentorChip, type MentorReview } from "../../../lib/mentor-claude";
+import { analyseCode, clearApiKey, getApiKey, KIND_COLOR, setApiKey, type MentorChip, type MentorReview } from "../../../lib/mentor-claude";
 import { FINISH_BONUS, FINISH_SCORE } from "./xp";
 import { addHistory, type HistoryEntry } from "./history";
 import type { Challenge } from "./challenges";
@@ -8,12 +8,6 @@ import type { Challenge } from "./challenges";
 const LAYOUT_KEY = "mentor-layout-v1";
 type UidChip = MentorChip & { uid: string };
 type UidReview = Omit<MentorReview, "chips"> & { chips: UidChip[] };
-const KIND_COLOR: Record<MentorChip["kind"], string> = {
-  bug: "#e05b5b",
-  smell: "#d8a94a",
-  pattern: "#35e6ff",
-  style: "#7bdf8f",
-};
 
 /** One teaching chip's body: short line first, expand for the lesson. */
 function ChipBody({ chip }: { chip: MentorChip }) {
@@ -60,7 +54,22 @@ export default function Workspace({
   onBack: () => void;
   onScored: (score: number) => void;
 }) {
-  const [code, setCode] = useState(initial?.code ?? "");
+  // Typed code drafts to localStorage as he types: leaving via ANY exit
+  // (back, STATS tab, closing the tab) can never destroy typed work.
+  const draftKey = `mentor-draft-${challenge.id}`;
+  const [code, setCode] = useState(
+    () => initial?.code ?? localStorage.getItem(draftKey) ?? "",
+  );
+  // only real typing writes the draft — merely REOPENING an old exercise
+  // must not overwrite a half-typed draft for the same challenge
+  const typed = useRef(false);
+  useEffect(() => {
+    if (!typed.current) return;
+    const t = setTimeout(() => {
+      try { localStorage.setItem(draftKey, code); } catch { /* drafts are best-effort */ }
+    }, 350);
+    return () => clearTimeout(t);
+  }, [code, draftKey]);
   const [boxes, setBoxes] = useState<Record<string, Box>>(() => loadLayout(LAYOUT_KEY));
   const [closedExamples, setClosedExamples] = useState<string[]>([]);
   const [hasKey, setHasKey] = useState(() => !!getApiKey());
@@ -151,7 +160,7 @@ export default function Workspace({
         <textarea
           className="m-code"
           value={code}
-          onChange={(e) => setCode(e.target.value)}
+          onChange={(e) => { typed.current = true; setCode(e.target.value); }}
           onPaste={blockPaste}
           spellCheck={false}
           placeholder={"// type it — the examples beside you show the technique,\n// never the answer"}

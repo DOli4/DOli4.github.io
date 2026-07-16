@@ -11,6 +11,14 @@
 
 export type ChipKind = "smell" | "pattern" | "bug" | "style";
 
+/** one identity per kind, everywhere: workspace chips, donut, legends */
+export const KIND_COLOR: Record<ChipKind, string> = {
+  bug: "#e05b5b",
+  smell: "#d8a94a",
+  pattern: "#35e6ff",
+  style: "#7bdf8f",
+};
+
 export type MentorChip = {
   /** 1-based line in the typed code, or null when it's about the whole thing */
   line: number | null;
@@ -86,9 +94,9 @@ const REVIEW_SCHEMA = {
   },
 } as const;
 
-/** Ask Claude to review the typed code against the challenge. Throws Error
- *  with a human-readable message on every failure path. */
-export async function analyseCode(challenge: string, code: string): Promise<MentorReview> {
+/** Shared browser→Anthropic call: system + user + schema in, parsed JSON out.
+ *  Throws Error with a human-readable message on every failure path. */
+async function askClaude<T>(system: string, user: string, schema: object): Promise<T> {
   const key = getApiKey();
   if (!key) throw new Error("No API key yet — open CONNECT CLAUDE first.");
 
@@ -108,14 +116,9 @@ export async function analyseCode(challenge: string, code: string): Promise<Ment
         max_tokens: 2048,
         // fast + cheap: a short review doesn't need extended reasoning
         thinking: { type: "disabled" },
-        system: SYSTEM,
-        output_config: { format: { type: "json_schema", schema: REVIEW_SCHEMA } },
-        messages: [
-          {
-            role: "user",
-            content: `CHALLENGE:\n${challenge}\n\nMY CODE (numbered from line 1):\n${code}`,
-          },
-        ],
+        system,
+        output_config: { format: { type: "json_schema", schema } },
+        messages: [{ role: "user", content: user }],
       }),
     });
   } catch (err) {
@@ -140,20 +143,27 @@ export async function analyseCode(challenge: string, code: string): Promise<Ment
   } catch {
     throw new Error("Got a garbled reply — try again.");
   }
-  if (data.stop_reason === "refusal") throw new Error("Claude declined this one — try different code.");
-  if (data.stop_reason === "max_tokens") throw new Error("Review got cut off — try shorter code.");
+  if (data.stop_reason === "refusal") throw new Error("Claude declined this one — try different input.");
+  if (data.stop_reason === "max_tokens") throw new Error("The answer got cut off — try shorter input.");
 
   const text = (data.content as { type: string; text?: string }[])
     .find((b) => b.type === "text")?.text;
-  if (!text) throw new Error("Empty review came back — try again.");
+  if (!text) throw new Error("Empty answer came back — try again.");
 
-  let raw: MentorReview;
   try {
-    raw = JSON.parse(text);
+    return JSON.parse(text) as T;
   } catch {
-    throw new Error("Review wasn't valid JSON — try again.");
+    throw new Error("Answer wasn't valid JSON — try again.");
   }
+}
 
+/** Ask Claude to review the typed code against the challenge. */
+export async function analyseCode(challenge: string, code: string): Promise<MentorReview> {
+  const raw = await askClaude<MentorReview>(
+    SYSTEM,
+    `CHALLENGE:\n${challenge}\n\nMY CODE (numbered from line 1):\n${code}`,
+    REVIEW_SCHEMA,
+  );
   // Belt and braces: structured outputs enforce shape, we enforce ranges.
   return {
     score: Math.max(0, Math.min(100, Math.round(raw.score ?? 0))),
@@ -163,4 +173,58 @@ export async function analyseCode(challenge: string, code: string): Promise<Ment
       line: typeof c.line === "number" && c.line >= 1 ? Math.round(c.line) : null,
     })),
   };
+}
+
+/* --- the coach scan: Claude reads the whole training history --- */
+
+export type CoachCard = {
+  kind: "strength" | "gap" | "next";
+  title: string;
+  short: string;
+  more: string;
+};
+
+export type CoachReport = { headline: string; cards: CoachCard[] };
+
+const COACH_SYSTEM = `You are the COACH view of CODE MENTOR, reading a learner's
+exercise history (challenges, scores, review-chip titles). He has reading
+difficulties: short lines, plain words. Return:
+- headline: one warm, specific sentence about his trajectory (<= 18 words)
+- cards: 3-5 of kind "strength" (keeps doing well), "gap" (keeps coming up),
+  "next" (what to drill next and why it fits his gaps).
+  Each: title <= 5 words, short = one plain sentence, more = 2-3 short
+  sentences that teach or direct. Base everything on the actual history —
+  name real patterns from it, never generic advice.`;
+
+const COACH_SCHEMA = {
+  type: "object",
+  additionalProperties: false,
+  required: ["headline", "cards"],
+  properties: {
+    headline: { type: "string" },
+    cards: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        required: ["kind", "title", "short", "more"],
+        properties: {
+          kind: { type: "string", enum: ["strength", "gap", "next"] },
+          title: { type: "string" },
+          short: { type: "string" },
+          more: { type: "string" },
+        },
+      },
+    },
+  },
+} as const;
+
+/** Scan the training history and return coaching cards. */
+export async function coachScan(historyDigest: string): Promise<CoachReport> {
+  const raw = await askClaude<CoachReport>(
+    COACH_SYSTEM,
+    `MY TRAINING HISTORY (newest first):\n${historyDigest}`,
+    COACH_SCHEMA,
+  );
+  return { headline: raw.headline ?? "", cards: raw.cards ?? [] };
 }

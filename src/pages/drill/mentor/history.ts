@@ -29,7 +29,7 @@ export function loadHistory(): HistoryEntry[] {
     // one malformed entry must not crash the list or a reopen
     return raw.filter(
       (e) => e && typeof e.id === "string" && typeof e.at === "string"
-        && typeof e.code === "string" && Array.isArray(e.chips),
+        && typeof e.code === "string" && typeof e.score === "number" && Array.isArray(e.chips),
     );
   } catch {
     return [];

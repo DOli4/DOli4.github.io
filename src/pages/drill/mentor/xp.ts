@@ -32,6 +32,14 @@ function dayKey(d: Date): string {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
+/** The streak as of NOW: stored streak only counts if the last analysis was
+ *  today or yesterday — otherwise it's broken and shows as 0. */
+export function liveStreak(s: XpState): number {
+  const today = dayKey(new Date());
+  const yesterday = dayKey(new Date(Date.now() - 86_400_000));
+  return s.lastDay === today || s.lastDay === yesterday ? s.streak : 0;
+}
+
 export function loadXp(): XpState {
   try {
     return { ...EMPTY, ...JSON.parse(localStorage.getItem(XP_STORAGE) ?? "{}") };

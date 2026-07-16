@@ -395,3 +395,107 @@
   .m-paste-hint { animation: none; }
   .m-xp-bar span { transition: none; }
 }
+
+/* ============ STATS · REVIEW DECK ============ */
+.st-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
+
+/* KPI tiles, ShopIQ style: label, big number, quiet kicker */
+.st-tiles {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.st-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 18px;
+  background: rgba(13, 16, 24, 0.72);
+  border: 1px solid var(--line-bright);
+  border-radius: 14px;
+}
+.st-tile-k { font-family: var(--mono); font-size: 9.5px; letter-spacing: 0.22em; color: var(--ink-faint); }
+.st-tile-n { font-family: var(--mono); font-size: 30px; font-weight: 700; color: var(--ink); line-height: 1; }
+.st-cyan { color: var(--cyan); text-shadow: 0 0 16px rgba(53, 230, 255, 0.4); }
+.st-gold { color: var(--gold); text-shadow: 0 0 14px rgba(216, 169, 74, 0.4); }
+.st-tile-sub { font-size: 10.5px; color: var(--ink-dim); }
+
+/* panel grid: wide chart + donut, wide list + coach */
+.st-grid {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 14px;
+  align-items: start;
+}
+.st-panel {
+  padding: 16px 18px;
+  background: rgba(13, 16, 24, 0.72);
+  border: 1px solid var(--line-bright);
+  border-radius: 14px;
+  min-width: 0;
+}
+/* wide panels own the left column explicitly — robust to reordering */
+.st-grid > .st-panel-wide { grid-column: 1; }
+.st-panel-h { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; color: var(--ink-dim); margin-bottom: 12px; }
+.st-empty { margin-top: 10px; }
+
+/* score bars */
+.st-bars { width: 100%; height: auto; display: block; }
+.st-axis-label { font-family: var(--mono); font-size: 8.5px; fill: var(--ink-faint); }
+.st-bar-label { font-family: var(--mono); font-size: 10px; fill: var(--ink); }
+
+/* donut + legend */
+.st-donut-wrap { display: flex; align-items: center; gap: 16px; }
+.st-donut { width: 130px; height: 130px; flex: none; }
+.st-donut-n { font-family: var(--mono); font-size: 26px; font-weight: 700; fill: var(--ink); }
+.st-donut-sub { font-family: var(--mono); font-size: 8.5px; letter-spacing: 0.14em; fill: var(--ink-faint); }
+.st-legend { list-style: none; display: flex; flex-direction: column; gap: 7px; padding: 0; margin: 0; }
+.st-legend li { display: flex; align-items: center; gap: 8px; font-family: var(--mono); font-size: 11px; color: var(--ink-dim); }
+.st-legend b { margin-left: auto; color: var(--ink); }
+.st-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+
+/* recent exercises: rows like the top-products list */
+.st-recent { display: flex; flex-direction: column; }
+.st-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  width: 100%;
+  padding: 10px 4px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.st-row:last-child { border-bottom: none; }
+.st-row:hover { background: rgba(53, 230, 255, 0.05); }
+.st-row-title { font-family: var(--mono); font-size: 12px; letter-spacing: 0.08em; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.st-row-meta { font-size: 10.5px; color: var(--ink-faint); flex: none; }
+.st-row-score { margin-left: auto; font-family: var(--mono); font-size: 16px; color: var(--cyan); flex: none; }
+
+/* coach */
+.st-scan { width: 100%; margin-top: 6px; }
+.st-nokey { color: var(--gold); }
+.st-coach-headline { font-size: 13px; color: var(--ink); line-height: 1.5; margin-bottom: 10px; }
+.st-coach-card { padding: 9px 0; border-top: 1px solid var(--line); }
+.st-coach-title { font-family: var(--mono); font-size: 11px; color: var(--ink); letter-spacing: 0.06em; }
+
+/* boot glitch covers the deck too */
+.m-boot .st-tiles > *, .m-boot .st-panel { animation: glitch-in 0.9s both; }
+.m-boot .st-tiles > *:nth-child(2) { animation-delay: 0.15s; }
+.m-boot .st-tiles > *:nth-child(3) { animation-delay: 0.3s; }
+.m-boot .st-tiles > *:nth-child(4) { animation-delay: 0.45s; }
+
+@media (max-width: 1000px) {
+  .st-tiles { grid-template-columns: repeat(2, 1fr); }
+  .st-grid { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .m-boot .st-tiles > *, .m-boot .st-panel { animation: none; }
+  .st-row { transition: none; }
+}

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useState } from "react";
 import GlassWin, { loadLayout, type Box } from "../canvas/GlassWin";
 import Picker from "./Picker";
+import Stats from "./Stats";
 import Workspace from "./Workspace";
 import { CHALLENGES, customChallenge, type Challenge } from "./challenges";
 import { loadHistory, removeHistory, type HistoryEntry } from "./history";
-import { awardXp, loadXp, rankOf, type XpState } from "./xp";
+import { awardXp, liveStreak, loadXp, rankOf, type XpState } from "./xp";
 import "./mentor.css";
 
 const HIST_LAYOUT_KEY = "mentor-layout-hub";
@@ -33,6 +34,8 @@ function challengeOf(entry: HistoryEntry): Challenge {
  */
 export default function Mentor() {
   const [session, setSession] = useState<Session | null>(null);
+  // with no session open, the base screen is the picker or the review deck
+  const [view, setView] = useState<"picker" | "stats">("picker");
   const [xp, setXp] = useState<XpState>(loadXp);
   const [booting, setBooting] = useState(true);
   const [histOpen, setHistOpen] = useState(false);
@@ -57,7 +60,15 @@ export default function Mentor() {
   return (
     <div className={`mentor${booting ? " m-boot" : ""}`}>
       {session === null ? (
-        <Picker onPick={(challenge) => setSession({ challenge, nonce: Date.now() })} />
+        view === "picker" ? (
+          <Picker onPick={(challenge) => setSession({ challenge, nonce: Date.now() })} />
+        ) : (
+          <Stats
+            onOpen={(e) => setSession({ challenge: challengeOf(e), initial: e, nonce: Date.now() })}
+            onBack={() => setView("picker")}
+            nonce={histNonce}
+          />
+        )
       ) : (
         <Workspace
           key={`${session.initial?.id ?? session.challenge.id}:${session.nonce}`}
@@ -68,6 +79,14 @@ export default function Mentor() {
         />
       )}
 
+      <button
+        className="intel-tab"
+        style={{ top: "58%" }}
+        onClick={() => { setSession(null); setView("stats"); }}
+        data-hover
+      >
+        <span className="intel-tab-dot" /> STATS
+      </button>
       {!histOpen && (
         <button className="intel-tab" style={{ top: "70%" }} onClick={() => setHistOpen(true)} data-hover>
           <span className="intel-tab-dot" /> HISTORY
@@ -125,7 +144,7 @@ export default function Mentor() {
         </div>
         <div className="m-xp-sub">
           {rank.next !== null ? <span>next rank at {rank.next}</span> : <span>max rank</span>}
-          {xp.streak > 1 && <span className="m-streak">streak ×{xp.streak}</span>}
+          {liveStreak(xp) > 1 && <span className="m-streak">streak ×{liveStreak(xp)}</span>}
         </div>
       </aside>
     </div>
