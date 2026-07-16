@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 
-export type Route = "home" | "drill" | "drill-today" | "drill-artifacts" | "shake";
+export type Route = "home" | "drill" | "drill-today" | "drill-artifacts" | "drill-mentor" | "shake";
 
 /** True for every view living behind the drill password gate. */
 export function isDrillRoute(route: Route): boolean {
-  return route === "drill" || route === "drill-today" || route === "drill-artifacts";
+  return route === "drill" || route === "drill-today" || route === "drill-artifacts" || route === "drill-mentor";
 }
 
 export const pageTabs: { route: Route; href: string; label: string }[] = [
@@ -28,6 +28,7 @@ function parse(): Route {
   if (slug === "drill" || slug === "shake") return slug;
   if (slug === "drill/today") return "drill-today";
   if (slug === "drill/artifacts") return "drill-artifacts";
+  if (slug === "drill/mentor") return "drill-mentor";
   return "home";
 }
 

@@ -1,0 +1,360 @@
+/* ============ CODE MENTOR ============
+   Reuses the drill tokens (--cyan, --ink, --line…) and the global glass
+   window classes (.intel*) from drill.css. Everything here is mentor-only. */
+
+.mentor {
+  min-height: 100vh;
+  padding: 88px 28px 96px 76px;
+  max-width: 1280px;
+  margin: 0 auto;
+  position: relative;
+}
+
+/* --- headings --- */
+.m-head { margin-bottom: 26px; }
+.m-h1 {
+  font-size: clamp(26px, 4vw, 42px);
+  letter-spacing: 0.16em;
+  color: var(--ink);
+  margin-top: 6px;
+}
+.m-h1-small { font-size: clamp(18px, 2.4vw, 26px); margin: 0; }
+
+/* --- screen 1: picker grid, idea bar in the center row --- */
+.m-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+.m-card {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 9px;
+  text-align: left;
+  padding: 16px;
+  background: rgba(13, 16, 24, 0.72);
+  border: 1px solid var(--line-bright);
+  border-radius: 14px;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+  transition: border-color 0.25s, transform 0.25s, box-shadow 0.25s;
+  animation: m-drift 7s ease-in-out infinite alternate;
+}
+.m-grid > .m-card:nth-child(2) { animation-delay: -2.3s; }
+.m-grid > .m-card:nth-child(3) { animation-delay: -4.1s; }
+.m-grid > .m-card:nth-child(5) { animation-delay: -1.2s; }
+.m-grid > .m-card:nth-child(6) { animation-delay: -3.4s; }
+.m-grid > .m-card:nth-child(7) { animation-delay: -5.2s; }
+.m-card:hover {
+  border-color: var(--cyan-deep);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 34px -18px rgba(53, 230, 255, 0.55);
+}
+@keyframes m-drift {
+  from { transform: translateY(0); }
+  to { transform: translateY(-4px); }
+}
+.m-card-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 12.5px;
+  letter-spacing: 0.15em;
+  color: var(--ink);
+}
+.m-card-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 9px rgba(53, 230, 255, 0.8);
+  animation: m-pulse 2.6s ease-in-out infinite;
+}
+@keyframes m-pulse {
+  50% { opacity: 0.45; }
+}
+.m-card-sub {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+}
+.m-card-flow { margin: 2px 0; }
+.m-flow-step { display: flex; flex-direction: column; gap: 2px; }
+.m-flow-step .mf-arrow { text-align: center; }
+.m-card-flow .mf-box { font-size: 10.5px; padding: 5px 8px; }
+.m-card-goal { font-size: 11.5px; color: var(--ink-dim); line-height: 1.55; }
+
+.m-idea {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 18px;
+  border: 1px dashed var(--line-bright);
+  border-radius: 14px;
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(53, 230, 255, 0.06), transparent 60%),
+    rgba(10, 13, 20, 0.6);
+}
+.m-idea-label { letter-spacing: 0.22em; }
+.m-idea-input {
+  width: min(560px, 100%);
+  padding: 12px 15px;
+  background: #0a0e16;
+  border: 1px solid var(--line-bright);
+  border-radius: 10px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.m-idea-input:focus {
+  outline: none;
+  border-color: var(--cyan-deep);
+  box-shadow: 0 0 0 3px rgba(0, 184, 212, 0.14);
+}
+.m-idea-go {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  padding: 9px 22px;
+  border: 1px solid var(--cyan-deep);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--cyan);
+  cursor: pointer;
+  transition: box-shadow 0.25s, background 0.25s;
+}
+.m-idea-go:not(:disabled):hover { box-shadow: 0 0 24px -6px rgba(53, 230, 255, 0.7); }
+.m-idea-go:disabled { opacity: 0.35; cursor: default; }
+
+/* --- screen 2: workspace --- */
+.m-work-hd {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.m-back { align-self: center; white-space: nowrap; }
+.m-work-title { flex: 1; min-width: 240px; }
+.m-goal-chain { margin-top: 8px; }
+.m-goal {
+  margin: 12px 0 14px;
+  font-size: 12.5px;
+  color: var(--ink-dim);
+  max-width: 60ch;
+}
+.m-connect {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: center;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  padding: 9px 16px;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  background: rgba(10, 13, 20, 0.75);
+  color: var(--ink-dim);
+  cursor: pointer;
+  transition: color 0.25s, border-color 0.25s, box-shadow 0.25s;
+}
+.m-connect:hover { color: var(--ink); border-color: var(--cyan-deep); }
+.m-connect.is-linked { color: var(--cyan); border-color: var(--cyan-deep); }
+.m-connect .intel-tab-dot { animation: m-pulse 2.6s ease-in-out infinite; }
+
+.m-code-zone { position: relative; }
+.m-code {
+  width: 100%;
+  min-height: 46vh;
+  padding: 16px 18px;
+  background: #0a0d15;
+  border: 1px solid var(--line-bright);
+  border-radius: 12px;
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 13px;
+  line-height: 1.65;
+  resize: vertical;
+  tab-size: 2;
+}
+.m-code:focus {
+  outline: none;
+  border-color: var(--cyan-deep);
+  box-shadow: 0 0 0 3px rgba(0, 184, 212, 0.12);
+}
+.m-paste-hint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  color: var(--gold);
+  background: rgba(10, 13, 20, 0.9);
+  border: 1px solid rgba(216, 169, 74, 0.4);
+  border-radius: 999px;
+  padding: 6px 14px;
+  animation: glitch-in 0.5s both;
+  pointer-events: none;
+}
+
+.m-work-ft {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+.m-analyse {
+  font-family: var(--mono);
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  padding: 12px 36px;
+  border: 1px solid var(--cyan-deep);
+  border-radius: 10px;
+  background: linear-gradient(180deg, rgba(53, 230, 255, 0.16), rgba(0, 184, 212, 0.06));
+  color: var(--cyan);
+  cursor: pointer;
+  transition: box-shadow 0.25s, background 0.25s;
+}
+.m-analyse:not(:disabled):hover {
+  box-shadow: 0 0 34px -8px rgba(53, 230, 255, 0.8);
+  background: linear-gradient(180deg, rgba(53, 230, 255, 0.26), rgba(0, 184, 212, 0.1));
+}
+.m-analyse:disabled { opacity: 0.35; cursor: default; }
+.m-verdict { display: flex; align-items: center; gap: 12px; max-width: 56ch; }
+.m-score {
+  font-family: var(--mono);
+  font-size: 30px;
+  font-weight: 700;
+  color: var(--cyan);
+  text-shadow: 0 0 18px rgba(53, 230, 255, 0.5);
+}
+.m-verdict-txt { font-size: 12px; color: var(--ink-dim); line-height: 1.5; }
+.m-bonus { color: var(--gold); font-family: var(--mono); font-size: 10.5px; letter-spacing: 0.1em; }
+.m-err { margin: 0; }
+
+/* --- teaching chips --- */
+.m-chip-bd { display: flex; flex-direction: column; gap: 6px; }
+.m-chip-short { display: flex; align-items: center; gap: 7px; }
+.m-kind { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.m-kind-name { font-family: var(--mono); font-size: 10px; letter-spacing: 0.2em; }
+.m-line { margin-left: auto; }
+.m-chip-text { font-size: 12px; color: var(--ink); line-height: 1.5; }
+.m-chip-more { font-size: 11px; align-self: flex-start; }
+
+/* --- example snippets --- */
+.m-snippet {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: #070a10;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: auto;
+  font-family: var(--mono);
+  font-size: 11px;
+  line-height: 1.55;
+  color: #b7c5e0;
+}
+
+/* --- connect window --- */
+.m-key-input { margin-top: 10px; width: 100%; }
+.m-key-row { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+.m-key-save { padding: 9px 18px; }
+
+/* --- reopen row for closed example cards --- */
+.m-reopen {
+  position: fixed;
+  left: 72px;
+  bottom: 16px;
+  display: flex;
+  gap: 8px;
+  z-index: 30;
+}
+
+/* --- XP corner --- */
+.m-xp {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  width: 216px;
+  padding: 10px 13px;
+  background: rgba(10, 13, 20, 0.82);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line-bright);
+  border-radius: 12px;
+  z-index: 30;
+  font-family: var(--mono);
+}
+.m-xp-top { display: flex; align-items: baseline; gap: 8px; margin-bottom: 7px; }
+.m-rank {
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--cyan);
+  text-shadow: 0 0 12px rgba(53, 230, 255, 0.45);
+}
+.m-xp-n { margin-left: auto; font-size: 10.5px; color: var(--ink-dim); }
+.m-xp-bar {
+  height: 5px;
+  background: var(--line);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.m-xp-bar span {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, var(--cyan-deep), var(--cyan));
+  box-shadow: 0 0 10px rgba(53, 230, 255, 0.6);
+  transition: width 0.6s ease;
+}
+.m-xp-sub { display: flex; justify-content: space-between; margin-top: 6px; font-size: 9.5px; color: var(--ink-faint); }
+.m-streak { color: var(--gold); }
+
+/* --- boot: everything glitches in, staggered (keyframes live in drill.css) --- */
+.m-boot .m-head,
+.m-boot .m-work-hd,
+.m-boot .m-goal,
+.m-boot .m-code-zone,
+.m-boot .m-work-ft,
+.m-boot .m-xp,
+.m-boot .intel { animation: glitch-in 0.9s both; }
+.m-boot .m-grid > * { animation: glitch-in 0.9s both; }
+.m-boot .m-grid > *:nth-child(1) { animation-delay: 0.1s; }
+.m-boot .m-grid > *:nth-child(2) { animation-delay: 0.28s; }
+.m-boot .m-grid > *:nth-child(3) { animation-delay: 0.46s; }
+.m-boot .m-grid > *:nth-child(4) { animation-delay: 0.72s; }
+.m-boot .m-grid > *:nth-child(5) { animation-delay: 0.9s; }
+.m-boot .m-grid > *:nth-child(6) { animation-delay: 1.08s; }
+.m-boot .m-grid > *:nth-child(7) { animation-delay: 1.26s; }
+.m-boot .m-xp { animation-delay: 1.5s; }
+
+/* --- small screens: single column, XP tucks in --- */
+@media (max-width: 900px) {
+  .mentor { padding: 84px 16px 120px 60px; }
+  .m-grid { grid-template-columns: 1fr; }
+}
+
+/* --- reduced motion: nothing moves on its own --- */
+@media (prefers-reduced-motion: reduce) {
+  .m-card,
+  .m-card-dot,
+  .m-connect .intel-tab-dot { animation: none; }
+  .m-card:hover { transform: none; }
+  .m-boot .m-head,
+  .m-boot .m-work-hd,
+  .m-boot .m-goal,
+  .m-boot .m-code-zone,
+  .m-boot .m-work-ft,
+  .m-boot .m-xp,
+  .m-boot .intel,
+  .m-boot .m-grid > *,
+  .m-paste-hint { animation: none; }
+  .m-xp-bar span { transition: none; }
+}

@@ -210,6 +210,9 @@ export function AnomalyNode({ data }: NodeProps) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const tick = useRef(0);
   const updateInternals = useUpdateNodeInternals();
+  // Click (pointer travels < 6px) opens the Code Mentor; a longer drag is
+  // the usual rotation and must never navigate.
+  const press = useRef<{ x: number; y: number } | null>(null);
 
   // Hot path at ~30/s: move the anchor DOM directly (no React state), and
   // only ask React Flow to re-measure the handles every few frames.
@@ -231,7 +234,18 @@ export function AnomalyNode({ data }: NodeProps) {
 
   return (
     <div className="core core-bare" ref={wrapRef}>
-      <div className="core-hub nowheel nodrag nopan">
+      <div
+        className="core-hub nowheel nodrag nopan"
+        title="Open Code Mentor"
+        onPointerDown={(e) => { press.current = { x: e.clientX, y: e.clientY }; }}
+        onPointerLeave={() => { press.current = null; }}
+        onPointerCancel={() => { press.current = null; }}
+        onPointerUp={(e) => {
+          const p = press.current;
+          press.current = null;
+          if (p && Math.hypot(e.clientX - p.x, e.clientY - p.y) < 6) window.location.hash = "#/drill/mentor";
+        }}
+      >
         <AnomalyHub nodes={(data.chips as HubNode[]) ?? EMPTY_CHIPS} hint="" anchorCount={anchors} onAnchors={onAnchors} />
       </div>
       {Array.from({ length: anchors }, (_, i) => i).map((i) => (

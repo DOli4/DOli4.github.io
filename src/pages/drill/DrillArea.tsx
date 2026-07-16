@@ -6,6 +6,7 @@ import type { Route } from "../../router";
 import Dashboard from "./Dashboard";
 import DailyDrill from "./DailyDrill";
 import Artifacts from "./Artifacts";
+import Mentor from "./mentor/Mentor";
 import "../drill.css";
 
 const SESSION_KEY = "drill-pass";
@@ -154,6 +155,7 @@ export default function DrillArea({ route }: { route: Route }) {
         {!navHidden && <a href="#/drill" className={`edge-tab${route === "drill" ? " is-on" : ""}`} data-hover>Dashboard</a>}
         {!navHidden && <a href="#/drill/today" className={`edge-tab${route === "drill-today" ? " is-on" : ""}`} data-hover>Today&rsquo;s drill</a>}
         {!navHidden && <a href="#/drill/artifacts" className={`edge-tab${route === "drill-artifacts" ? " is-on" : ""}`} data-hover>Artifacts</a>}
+        {!navHidden && <a href="#/drill/mentor" className={`edge-tab${route === "drill-mentor" ? " is-on" : ""}`} data-hover>Mentor</a>}
         {!navHidden && <a href="#/shake" className="edge-tab edge-ext" data-hover>Shake</a>}
         {!navHidden && tier === "open" && <span className="tier-badge edge-badge">GUEST</span>}
       </nav>
@@ -161,6 +163,7 @@ export default function DrillArea({ route }: { route: Route }) {
       {route === "drill" && <Dashboard drills={drills} tier={tier} />}
       {route === "drill-today" && <DailyDrill drills={drills} />}
       {route === "drill-artifacts" && <Artifacts tier={tier} />}
+      {route === "drill-mentor" && <Mentor />}
     </main>
   );
 }

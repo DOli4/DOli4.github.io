@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Drill } from "../../../lib/drill-crypto";
+import GlassWin, { loadLayout, type Box } from "./GlassWin";
 
 type NewsItem = { title: string; what: string; why: string; impact: string; source?: string };
 type News = { date: string; items: NewsItem[] };
@@ -13,59 +14,7 @@ const PROMPT_TIPS: { title: string; steps: string[]; note: string }[] = [
   { title: "Make it check itself", steps: ["ANSWER", "“NOW VERIFY IT”", "FIXED ANSWER"], note: "A second pass catches what the first pass invented." },
 ];
 
-type Box = { x: number; y: number; w: number; h: number };
 const LAYOUT_KEY = "intel-layout-v2";
-
-function loadLayout(): Record<string, Box> {
-  try { return JSON.parse(localStorage.getItem(LAYOUT_KEY) ?? "{}"); } catch { return {}; }
-}
-
-/**
- * A movable frosted-glass window. Drag by header; optional corner resize.
- * Every window's box persists under its own key.
- */
-function GlassWin({
-  id, title, onClose, boxes, setBoxes, def, resizable, children, small,
-}: {
-  id: string; title: string; onClose: () => void;
-  boxes: Record<string, Box>;
-  setBoxes: React.Dispatch<React.SetStateAction<Record<string, Box>>>;
-  def: Box; resizable?: boolean; small?: boolean;
-  children: React.ReactNode;
-}) {
-  const box = boxes[id] ?? def;
-  const boxRef = useRef(box);
-  boxRef.current = box;
-
-  function startDrag(e: React.PointerEvent, mode: "move" | "size") {
-    e.preventDefault();
-    const sx = e.clientX, sy = e.clientY, start = { ...boxRef.current };
-    const onMove = (ev: PointerEvent) => {
-      const dx = ev.clientX - sx, dy = ev.clientY - sy;
-      setBoxes((bs) => ({
-        ...bs,
-        [id]: mode === "move"
-          ? { ...start, x: Math.min(Math.max(-start.w + 70, start.x + dx), innerWidth - 70), y: Math.min(Math.max(4, start.y + dy), innerHeight - 44) }
-          : { ...start, w: Math.min(Math.max(260, start.w + dx), innerWidth - 24), h: Math.min(Math.max(180, start.h + dy), innerHeight - 40) },
-      }));
-    };
-    const onUp = () => { removeEventListener("pointermove", onMove); removeEventListener("pointerup", onUp); };
-    addEventListener("pointermove", onMove, { passive: true });
-    addEventListener("pointerup", onUp, { passive: true });
-  }
-
-  return (
-    <section className={`intel${small ? " intel-small" : ""}`} style={{ left: box.x, top: box.y, width: box.w, height: box.h }}>
-      <header className="intel-hd" onPointerDown={(e) => startDrag(e, "move")}>
-        <span className="intel-glowline" aria-hidden />
-        <span className="intel-title">{title}</span>
-        <button className="intel-x" style={{ marginLeft: "auto" }} onClick={onClose} onPointerDown={(e) => e.stopPropagation()} aria-label={`Close ${title}`} data-hover>✕</button>
-      </header>
-      <div className="intel-bd nowheel">{children}</div>
-      {resizable && <button className="intel-grip" onPointerDown={(e) => { e.stopPropagation(); startDrag(e, "size"); }} aria-label="Resize" />}
-    </section>
-  );
-}
 
 /** Card with a pop-out switch on its title. */
 function Card({ id, title, popped, setPopped, children }: {
@@ -126,7 +75,7 @@ export default function FloatPanel({ drills }: { drills: Drill[] }) {
   const [openIntel, setOpenIntel] = useState(false);
   const [popped, setPopped] = useState<string[]>([]);
   const [news, setNews] = useState<News | null | "none">(null);
-  const [boxes, setBoxes] = useState<Record<string, Box>>(loadLayout);
+  const [boxes, setBoxes] = useState<Record<string, Box>>(() => loadLayout(LAYOUT_KEY));
 
   useEffect(() => {
     fetch("news.json", { cache: "no-store" })
