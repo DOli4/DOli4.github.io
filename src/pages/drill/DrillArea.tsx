@@ -64,7 +64,7 @@ export default function DrillArea({ route }: { route: Route }) {
         setDrills(result.drills);
         setTier(result.tier);
         setBooting(true);
-        setTimeout(() => setBooting(false), 1500);
+        setTimeout(() => setBooting(false), 2600);
       }, 2200);
     } finally {
       setBusy(false);
