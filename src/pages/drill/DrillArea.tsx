@@ -17,6 +17,16 @@ const SESSION_KEY = "drill-pass";
  * routes is the same login form.
  */
 export default function DrillArea({ route }: { route: Route }) {
+  // Edge-nav layout: vertical or horizontal, and foldable behind its switch.
+  const [navH, setNavH] = useState(() => localStorage.getItem("nav-h") === "1");
+  const [navHidden, setNavHidden] = useState(() => localStorage.getItem("nav-hide") === "1");
+  // Persist via effect - updaters must stay pure (StrictMode runs them twice).
+  const flipNav = () => setNavH((v) => !v);
+  const foldNav = () => setNavHidden((v) => !v);
+  useEffect(() => {
+    localStorage.setItem("nav-h", navH ? "1" : "0");
+    localStorage.setItem("nav-hide", navHidden ? "1" : "0");
+  }, [navH, navHidden]);
   const [drills, setDrills] = useState<Drill[] | null>(null);
   const [tier, setTier] = useState<Tier>("full");
   const [pass, setPass] = useState("");
@@ -113,13 +123,21 @@ export default function DrillArea({ route }: { route: Route }) {
 
   return (
     <main className="drill-page">
-      <nav className="edge-nav" aria-label="Pages">
-        <a href="#/" className="edge-tab" data-hover>CV</a>
-        <a href="#/drill" className={`edge-tab${route === "drill" ? " is-on" : ""}`} data-hover>Dashboard</a>
-        <a href="#/drill/today" className={`edge-tab${route === "drill-today" ? " is-on" : ""}`} data-hover>Today&rsquo;s drill</a>
-        <a href="#/drill/artifacts" className={`edge-tab${route === "drill-artifacts" ? " is-on" : ""}`} data-hover>Artifacts</a>
-        <a href="#/shake" className="edge-tab" data-hover>Shake</a>
-        {tier === "open" && <span className="tier-badge edge-badge">GUEST</span>}
+      <nav className={`edge-nav${navH ? " is-h" : ""}${navHidden ? " is-hidden" : ""}`} aria-label="Pages">
+        <button className="edge-tab edge-switch" onClick={foldNav} title={navHidden ? "Show menu" : "Hide menu"} data-hover>
+          {navHidden ? "☰" : "✕"}
+        </button>
+        {!navHidden && (
+          <button className="edge-tab edge-switch" onClick={flipNav} title="Flip menu direction" data-hover>
+            ⇄
+          </button>
+        )}
+        {!navHidden && <a href="#/" className="edge-tab" data-hover>CV</a>}
+        {!navHidden && <a href="#/drill" className={`edge-tab${route === "drill" ? " is-on" : ""}`} data-hover>Dashboard</a>}
+        {!navHidden && <a href="#/drill/today" className={`edge-tab${route === "drill-today" ? " is-on" : ""}`} data-hover>Today&rsquo;s drill</a>}
+        {!navHidden && <a href="#/drill/artifacts" className={`edge-tab${route === "drill-artifacts" ? " is-on" : ""}`} data-hover>Artifacts</a>}
+        {!navHidden && <a href="#/shake" className="edge-tab" data-hover>Shake</a>}
+        {!navHidden && tier === "open" && <span className="tier-badge edge-badge">GUEST</span>}
       </nav>
 
       {route === "drill" && <Dashboard drills={drills} tier={tier} />}

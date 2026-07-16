@@ -1324,3 +1324,22 @@
 .card-pop { font-size: 12px; color: var(--ink-faint); flex: none; }
 .card-pop:hover { color: var(--cyan); }
 .intel-small .intel-bd { padding: 12px; }
+
+/* --- edge-nav: flip + fold switches --- */
+.edge-switch { cursor: pointer; color: var(--cyan); font-size: 12px; }
+.edge-nav.is-h {
+  top: 8px;
+  left: 64px;
+  transform: none;
+  flex-direction: row;
+  align-items: flex-start;
+}
+.edge-nav.is-h .edge-tab {
+  writing-mode: horizontal-tb;
+  transform: none;
+  padding: 8px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+.edge-nav.is-h .edge-badge { writing-mode: horizontal-tb; transform: none; }
+.edge-nav.is-hidden .edge-tab.edge-switch { border-radius: 0 10px 10px 0; }
