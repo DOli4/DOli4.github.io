@@ -105,7 +105,7 @@ export default function DrillArea({ route }: { route: Route }) {
           >
             <p className="tag tag-dim">ENCRYPTED · AES-GCM</p>
             <h1 className="drill-h1">
-              <GlitchText>DRILL</GlitchText>
+              <GlitchText>DASHBOARD</GlitchText>
             </h1>
             <p className="gate-sub">
               Private. The payload is ciphertext until the password decrypts it.

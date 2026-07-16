@@ -163,12 +163,6 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
       <FloatPanel drills={drills} />
 
       <LiveStats />
-      <div className="flow-stats">
-        <div>D: <b>{stats.days}</b></div>
-        <div>Q: <b>{stats.questions}</b></div>
-        <div>W: <b>{stats.saidCount} ({stats.mustSayTotal})</b></div>
-        <div>C: <b>{pct}%</b></div>
-      </div>
     </div>
   );
 }

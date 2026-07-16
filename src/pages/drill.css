@@ -1375,3 +1375,17 @@
 /* live telemetry sits above the drill counters */
 .flow-stats-live { bottom: 110px; color: var(--cyan); }
 .flow-stats-live b { color: var(--cyan); }
+
+/* gate: the anomaly sits BEHIND the password form */
+.gate-anomaly {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: min(88vw, 640px);
+  margin: 0;
+  z-index: 0;
+  opacity: 0.85;
+}
+/* telemetry takes the old counters' spot */
+.flow-stats-live { bottom: 16px; }
