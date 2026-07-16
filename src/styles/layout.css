@@ -10,6 +10,14 @@
   justify-content: space-between;
   padding: 22px 32px;
   mix-blend-mode: difference;
+  /* the bar spans the whole top at z 60 — without this, its EMPTY space
+     swallows clicks meant for anything underneath (e.g. the horizontal
+     edge-nav at top: 8px). Only the real links should hit-test. */
+  pointer-events: none;
+}
+.hud-top a,
+.hud-top button {
+  pointer-events: auto;
 }
 
 .hud-mark {
