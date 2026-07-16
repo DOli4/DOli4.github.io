@@ -9,8 +9,7 @@ export function isDrillRoute(route: Route): boolean {
 
 export const pageTabs: { route: Route; href: string; label: string }[] = [
   { route: "home", href: "#/", label: "CV" },
-  { route: "drill", href: "#/drill", label: "DRILL" },
-  { route: "shake", href: "#/shake", label: "SHAKE" },
+  { route: "drill", href: "#/drill", label: "DASHBOARD" },
 ];
 
 /**
