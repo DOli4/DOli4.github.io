@@ -16,7 +16,13 @@ export type HubNode = {
  * in 3D and are projected to screen each frame, so the chips orbit with your
  * drag and fade when they swing behind the mass.
  */
-export default function AnomalyHub({ nodes }: { nodes: HubNode[] }) {
+export default function AnomalyHub({
+  nodes,
+  hint = "drag the anomaly · press a node",
+}: {
+  nodes: HubNode[];
+  hint?: string;
+}) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const chipRefs = useRef<(HTMLAnchorElement | null)[]>([]);
@@ -176,7 +182,7 @@ export default function AnomalyHub({ nodes }: { nodes: HubNode[] }) {
           {n.label}
         </a>
       ))}
-      <p className="hub-hint">drag the anomaly · press a node</p>
+      <p className="hub-hint">{hint}</p>
     </div>
   );
 }

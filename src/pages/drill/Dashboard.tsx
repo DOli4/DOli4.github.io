@@ -1,18 +1,29 @@
-import { useMemo, useState } from "react";
-import AnomalyHub, { type HubNode } from "../../components/AnomalyHub";
-import { LampHeader } from "../../components/ui/lamp";
-import type { Drill } from "../../lib/drill-crypto";
-import type { Tier } from "../../lib/drill-crypto";
+import { useEffect, useMemo, useState } from "react";
 import {
-  addArtifact,
-  hostOf,
+  Background,
+  BackgroundVariant,
+  Controls,
+  ReactFlow,
+  useNodesState,
+  type Edge,
+  type Node,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import type { Drill, Tier } from "../../lib/drill-crypto";
+import {
   loadArtifacts,
-  normalizeUrl,
-  removeArtifact,
   visibleArtifacts,
   type Artifact,
 } from "../../lib/artifacts";
-import { JUMP_KEY } from "./DailyDrill";
+import DotEdge from "./canvas/DotEdge";
+import {
+  AnomalyNode,
+  ArtifactsNode,
+  BankNode,
+  DrillNode,
+  StatsNode,
+  WordNode,
+} from "./canvas/DashNodes";
 
 const SAID_KEY = "drill-said";
 
@@ -24,15 +35,31 @@ function loadSaid(): Record<string, boolean> {
   }
 }
 
+/** Defined at module scope — React Flow warns (and re-renders) if these are
+ *  recreated on every render. */
+const nodeTypes = {
+  drill: DrillNode,
+  word: WordNode,
+  bank: BankNode,
+  stats: StatsNode,
+  arts: ArtifactsNode,
+  anomaly: AnomalyNode,
+};
+const edgeTypes = { flow: DotEdge };
+
+const EDGE_STYLE = { stroke: "rgba(150, 190, 220, 0.35)", strokeWidth: 1.4 };
+
 /**
- * The command view: everything the drills have ever asked, in one place,
- * plus the numbers that tell him whether the system is working. The anomaly
- * hub is the door to the two sub-pages; artifacts are manageable right here
- * as well as on their own page.
+ * The dashboard as a node-based workflow canvas (PicGen / ComfyUI style):
+ * the latest drill feeds the word and the question bank, the bank feeds
+ * progress, and everything converges on the anomaly — the "preview" of the
+ * training state. Dots travel the edges to read as data flowing through.
+ * Pan the void, zoom with the wheel, drag nodes by their headers.
  */
 export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tier }) {
   const [allArtifacts, setAllArtifacts] = useState<Artifact[]>(loadArtifacts);
   const artifacts = visibleArtifacts(allArtifacts, tier);
+  const latest = drills[0];
 
   const stats = useMemo(() => {
     const said = loadSaid();
@@ -42,219 +69,174 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
       d.questions.forEach((q) => q.mustSay.forEach((w) => terms.add(w.toLowerCase())));
       terms.add(d.word.term.toLowerCase());
     });
-    const saidCount = Object.values(said).filter(Boolean).length;
-    const mustSayTotal = questions.reduce((n, q) => n + q.mustSay.length, 0);
     return {
       days: drills.length,
       questions: questions.length,
       terms: terms.size,
-      saidCount,
-      mustSayTotal,
+      saidCount: Object.values(said).filter(Boolean).length,
+      mustSayTotal: questions.reduce((n, q) => n + q.mustSay.length, 0),
     };
   }, [drills]);
+  const pct = stats.mustSayTotal === 0 ? 0 : Math.round((stats.saidCount / stats.mustSayTotal) * 100);
 
-  const nodes = useMemo<HubNode[]>(() => {
-    const base: HubNode[] = [
-      { id: "today", label: "TODAY'S DRILL", href: "#/drill/today" },
-      { id: "bank", label: "QUESTION BANK", href: "#bank" },
-      { id: "vault", label: "ARTIFACTS", href: "#/drill/artifacts" },
-    ];
-    const pinned = artifacts.slice(0, 3).map((a) => ({
-      id: a.id,
-      label: a.title.length > 18 ? `${a.title.slice(0, 17)}…` : a.title,
-      href: a.url,
-      external: true,
-    }));
-    return [...base, ...pinned];
-  }, [artifacts]);
+  const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
+    {
+      id: "drill",
+      type: "drill",
+      position: { x: 40, y: 250 },
+      dragHandle: ".nd-hd",
+      data: { drill: latest, count: drills.length },
+    },
+    {
+      id: "word",
+      type: "word",
+      position: { x: 360, y: 40 },
+      dragHandle: ".nd-hd",
+      data: { drill: latest },
+    },
+    {
+      id: "bank",
+      type: "bank",
+      position: { x: 360, y: 300 },
+      dragHandle: ".nd-hd",
+      data: { drills },
+    },
+    {
+      id: "stats",
+      type: "stats",
+      position: { x: 740, y: 80 },
+      dragHandle: ".nd-hd",
+      data: { stats },
+    },
+    {
+      id: "arts",
+      type: "arts",
+      position: { x: 740, y: 420 },
+      dragHandle: ".nd-hd",
+      data: { artifacts, tier, onChange: setAllArtifacts },
+    },
+    {
+      id: "anomaly",
+      type: "anomaly",
+      position: { x: 1120, y: 170 },
+      dragHandle: ".nd-hd",
+      data: { pct },
+    },
+  ]);
 
-  const latest = drills[0];
+  // Positions live in React Flow's state; data has to follow ours.
+  useEffect(() => {
+    setNodes((nds) =>
+      nds.map((n) => {
+        switch (n.id) {
+          case "drill":
+            return { ...n, data: { drill: latest, count: drills.length } };
+          case "word":
+            return { ...n, data: { drill: latest } };
+          case "bank":
+            return { ...n, data: { drills } };
+          case "stats":
+            return { ...n, data: { stats } };
+          case "arts":
+            return { ...n, data: { artifacts, tier, onChange: setAllArtifacts } };
+          case "anomaly":
+            return { ...n, data: { pct } };
+          default:
+            return n;
+        }
+      }),
+    );
+  }, [drills, latest, stats, artifacts, tier, pct, setNodes]);
+
+  const edges = useMemo<Edge[]>(
+    () => [
+      { id: "e-dw", source: "drill", sourceHandle: "word", target: "word", type: "flow", style: EDGE_STYLE, data: { dur: "3.4s" } },
+      { id: "e-db", source: "drill", sourceHandle: "bank", target: "bank", type: "flow", style: EDGE_STYLE, data: { dur: "2.8s", begin: "0.6s" } },
+      { id: "e-ws", source: "word", target: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "3.1s", begin: "1.1s" } },
+      { id: "e-bs", source: "bank", target: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "3.6s", begin: "0.3s" } },
+      { id: "e-sa", source: "stats", target: "anomaly", targetHandle: "stats", type: "flow", style: EDGE_STYLE, data: { dur: "2.6s", begin: "0.9s" } },
+      { id: "e-aa", source: "arts", target: "anomaly", targetHandle: "arts", type: "flow", style: EDGE_STYLE, data: { dur: "4s", begin: "1.4s" } },
+    ],
+    [],
+  );
+
+  return (
+    <div className="flow-wrap">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
+        onNodesChange={onNodesChange}
+        fitView
+        fitViewOptions={{ padding: 0.12 }}
+        minZoom={0.3}
+        maxZoom={1.6}
+        nodesConnectable={false}
+        deleteKeyCode={null}
+      >
+        <Background variant={BackgroundVariant.Dots} gap={22} size={1.1} color="rgba(255,255,255,0.055)" />
+        <Controls position="bottom-left" showInteractive={false} />
+      </ReactFlow>
+
+      <AmbientCursors tier={tier} />
+
+      {tier === "full" && latest?.askSenior && (
+        <div className="flow-prompt">
+          <p className="flow-prompt-k">ask trevor tomorrow</p>
+          <p className="flow-prompt-v">{latest.askSenior}</p>
+        </div>
+      )}
+
+      <div className="flow-stats">
+        <div>D: <b>{stats.days}</b></div>
+        <div>Q: <b>{stats.questions}</b></div>
+        <div>W: <b>{stats.saidCount} ({stats.mustSayTotal})</b></div>
+        <div>C: <b>{pct}%</b></div>
+      </div>
+    </div>
+  );
+}
+
+/** Ambient collaborator cursors, PicGen style. Trevor only exists on the
+ *  personal tier — his name is personal data. Frozen under reduced motion. */
+function AmbientCursors({ tier }: { tier: Tier }) {
+  const cursors = useMemo(
+    () =>
+      tier === "full"
+        ? [
+            { name: "Trevor", color: "#d8a94a", x: 24, y: 62 },
+            { name: "Claude", color: "#35e6ff", x: 68, y: 30 },
+          ]
+        : [{ name: "Claude", color: "#35e6ff", x: 62, y: 34 }],
+    [tier],
+  );
+  const [tick, setTick] = useState(0);
+
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const iv = setInterval(() => setTick((t) => t + 1), 2200);
+    return () => clearInterval(iv);
+  }, []);
 
   return (
     <>
-      <LampHeader
-        eyebrow={`${stats.days} ${stats.days === 1 ? "DAY" : "DAYS"} · ${stats.questions} QUESTIONS · ${stats.terms} TERMS`}
-        title="DASHBOARD"
-        sub={latest ? `latest drill ${latest.date} — ${latest.focus}` : undefined}
-      />
-
-      <div className="wrap drill-wrap dash-wrap">
-        <section className="dash-grid">
-          <div className="dash-hub">
-            <AnomalyHub nodes={nodes} />
+      {cursors.map((c, i) => {
+        const dx = Math.sin(tick * 1.3 + i * 2.1) * 26;
+        const dy = Math.cos(tick * 0.9 + i * 1.7) * 18;
+        return (
+          <div
+            key={c.name}
+            className="flow-cursor"
+            style={{ left: `${c.x}%`, top: `${c.y}%`, transform: `translate(${dx}px, ${dy}px)` }}
+          >
+            <svg viewBox="0 0 24 24" width="16" height="16">
+              <path d="M5 3l14 6.5-6 1.8-2.2 5.9L5 3z" fill={c.color} stroke="#05060a" strokeWidth="1" />
+            </svg>
+            <span style={{ background: c.color }}>{c.name}</span>
           </div>
-
-          <div className="dash-side">
-            <div className="stat-card">
-              <p className="tag tag-dim">THE ONE WORD · {latest?.date}</p>
-              <p className="stat-word">{latest?.word.term}</p>
-              <p className="stat-word-sub">{latest?.word.meaning}</p>
-              <a className="stat-link" href="#/drill/today" data-hover>
-                drill it →
-              </a>
-            </div>
-
-            <div className="stat-row">
-              <div className="stat-card stat-mini">
-                <p className="stat-num">{stats.saidCount}</p>
-                <p className="stat-cap">words said out loud</p>
-              </div>
-              <div className="stat-card stat-mini">
-                <p className="stat-num">
-                  {stats.mustSayTotal === 0
-                    ? "—"
-                    : `${Math.round((stats.saidCount / stats.mustSayTotal) * 100)}%`}
-                </p>
-                <p className="stat-cap">of must-say words ticked</p>
-              </div>
-            </div>
-
-            {latest?.askSenior && (
-              <div className="stat-card">
-                <p className="tag tag-dim">ASK TREVOR</p>
-                <p className="stat-ask">{latest.askSenior}</p>
-              </div>
-            )}
-          </div>
-        </section>
-
-        <section className="drill-sec" id="bank">
-          <h2 className="drill-h2">
-            <span className="drill-num">01</span> Question bank — every question, one place
-          </h2>
-          <p className="drill-hint">
-            Reading is browsing. Answering out loud is training — press a day to train it.
-          </p>
-          {drills.map((d) => (
-            <BankDay key={d.date} drill={d} />
-          ))}
-        </section>
-
-        <section className="drill-sec">
-          <h2 className="drill-h2">
-            <span className="drill-num">02</span> Artifacts
-          </h2>
-          <p className="drill-hint">
-            Save a link (a shared Claude artifact, a doc, anything). It's stored in this browser
-            only. Full manager on the{" "}
-            <a className="stat-link" href="#/drill/artifacts" data-hover>
-              artifacts page →
-            </a>
-          </p>
-          <ArtifactQuickAdd onChange={setAllArtifacts} tier={tier} />
-          {artifacts.length > 0 && (
-            <ul className="art-list art-list-compact">
-              {artifacts.slice(0, 5).map((a) => (
-                <li key={a.id} className="art-row">
-                  <a href={a.url} target="_blank" rel="noopener noreferrer" data-hover>
-                    {a.title}
-                  </a>
-                  {a.personal && <span className="art-tag">personal</span>}
-                  <span className="art-host">{hostOf(a.url)}</span>
-                  <button
-                    className="art-del"
-                    onClick={() => setAllArtifacts(removeArtifact(a.id))}
-                    aria-label={`Delete ${a.title}`}
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
+        );
+      })}
     </>
-  );
-}
-
-function BankDay({ drill }: { drill: Drill }) {
-  const openDay = () => {
-    sessionStorage.setItem(JUMP_KEY, drill.date);
-    window.location.hash = "#/drill/today";
-  };
-  return (
-    <article className="bank-day">
-      <header className="bank-head">
-        <div>
-          <p className="bank-date">{drill.date}</p>
-          <p className="bank-focus">{drill.focus}</p>
-        </div>
-        <button className="q-btn bank-open" onClick={openDay} data-hover>
-          train this day →
-        </button>
-      </header>
-      <ul className="bank-qs">
-        {drill.questions.map((q, i) => (
-          <li key={i}>
-            <span className="bank-q">{q.q}</span>
-            <span className="bank-words">{q.mustSay.join(" · ")}</span>
-          </li>
-        ))}
-      </ul>
-    </article>
-  );
-}
-
-export function ArtifactQuickAdd({
-  onChange,
-  tier,
-}: {
-  onChange: (list: Artifact[]) => void;
-  tier: Tier;
-}) {
-  const [title, setTitle] = useState("");
-  const [url, setUrl] = useState("");
-  const [personal, setPersonal] = useState(false);
-  const [err, setErr] = useState("");
-
-  function submit(e: React.FormEvent) {
-    e.preventDefault();
-    const clean = normalizeUrl(url);
-    if (!clean) {
-      setErr("That doesn't look like a link.");
-      return;
-    }
-    setErr("");
-    // Guests can save links for themselves, but only the full tier can mark
-    // something personal — the concept doesn't exist in guest mode.
-    onChange(addArtifact(title, clean, { personal: tier === "full" && personal }));
-    setTitle("");
-    setUrl("");
-    setPersonal(false);
-  }
-
-  return (
-    <form className="art-add" onSubmit={submit}>
-      <input
-        className="gate-input art-in"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        placeholder="name (optional)"
-        aria-label="Artifact name"
-      />
-      <input
-        className="gate-input art-in art-in-url"
-        value={url}
-        onChange={(e) => setUrl(e.target.value)}
-        placeholder="paste the link"
-        aria-label="Artifact link"
-        required
-      />
-      {tier === "full" && (
-        <label className={`art-personal${personal ? " is-on" : ""}`} data-hover>
-          <input
-            type="checkbox"
-            checked={personal}
-            onChange={(e) => setPersonal(e.target.checked)}
-          />
-          personal
-        </label>
-      )}
-      <button className="gate-btn art-btn" disabled={!url.trim()}>
-        Save
-      </button>
-      {err && <p className="gate-err">{err}</p>}
-    </form>
   );
 }

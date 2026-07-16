@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@xyflow/react": "^12.11.2",
     "clsx": "^2.1.1",
     "framer-motion": "^11.3.19",
     "gsap": "^3.15.0",

@@ -8,7 +8,7 @@ import {
   visibleArtifacts,
   type Artifact,
 } from "../../lib/artifacts";
-import { ArtifactQuickAdd } from "./Dashboard";
+import { ArtifactQuickAdd } from "./ArtifactQuickAdd";
 
 /**
  * The vault: every saved link as a pressable card. Add here or on the
