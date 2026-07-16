@@ -5,6 +5,8 @@ import {
   Controls,
   ReactFlow,
   useNodesState,
+  useReactFlow,
+  ViewportPortal,
   type Edge,
   type Node,
 } from "@xyflow/react";
@@ -156,9 +158,10 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
       >
         <Background variant={BackgroundVariant.Dots} gap={22} size={1.1} color="rgba(255,255,255,0.055)" />
         <Controls position="bottom-left" showInteractive={false} />
+        <ViewportPortal>
+          <AmbientCursors tier={tier} ask={latest?.askSenior} />
+        </ViewportPortal>
       </ReactFlow>
-
-      <AmbientCursors tier={tier} ask={latest?.askSenior} />
 
       <FloatPanel drills={drills} />
 
@@ -202,24 +205,31 @@ function LiveStats() {
 
 function AmbientCursors({ tier, ask }: { tier: Tier; ask?: string }) {
   const [openPop, setOpenPop] = useState<string | null>(null);
+  const [tick, setTick] = useState(0);
+  const { getZoom } = useReactFlow();
   const [pos, setPos] = useState<Record<string, { x: number; y: number }>>(() => {
-    try { return JSON.parse(localStorage.getItem("dash-cursors") ?? "{}"); } catch { return {}; }
+    try { return JSON.parse(localStorage.getItem("dash-cursors-v2") ?? "{}"); } catch { return {}; }
   });
+  useEffect(() => { localStorage.setItem("dash-cursors-v2", JSON.stringify(pos)); }, [pos]);
+  useEffect(() => {
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const iv = setInterval(() => setTick((t) => t + 1), 2400);
+    return () => clearInterval(iv);
+  }, []);
+
+  // Flow coordinates: the chips orbit the core and ride the canvas, so
+  // panning or zooming the view never leaves them behind.
   const cursors = tier === "full"
-    ? [{ name: "SYS MANAGER", color: "#d8a94a", x: 180, y: 520 }, { name: "Claude", color: "#35e6ff", x: 540, y: 200 }]
-    : [{ name: "Claude", color: "#35e6ff", x: 500, y: 260 }];
+    ? [{ name: "SYS MANAGER", color: "#d8a94a", x: 330, y: 700 }, { name: "Claude", color: "#35e6ff", x: 1080, y: 90 }]
+    : [{ name: "Claude", color: "#35e6ff", x: 1080, y: 130 }];
 
   function drag(e: React.PointerEvent, name: string, def: { x: number; y: number }) {
     const start = pos[name] ?? def;
-    const sx = e.clientX, sy = e.clientY;
+    const sx = e.clientX, sy = e.clientY, z = getZoom();
     let moved = false;
     const onMove = (ev: PointerEvent) => {
       moved = true;
-      setPos((p) => {
-        const next = { ...p, [name]: { x: start.x + ev.clientX - sx, y: start.y + ev.clientY - sy } };
-        localStorage.setItem("dash-cursors", JSON.stringify(next));
-        return next;
-      });
+      setPos((p) => ({ ...p, [name]: { x: start.x + (ev.clientX - sx) / z, y: start.y + (ev.clientY - sy) / z } }));
     };
     const onUp = () => {
       removeEventListener("pointermove", onMove);
@@ -232,14 +242,17 @@ function AmbientCursors({ tier, ask }: { tier: Tier; ask?: string }) {
 
   return (
     <>
-      {cursors.map((c) => {
+      {cursors.map((c, i) => {
         const p = pos[c.name] ?? { x: c.x, y: c.y };
+        const dx = Math.sin(tick * 1.3 + i * 2.1) * 30;
+        const dy = Math.cos(tick * 0.9 + i * 1.7) * 22;
         const pop = c.name === "SYS MANAGER"
           ? { k: "system manager · ask tomorrow", v: ask ?? "No question today." }
           : { k: "claude · prompting tip", v: "Shape it: ROLE → CONTEXT → TASK → FORMAT. Then iterate — point at the wrong bit instead of rewriting." };
         return (
-          <div key={c.name} className="flow-cursor flow-cursor-live" style={{ left: p.x, top: p.y }}
-            onPointerDown={(e) => drag(e, c.name, { x: c.x, y: c.y })}>
+          <div key={c.name} className="flow-cursor flow-cursor-live"
+            style={{ left: p.x, top: p.y, transform: `translate(${dx}px, ${dy}px)` }}
+            onPointerDown={(e) => { e.stopPropagation(); drag(e, c.name, { x: c.x, y: c.y }); }}>
             <svg viewBox="0 0 24 24" width="16" height="16">
               <path d="M5 3l14 6.5-6 1.8-2.2 5.9L5 3z" fill={c.color} stroke="#05060a" strokeWidth="1" />
             </svg>
