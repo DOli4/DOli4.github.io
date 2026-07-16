@@ -151,22 +151,22 @@ export default function Stats({
 
       {/* KPI tiles */}
       <div className="st-tiles">
-        <div className="st-tile">
+        <div className="st-tile spot">
           <span className="st-tile-k">TOTAL XP</span>
           <b className="st-tile-n st-cyan">{xp.xp}</b>
           <span className="st-tile-sub">{rank.name}{rank.next !== null ? ` · next at ${rank.next}` : " · max rank"}</span>
         </div>
-        <div className="st-tile">
+        <div className="st-tile spot">
           <span className="st-tile-k">ANALYSES</span>
           <b className="st-tile-n">{xp.analyses}</b>
           <span className="st-tile-sub">{entries.length} kept in history</span>
         </div>
-        <div className="st-tile">
+        <div className="st-tile spot">
           <span className="st-tile-k">BEST SCORE</span>
           <b className="st-tile-n">{xp.best}</b>
           <span className="st-tile-sub">{xp.best >= FINISH_SCORE ? "bonus territory" : `${FINISH_SCORE} pays a bonus`}</span>
         </div>
-        <div className="st-tile">
+        <div className="st-tile spot">
           <span className="st-tile-k">STREAK</span>
           <b className={`st-tile-n${streak > 1 ? " st-gold" : ""}`}>×{streak}</b>
           <span className="st-tile-sub">days in a row</span>
@@ -177,17 +177,17 @@ export default function Stats({
         <p className="intel-empty st-empty">No exercises yet — pick a challenge, type it, press ANALYSE. Everything lands here.</p>
       ) : (
         <div className="st-grid">
-          <section className="st-panel st-panel-wide">
+          <section className="st-panel st-panel-wide spot">
             <h2 className="st-panel-h">SCORES · last {Math.min(entries.length, 14)} runs</h2>
             <ScoreBars entries={entries} />
           </section>
 
-          <section className="st-panel">
+          <section className="st-panel spot">
             <h2 className="st-panel-h">WHAT THE CHIPS SAY</h2>
             <KindDonut entries={entries} />
           </section>
 
-          <section className="st-panel st-panel-wide">
+          <section className="st-panel st-panel-wide spot">
             <h2 className="st-panel-h">RECENT EXERCISES</h2>
             <div className="st-recent">
               {entries.slice(0, 6).map((e) => (
@@ -200,7 +200,7 @@ export default function Stats({
             </div>
           </section>
 
-          <section className="st-panel">
+          <section className="st-panel spot">
             <h2 className="st-panel-h">AI COACH</h2>
             {!coach && (
               <>

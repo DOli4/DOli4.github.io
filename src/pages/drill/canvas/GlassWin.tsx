@@ -43,7 +43,7 @@ export default function GlassWin({
   }
 
   return (
-    <section className={`intel${small ? " intel-small" : ""}`} style={{ left: box.x, top: box.y, width: box.w, height: box.h }}>
+    <section className={`intel spot${small ? " intel-small" : ""}`} style={{ left: box.x, top: box.y, width: box.w, height: box.h }}>
       <header className="intel-hd" onPointerDown={(e) => startDrag(e, "move")}>
         <span className="intel-glowline" aria-hidden />
         <span className="intel-title">{title}</span>

@@ -8,6 +8,7 @@ import DailyDrill from "./DailyDrill";
 import Artifacts from "./Artifacts";
 import Mentor from "./mentor/Mentor";
 import SyncWidget from "./SyncWidget";
+import AetherFlow from "../../components/AetherFlow";
 import "../drill.css";
 
 const SESSION_KEY = "drill-pass";
@@ -38,6 +39,35 @@ export default function DrillArea({ route }: { route: Route }) {
   const [missing, setMissing] = useState(false);
   const [leaving, setLeaving] = useState(false);
   const [booting, setBooting] = useState(false);
+
+  // Spotlight cards: every .spot element's border-glow follows the pointer.
+  // The gradients use background-attachment: fixed (viewport space), so ONE
+  // pair of root-level vars lights up every card at once — no per-card JS.
+  // Writes are rAF-coalesced (one style recalc per frame, not per event),
+  // and mouse-only: on touch the glow would just freeze at the last tap.
+  useEffect(() => {
+    if (!matchMedia("(hover: hover)").matches) return;
+    const root = document.documentElement;
+    let raf = 0, x = 0, y = 0;
+    const onMove = (e: PointerEvent) => {
+      x = e.clientX;
+      y = e.clientY;
+      if (!raf) {
+        raf = requestAnimationFrame(() => {
+          raf = 0;
+          root.style.setProperty("--sx", String(x));
+          root.style.setProperty("--sy", String(y));
+        });
+      }
+    };
+    addEventListener("pointermove", onMove, { passive: true });
+    return () => {
+      removeEventListener("pointermove", onMove);
+      cancelAnimationFrame(raf);
+      root.style.removeProperty("--sx");
+      root.style.removeProperty("--sy");
+    };
+  }, []);
 
   async function unlock(password: string, quiet = false) {
     setBusy(true);
@@ -143,6 +173,7 @@ export default function DrillArea({ route }: { route: Route }) {
 
   return (
     <main className={`drill-page${booting ? " is-booting" : ""}`}>
+      <AetherFlow />
       <nav className={`edge-nav${navH ? " is-h" : ""}${navHidden ? " is-hidden" : ""}`} aria-label="Pages">
         <button className="edge-tab edge-switch" onClick={foldNav} title={navHidden ? "Show menu" : "Hide menu"} data-hover>
           {navHidden ? "☰" : "✕"}

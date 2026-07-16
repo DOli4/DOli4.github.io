@@ -499,3 +499,84 @@
   .m-boot .st-tiles > *, .m-boot .st-panel { animation: none; }
   .st-row { transition: none; }
 }
+
+/* ============ editor-style workspace ============ */
+.m-editor-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 16px;
+  align-items: start;
+}
+.m-editor {
+  background: rgba(13, 16, 24, 0.72);
+  border: 1px solid var(--line-bright);
+  border-radius: 14px;
+  /* no overflow:hidden — it would clip the .spot glow ring; the children
+     round their own corners instead */
+}
+.m-editor .m-code-zone { border-radius: 0 0 13px 13px; overflow: hidden; }
+.m-editor-hd {
+  border-radius: 13px 13px 0 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--line);
+  background: rgba(8, 10, 16, 0.7);
+}
+.m-editor-dots { display: inline-flex; gap: 5px; }
+.m-editor-dots i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--line-bright);
+}
+.m-editor-dots i:first-child { background: rgba(224, 91, 91, 0.7); }
+.m-editor-dots i:nth-child(2) { background: rgba(216, 169, 74, 0.7); }
+.m-editor-dots i:nth-child(3) { background: rgba(123, 223, 143, 0.7); }
+.m-editor-file { font-family: var(--mono); font-size: 11px; letter-spacing: 0.1em; color: var(--ink); }
+.m-editor-meta { margin-left: auto; font-family: var(--mono); font-size: 9.5px; color: var(--ink-faint); }
+/* the textarea loses its own frame inside the editor panel */
+.m-editor .m-code {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  min-height: 52vh;
+}
+.m-editor .m-code:focus { box-shadow: none; }
+
+/* docked example rail: node-style cards beside the editor */
+.m-ex-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-height: 58vh;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.m-ex-rail::-webkit-scrollbar { width: 5px; }
+.m-ex-rail::-webkit-scrollbar-thumb { background: var(--line-bright); border-radius: 3px; }
+.m-ex {
+  background: rgba(13, 16, 24, 0.72);
+  border: 1px solid var(--line-bright);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+.m-ex-hd {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink);
+  margin: 0;
+}
+.m-ex-hd .card-pop { margin-left: auto; }
+.m-ex .intel-note { margin-top: 6px; }
+.m-ex .m-snippet { margin-top: 8px; max-height: 220px; }
+
+@media (max-width: 1000px) {
+  .m-editor-grid { grid-template-columns: 1fr; }
+  .m-ex-rail { max-height: none; }
+}

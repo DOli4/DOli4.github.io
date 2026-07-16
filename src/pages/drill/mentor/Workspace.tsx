@@ -71,7 +71,9 @@ export default function Workspace({
     return () => clearTimeout(t);
   }, [code, draftKey]);
   const [boxes, setBoxes] = useState<Record<string, Box>>(() => loadLayout(LAYOUT_KEY));
-  const [closedExamples, setClosedExamples] = useState<string[]>([]);
+  // examples live DOCKED in the rail beside the editor; ⧉ pops one out into
+  // a floating GlassWin, ✕ on the float sends it back to the dock
+  const [popped, setPopped] = useState<string[]>([]);
   const [hasKey, setHasKey] = useState(() => !!getApiKey());
   const [keyOpen, setKeyOpen] = useState(false);
   const [keyDraft, setKeyDraft] = useState("");
@@ -156,17 +158,51 @@ export default function Workspace({
 
       <p className="m-goal">{challenge.goal}</p>
 
-      <div className="m-code-zone">
-        <textarea
-          className="m-code"
-          value={code}
-          onChange={(e) => { typed.current = true; setCode(e.target.value); }}
-          onPaste={blockPaste}
-          spellCheck={false}
-          placeholder={"// type it — the examples beside you show the technique,\n// never the answer"}
-          aria-label="Your code"
-        />
-        {pasteHint && <p className="m-paste-hint" role="status">typing IS the training — no paste here</p>}
+      <div className="m-editor-grid">
+        {/* the editor: a node-style panel, header like a file tab */}
+        <div className="m-editor spot">
+          <div className="m-editor-hd">
+            <span className="m-editor-dots" aria-hidden><i /><i /><i /></span>
+            <span className="m-editor-file">{challenge.id}.ts</span>
+            <span className="m-editor-meta">{code === "" ? "empty" : `${code.split("\n").length} lines`}</span>
+          </div>
+          <div className="m-code-zone">
+            <textarea
+              className="m-code"
+              value={code}
+              onChange={(e) => { typed.current = true; setCode(e.target.value); }}
+              onPaste={blockPaste}
+              spellCheck={false}
+              placeholder={"// type it — the examples beside you show the technique,\n// never the answer"}
+              aria-label="Your code"
+            />
+            {pasteHint && <p className="m-paste-hint" role="status">typing IS the training — no paste here</p>}
+          </div>
+        </div>
+
+        {/* docked example rail: related snippets, never the solution */}
+        <aside className="m-ex-rail" aria-label="Related examples">
+          {challenge.examples.map((ex) =>
+            popped.includes(ex.title) ? null : (
+              <article key={ex.title} className="m-ex spot">
+                <h3 className="m-ex-hd">
+                  <span className="m-card-dot" aria-hidden />
+                  {ex.title}
+                  <button
+                    className="intel-x card-pop"
+                    title="Pop out into its own window"
+                    onClick={() => setPopped((p) => [...p, ex.title])}
+                    data-hover
+                  >
+                    ⧉
+                  </button>
+                </h3>
+                <p className="intel-note">{ex.note}</p>
+                <pre className="m-snippet"><code>{ex.code}</code></pre>
+              </article>
+            ),
+          )}
+        </aside>
       </div>
 
       <footer className="m-work-ft">
@@ -185,25 +221,14 @@ export default function Workspace({
         {error && <p className="gate-err m-err" role="alert">{error}</p>}
       </footer>
 
-      {/* reopen buttons for closed example cards */}
-      {closedExamples.length > 0 && (
-        <div className="m-reopen">
-          {challenge.examples.filter((ex) => closedExamples.includes(ex.title)).map((ex) => (
-            <button key={ex.title} className="nd-chip nd-chip-btn" onClick={() => setClosedExamples((c) => c.filter((t) => t !== ex.title))} data-hover>
-              ⧉ {ex.title}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* example cards — movable glass, related snippets, never the solution */}
+      {/* popped-out example cards — floating glass; ✕ docks them back */}
       {challenge.examples.map((ex, i) =>
-        closedExamples.includes(ex.title) ? null : (
+        popped.includes(ex.title) ? (
           <GlassWin
             key={ex.title}
             id={`ex-${challenge.id}-${i}`}
             title={ex.title}
-            onClose={() => setClosedExamples((c) => [...c, ex.title])}
+            onClose={() => setPopped((p) => p.filter((t) => t !== ex.title))}
             boxes={boxes}
             setBoxes={setBoxes}
             def={{ x: Math.max(12, innerWidth - 420), y: 96 + i * 320, w: 396, h: 300 }}
@@ -213,7 +238,7 @@ export default function Workspace({
             <p className="intel-note">{ex.note}</p>
             <pre className="m-snippet"><code>{ex.code}</code></pre>
           </GlassWin>
-        ),
+        ) : null,
       )}
 
       {/* the review lands as movable teaching chips pinned near the code */}

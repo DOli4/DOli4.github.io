@@ -52,6 +52,19 @@ const ok = results
   .filter((r) => r.status === "fulfilled")
   .map((r) => (r as PromiseFulfilledResult<Data>).value);`,
       },
+      {
+        title: "Shape the merged answer",
+        note: "One response type — the caller never sees three raw payloads.",
+        code: `type Screen = { headline: string; items: Item[]; alerts: number };
+
+function toScreen(now: Now, week: Week, alerts: Alert[]): Screen {
+  return {
+    headline: now.summary,
+    items: week.days.map(toItem),
+    alerts: alerts.length,
+  };
+}`,
+      },
     ],
   },
   {
@@ -81,6 +94,18 @@ function quote(rule: ShippingRule, w: number) {
         note: "A lookup table beats an if-ladder.",
         code: `const rules: Record<string, ShippingRule> = { road, air };
 const rule = rules[order.method] ?? road;`,
+      },
+      {
+        title: "A rule with memory",
+        note: "Strategies can hold state — a tiered rule remembers its bands.",
+        code: `class TieredRule implements ShippingRule {
+  constructor(private bands: [limitKg: number, rate: number][]) {}
+  cost(w: number) {
+    const [, rate] = this.bands.find(([limit]) => w <= limit)
+      ?? this.bands[this.bands.length - 1];
+    return w * rate;
+  }
+}`,
       },
     ],
   },
@@ -116,6 +141,13 @@ class Ticker {
   if (p > user.alertAbove) sendPush(user, p);
 });`,
       },
+      {
+        title: "Always return unsubscribe",
+        note: "A listener that can't leave is a memory leak.",
+        code: `const stop = ticker.subscribe(render);
+// later — component unmounts, user logs out, screen closes:
+stop();`,
+      },
     ],
   },
   {
@@ -148,6 +180,17 @@ class Ticker {
   .json({ q: "term" })
   .build("/search");`,
       },
+      {
+        title: "Validate at build()",
+        note: "The seal step is where a half-built object gets rejected.",
+        code: `build(url: string): Request {
+  if (!url.startsWith("/")) throw new Error("relative path required");
+  if (this.body && !this.headers["content-type"]) {
+    this.headers["content-type"] = "application/json";
+  }
+  return new Request(url, { headers: this.headers, body: this.body });
+}`,
+      },
     ],
   },
   {
@@ -177,6 +220,17 @@ function parserFor(mime: string): Parser {
         title: "One place to grow",
         note: "New format = one new class + one case. Callers untouched.",
         code: `case "text/yaml": return new YamlParser();`,
+      },
+      {
+        title: "Factory + registry",
+        note: "Let modules register themselves — the factory stops knowing names.",
+        code: `const registry = new Map<string, () => Parser>();
+export function register(mime: string, make: () => Parser) {
+  registry.set(mime, make);
+}
+export function parserFor(mime: string): Parser {
+  return (registry.get(mime) ?? (() => new PlainParser()))();
+}`,
       },
     ],
   },
@@ -211,7 +265,51 @@ class CachedRepo implements Repo {
         note: "Wrappers compose because the interface never changes.",
         code: `const repo = new CachedRepo(new TimedRepo(new DbRepo()));`,
       },
+      {
+        title: "Decorator vs subclass",
+        note: "Subclassing locks one combination in; wrapping picks at runtime.",
+        code: `// runtime choice — config decides the stack:
+let repo: Repo = new DbRepo();
+if (config.cache) repo = new CachedRepo(repo);
+if (config.metrics) repo = new TimedRepo(repo);`,
+      },
     ],
+  },
+];
+
+/** Technique cards for free-typed ideas — related craft, never the answer. */
+const GENERIC_EXAMPLES: Snippet[] = [
+  {
+    title: "Shape it before you type it",
+    note: "One sentence per step. If you can't list the steps, sketch more.",
+    code: `// PLAN (write this as comments first):
+// 1. what comes in?         (input + type)
+// 2. what must come out?    (output + type)
+// 3. what are the steps?    (3-5 verbs)
+// 4. what can go wrong?     (the edge cases)
+// then delete the plan as you replace it with code`,
+  },
+  {
+    title: "Small functions, honest names",
+    note: "A function that needs 'and' in its name is two functions.",
+    code: `// hard to test:
+function loadAndFilterAndRender(list: Item[]) { /* … */ }
+
+// three honest pieces:
+const load = (): Promise<Item[]> => fetch("/items").then(r => r.json());
+const active = (items: Item[]) => items.filter(i => !i.archived);
+const render = (items: Item[]) => items.map(toRow);`,
+  },
+  {
+    title: "Guard first, then the happy path",
+    note: "Early returns keep the real logic un-indented.",
+    code: `function price(order: Order): number {
+  if (order.items.length === 0) return 0;
+  if (!order.currency) throw new Error("currency required");
+
+  // happy path lives at one indent level
+  return order.items.reduce((sum, i) => sum + i.price, 0);
+}`,
   },
 ];
 
@@ -226,6 +324,6 @@ export function customChallenge(idea: string): Challenge {
     flow: ["IDEA", "SKETCH THE SHAPE", "TYPE IT", "ANALYSE"],
     link: "https://refactoring.guru/design-patterns/catalog",
     linkLabel: "refactoring.guru · catalog",
-    examples: [],
+    examples: GENERIC_EXAMPLES,
   };
 }

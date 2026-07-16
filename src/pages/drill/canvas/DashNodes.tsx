@@ -24,7 +24,7 @@ function Card({
   wide?: boolean;
 }) {
   return (
-    <div className={`nd${wide ? " nd-wide" : ""}`}>
+    <div className={`nd spot${wide ? " nd-wide" : ""}`}>
       {/* click a card to select it - the resize handles appear */}
       <NodeResizer minWidth={190} minHeight={90} lineClassName="nd-rz-line" handleClassName="nd-rz-dot" />
       <div className="nd-hd">

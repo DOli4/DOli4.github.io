@@ -2,6 +2,7 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 
 export type HubNode = {
@@ -56,11 +57,27 @@ export default function AnomalyHub({
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setClearColor(0x000000, 0);
 
     const composer = new EffectComposer(renderer);
     composer.addPass(new RenderPass(scene, camera));
     const bloom = new UnrealBloomPass(new THREE.Vector2(512, 512), 0.3, 0.5, 0.4);
     composer.addPass(bloom);
+    // UnrealBloomPass writes an OPAQUE black background — that's the "black
+    // disc" around the anomaly. This final pass keys alpha from luminance,
+    // so unlit pixels become genuinely transparent and the page (dots,
+    // aether flow) shows through. rgb <= alpha keeps premultiply valid.
+    const alphaPass = new ShaderPass({
+      uniforms: { tDiffuse: { value: null } },
+      vertexShader: `varying vec2 vUv;
+        void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
+      fragmentShader: `uniform sampler2D tDiffuse; varying vec2 vUv;
+        void main() {
+          vec4 c = texture2D(tDiffuse, vUv);
+          gl_FragColor = vec4(c.rgb, max(max(c.r, c.g), c.b));
+        }`,
+    });
+    composer.addPass(alphaPass);
 
     const uniforms = {
       uTime: { value: 0 },
@@ -257,6 +274,7 @@ export default function AnomalyHub({
       core.geometry.dispose();
       material.dispose();
       (core.material as THREE.Material).dispose();
+      alphaPass.material.dispose();
       composer.dispose();
       renderer.dispose();
     };

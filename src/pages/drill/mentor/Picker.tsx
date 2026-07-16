@@ -18,7 +18,7 @@ export default function Picker({ onPick }: { onPick: (c: Challenge) => void }) {
   const bottom = CHALLENGES.slice(3, 6);
 
   const card = (c: Challenge) => (
-    <button key={c.id} className="m-card" onClick={() => onPick(c)} data-hover>
+    <button key={c.id} className="m-card spot" onClick={() => onPick(c)} data-hover>
       <span className="m-card-hd">
         <span className="m-card-dot" aria-hidden />
         {c.title}
@@ -57,7 +57,7 @@ export default function Picker({ onPick }: { onPick: (c: Challenge) => void }) {
         {top.map(card)}
 
         <form
-          className="m-idea"
+          className="m-idea spot"
           onSubmit={(e) => { e.preventDefault(); submitIdea(); }}
         >
           <span className="m-idea-label tag tag-dim">OR YOUR OWN IDEA</span>
