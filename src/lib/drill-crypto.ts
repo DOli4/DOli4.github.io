@@ -23,8 +23,13 @@ export type Drill = {
   lingo: { natural: string; better: string }[];
   word: { term: string; meaning: string; sentence: string; giveaway: string };
   fromBefore: string[];
-  askSenior: string;
+  /** Personal tier only — the professional payload never carries this. */
+  askSenior?: string;
 };
+
+/** Which payload a password opened. "full" sees everything;
+ *  "open" is the shareable guest tier: professional drills, no personal data. */
+export type Tier = "full" | "open";
 
 type Payload = {
   v: number;
@@ -72,11 +77,40 @@ export async function decryptDrills(payload: Payload, password: string): Promise
   return drills.sort((a, b) => b.date.localeCompare(a.date));
 }
 
-export async function fetchPayload(): Promise<Payload | null> {
+export async function fetchPayload(
+  name: "drills.enc" | "drills-open.enc" = "drills.enc",
+): Promise<Payload | null> {
   // Relative on purpose: the app lives at the site root under a hash route
   // ("/#/drill"), so "drills.enc" resolves to the site root on both
   // localhost and doli4.github.io without hardcoding either.
-  const res = await fetch("drills.enc", { cache: "no-store" });
+  const res = await fetch(name, { cache: "no-store" });
   if (!res.ok) return null;
   return (await res.json()) as Payload;
+}
+
+/**
+ * Tries the entered password against the personal payload first, then the
+ * guest payload. Which one decrypts decides the tier — there is no password
+ * list in the code, and a guest key mathematically cannot open the personal
+ * ciphertext.
+ */
+export async function unlockAny(
+  password: string,
+): Promise<{ drills: Drill[]; tier: Tier } | "missing" | "wrong"> {
+  const full = await fetchPayload("drills.enc");
+  if (!full) return "missing";
+  try {
+    return { drills: await decryptDrills(full, password), tier: "full" };
+  } catch {
+    /* not the full-tier password — try guest */
+  }
+  const open = await fetchPayload("drills-open.enc");
+  if (open) {
+    try {
+      return { drills: await decryptDrills(open, password), tier: "open" };
+    } catch {
+      /* not the guest password either */
+    }
+  }
+  return "wrong";
 }

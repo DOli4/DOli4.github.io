@@ -1,15 +1,24 @@
 import { useState } from "react";
 import { LampHeader } from "../../components/ui/lamp";
-import { hostOf, loadArtifacts, removeArtifact, type Artifact } from "../../lib/artifacts";
+import type { Tier } from "../../lib/drill-crypto";
+import {
+  hostOf,
+  loadArtifacts,
+  removeArtifact,
+  visibleArtifacts,
+  type Artifact,
+} from "../../lib/artifacts";
 import { ArtifactQuickAdd } from "./Dashboard";
 
 /**
  * The vault: every saved link as a pressable card. Add here or on the
  * dashboard — same localStorage underneath, so they never disagree.
+ * Guests (IAMUSER) never see artifacts tagged personal.
  */
-export default function Artifacts() {
-  const [artifacts, setArtifacts] = useState<Artifact[]>(loadArtifacts);
+export default function Artifacts({ tier }: { tier: Tier }) {
+  const [allArtifacts, setAllArtifacts] = useState<Artifact[]>(loadArtifacts);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const artifacts = visibleArtifacts(allArtifacts, tier);
 
   return (
     <>
@@ -28,7 +37,7 @@ export default function Artifacts() {
             Paste any link. Stored in this browser only — your work laptop and home PC each keep
             their own list.
           </p>
-          <ArtifactQuickAdd onChange={setArtifacts} />
+          <ArtifactQuickAdd onChange={setAllArtifacts} tier={tier} />
         </section>
 
         <section className="drill-sec">
@@ -48,7 +57,10 @@ export default function Artifacts() {
                     rel="noopener noreferrer"
                     data-hover
                   >
-                    <p className="art-card-title">{a.title}</p>
+                    <p className="art-card-title">
+                      {a.title}
+                      {a.personal && <span className="art-tag">personal</span>}
+                    </p>
                     <p className="art-card-host">{hostOf(a.url)}</p>
                     {a.note && <p className="art-card-note">{a.note}</p>}
                     <p className="art-card-open">open →</p>
@@ -61,7 +73,7 @@ export default function Artifacts() {
                         <button
                           className="art-del art-yes"
                           onClick={() => {
-                            setArtifacts(removeArtifact(a.id));
+                            setAllArtifacts(removeArtifact(a.id));
                             setConfirmId(null);
                           }}
                         >

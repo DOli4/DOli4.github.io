@@ -97,12 +97,14 @@ export default function DailyDrill({ drills }: { drills: DrillType[] }) {
         </ul>
       </section>
 
-      <section className="drill-sec">
-        <h2 className="drill-h2">
-          <span className="drill-num">04</span> Ask Trevor tomorrow
-        </h2>
-        <p className="ask">{drill.askSenior}</p>
-      </section>
+      {drill.askSenior && (
+        <section className="drill-sec">
+          <h2 className="drill-h2">
+            <span className="drill-num">04</span> Ask Trevor tomorrow
+          </h2>
+          <p className="ask">{drill.askSenior}</p>
+        </section>
+      )}
     </div>
   );
 }

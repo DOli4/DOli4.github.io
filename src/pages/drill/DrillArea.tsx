@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import GlitchText from "../../components/GlitchText";
-import { decryptDrills, fetchPayload, type Drill } from "../../lib/drill-crypto";
+import { unlockAny, type Drill, type Tier } from "../../lib/drill-crypto";
 import type { Route } from "../../router";
 import Dashboard from "./Dashboard";
 import DailyDrill from "./DailyDrill";
@@ -18,6 +18,7 @@ const SESSION_KEY = "drill-pass";
  */
 export default function DrillArea({ route }: { route: Route }) {
   const [drills, setDrills] = useState<Drill[] | null>(null);
+  const [tier, setTier] = useState<Tier>("full");
   const [pass, setPass] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -27,17 +28,19 @@ export default function DrillArea({ route }: { route: Route }) {
     setBusy(true);
     setError("");
     try {
-      const payload = await fetchPayload();
-      if (!payload) {
+      const result = await unlockAny(password);
+      if (result === "missing") {
         setMissing(true);
         return;
       }
-      const result = await decryptDrills(payload, password);
-      setDrills(result);
+      if (result === "wrong") {
+        sessionStorage.removeItem(SESSION_KEY);
+        if (!quiet) setError("Wrong password.");
+        return;
+      }
+      setDrills(result.drills);
+      setTier(result.tier);
       sessionStorage.setItem(SESSION_KEY, password);
-    } catch {
-      sessionStorage.removeItem(SESSION_KEY);
-      if (!quiet) setError("Wrong password.");
     } finally {
       setBusy(false);
     }
@@ -98,6 +101,16 @@ export default function DrillArea({ route }: { route: Route }) {
     );
   }
 
+  if (drills.length === 0) {
+    return (
+      <main className="drill-page">
+        <div className="wrap drill-wrap">
+          <p className="drill-empty">Unlocked — but nothing is published for this tier yet.</p>
+        </div>
+      </main>
+    );
+  }
+
   return (
     <main className="drill-page">
       <nav className="subnav" aria-label="Drill pages">
@@ -118,11 +131,12 @@ export default function DrillArea({ route }: { route: Route }) {
         >
           Artifacts
         </a>
+        {tier === "open" && <span className="tier-badge">GUEST</span>}
       </nav>
 
-      {route === "drill" && <Dashboard drills={drills} />}
+      {route === "drill" && <Dashboard drills={drills} tier={tier} />}
       {route === "drill-today" && <DailyDrill drills={drills} />}
-      {route === "drill-artifacts" && <Artifacts />}
+      {route === "drill-artifacts" && <Artifacts tier={tier} />}
     </main>
   );
 }

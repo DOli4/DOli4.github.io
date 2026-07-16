@@ -11,6 +11,8 @@ export type Artifact = {
   url: string;
   note?: string;
   addedAt: string; // yyyy-mm-dd
+  /** Personal artifacts are hidden from the guest (IAMUSER) tier. */
+  personal?: boolean;
 };
 
 const KEY = "drill-artifacts";
@@ -43,18 +45,28 @@ export function normalizeUrl(input: string): string | null {
   }
 }
 
-export function addArtifact(title: string, url: string, note?: string): Artifact[] {
+export function addArtifact(
+  title: string,
+  url: string,
+  opts?: { note?: string; personal?: boolean },
+): Artifact[] {
   const list = loadArtifacts();
   const item: Artifact = {
     id: `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
     title: title.trim() || hostOf(url),
     url,
-    note: note?.trim() || undefined,
+    note: opts?.note?.trim() || undefined,
     addedAt: new Date().toISOString().slice(0, 10),
+    personal: opts?.personal || undefined,
   };
   const next = [item, ...list];
   save(next);
   return next;
+}
+
+/** What a given tier is allowed to see. */
+export function visibleArtifacts(list: Artifact[], tier: "full" | "open"): Artifact[] {
+  return tier === "full" ? list : list.filter((a) => !a.personal);
 }
 
 export function removeArtifact(id: string): Artifact[] {

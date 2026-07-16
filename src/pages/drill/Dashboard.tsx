@@ -2,12 +2,14 @@ import { useMemo, useState } from "react";
 import AnomalyHub, { type HubNode } from "../../components/AnomalyHub";
 import { LampHeader } from "../../components/ui/lamp";
 import type { Drill } from "../../lib/drill-crypto";
+import type { Tier } from "../../lib/drill-crypto";
 import {
   addArtifact,
   hostOf,
   loadArtifacts,
   normalizeUrl,
   removeArtifact,
+  visibleArtifacts,
   type Artifact,
 } from "../../lib/artifacts";
 import { JUMP_KEY } from "./DailyDrill";
@@ -28,8 +30,9 @@ function loadSaid(): Record<string, boolean> {
  * hub is the door to the two sub-pages; artifacts are manageable right here
  * as well as on their own page.
  */
-export default function Dashboard({ drills }: { drills: Drill[] }) {
-  const [artifacts, setArtifacts] = useState<Artifact[]>(loadArtifacts);
+export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tier }) {
+  const [allArtifacts, setAllArtifacts] = useState<Artifact[]>(loadArtifacts);
+  const artifacts = visibleArtifacts(allArtifacts, tier);
 
   const stats = useMemo(() => {
     const said = loadSaid();
@@ -106,10 +109,12 @@ export default function Dashboard({ drills }: { drills: Drill[] }) {
               </div>
             </div>
 
-            <div className="stat-card">
-              <p className="tag tag-dim">ASK TREVOR</p>
-              <p className="stat-ask">{latest?.askSenior}</p>
-            </div>
+            {latest?.askSenior && (
+              <div className="stat-card">
+                <p className="tag tag-dim">ASK TREVOR</p>
+                <p className="stat-ask">{latest.askSenior}</p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -136,7 +141,7 @@ export default function Dashboard({ drills }: { drills: Drill[] }) {
               artifacts page →
             </a>
           </p>
-          <ArtifactQuickAdd onChange={setArtifacts} />
+          <ArtifactQuickAdd onChange={setAllArtifacts} tier={tier} />
           {artifacts.length > 0 && (
             <ul className="art-list art-list-compact">
               {artifacts.slice(0, 5).map((a) => (
@@ -144,10 +149,11 @@ export default function Dashboard({ drills }: { drills: Drill[] }) {
                   <a href={a.url} target="_blank" rel="noopener noreferrer" data-hover>
                     {a.title}
                   </a>
+                  {a.personal && <span className="art-tag">personal</span>}
                   <span className="art-host">{hostOf(a.url)}</span>
                   <button
                     className="art-del"
-                    onClick={() => setArtifacts(removeArtifact(a.id))}
+                    onClick={() => setAllArtifacts(removeArtifact(a.id))}
                     aria-label={`Delete ${a.title}`}
                   >
                     ✕
@@ -190,9 +196,16 @@ function BankDay({ drill }: { drill: Drill }) {
   );
 }
 
-export function ArtifactQuickAdd({ onChange }: { onChange: (list: Artifact[]) => void }) {
+export function ArtifactQuickAdd({
+  onChange,
+  tier,
+}: {
+  onChange: (list: Artifact[]) => void;
+  tier: Tier;
+}) {
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
+  const [personal, setPersonal] = useState(false);
   const [err, setErr] = useState("");
 
   function submit(e: React.FormEvent) {
@@ -203,9 +216,12 @@ export function ArtifactQuickAdd({ onChange }: { onChange: (list: Artifact[]) =>
       return;
     }
     setErr("");
-    onChange(addArtifact(title, clean));
+    // Guests can save links for themselves, but only the full tier can mark
+    // something personal — the concept doesn't exist in guest mode.
+    onChange(addArtifact(title, clean, { personal: tier === "full" && personal }));
     setTitle("");
     setUrl("");
+    setPersonal(false);
   }
 
   return (
@@ -225,6 +241,16 @@ export function ArtifactQuickAdd({ onChange }: { onChange: (list: Artifact[]) =>
         aria-label="Artifact link"
         required
       />
+      {tier === "full" && (
+        <label className={`art-personal${personal ? " is-on" : ""}`} data-hover>
+          <input
+            type="checkbox"
+            checked={personal}
+            onChange={(e) => setPersonal(e.target.checked)}
+          />
+          personal
+        </label>
+      )}
       <button className="gate-btn art-btn" disabled={!url.trim()}>
         Save
       </button>
