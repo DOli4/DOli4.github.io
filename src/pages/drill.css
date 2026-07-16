@@ -337,3 +337,267 @@
     display: none;
   }
 }
+
+/* ============================================================
+   Drill area v2: subnav, dashboard, anomaly hub, artifacts
+   ============================================================ */
+
+.subnav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  padding: 68px 16px 10px;
+  background: linear-gradient(180deg, var(--void) 75%, transparent);
+}
+.subtab {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  text-decoration: none;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  transition: color 0.2s, border-color 0.2s;
+}
+.subtab:hover { color: var(--ink); border-color: var(--line-bright); }
+.subtab.is-on { color: var(--cyan); border-color: var(--cyan-deep); }
+
+/* --- lamp type (component is Tailwind; type is ours) --- */
+.lamp-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.22em;
+  color: var(--cyan);
+  margin-bottom: 10px;
+}
+.lamp-title {
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: clamp(40px, 7vw, 72px);
+  letter-spacing: 0.04em;
+  color: var(--ink);
+  line-height: 1;
+}
+.lamp-sub {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink-dim);
+  max-width: 46ch;
+}
+
+/* --- dashboard layout --- */
+.dash-wrap { padding-top: 0; }
+.dash-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  gap: 28px;
+  align-items: center;
+  margin-bottom: 56px;
+}
+@media (max-width: 900px) {
+  .dash-grid { grid-template-columns: 1fr; }
+}
+
+.stat-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+  background: var(--panel);
+}
+.dash-side { display: grid; gap: 14px; }
+.stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.stat-word {
+  font-family: var(--sans);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--gold);
+  margin: 6px 0 4px;
+}
+.stat-word-sub { font-size: 13px; color: var(--ink-dim); line-height: 1.5; }
+.stat-num {
+  font-family: var(--sans);
+  font-size: 34px;
+  font-weight: 600;
+  color: var(--cyan);
+}
+.stat-cap { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: var(--ink-dim); margin-top: 2px; }
+.stat-ask { font-size: 13px; color: var(--ink); line-height: 1.55; margin-top: 6px; }
+.stat-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--cyan);
+  text-decoration: none;
+}
+.stat-link:hover { text-decoration: underline; }
+
+/* --- anomaly hub --- */
+.hub {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  margin: 0 auto;
+  aspect-ratio: 1;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+.hub-canvas { width: 100%; height: 100%; display: block; }
+.hub-glow {
+  position: absolute;
+  inset: 12%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(53, 230, 255, 0.10) 0%, transparent 65%);
+  pointer-events: none;
+}
+.hub-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  color: var(--ink);
+  text-decoration: none;
+  padding: 6px 11px;
+  border: 1px solid var(--line-bright);
+  border-radius: 999px;
+  background: rgba(13, 16, 23, 0.88);
+  backdrop-filter: blur(2px);
+  transition: opacity 0.25s, border-color 0.2s, color 0.2s;
+}
+.hub-node:hover { border-color: var(--cyan); color: var(--cyan); }
+.hub-node-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  box-shadow: 0 0 8px var(--cyan);
+  flex: none;
+}
+.hub-hint {
+  position: absolute;
+  bottom: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+/* --- question bank --- */
+.bank-day {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  background: var(--panel);
+}
+.bank-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.bank-date { font-family: var(--mono); font-size: 11px; letter-spacing: 0.14em; color: var(--cyan); }
+.bank-focus { font-size: 14px; color: var(--ink-dim); margin-top: 3px; }
+.bank-open { flex: none; }
+.bank-qs { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.bank-qs li { border-top: 1px solid var(--line); padding-top: 10px; }
+.bank-q { display: block; font-size: 14px; color: var(--ink); line-height: 1.5; }
+.bank-words {
+  display: block;
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.06em;
+  color: var(--gold);
+}
+
+/* --- artifacts --- */
+.art-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.art-in { flex: 1 1 160px; }
+.art-in-url { flex: 2 1 260px; }
+.art-btn { flex: none; }
+.art-list { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 8px; }
+.art-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 9px 14px;
+  background: var(--panel);
+}
+.art-row a { color: var(--ink); text-decoration: none; font-size: 13.5px; }
+.art-row a:hover { color: var(--cyan); }
+.art-host { font-family: var(--mono); font-size: 10.5px; color: var(--ink-faint); margin-left: auto; }
+.art-del {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  color: var(--ink-faint);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+}
+.art-del:hover { color: var(--err); }
+.art-yes { color: var(--err); }
+.art-confirm { font-family: var(--mono); font-size: 10.5px; color: var(--ink-dim); }
+
+.art-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.art-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--panel);
+  overflow: hidden;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.art-card:hover { border-color: var(--cyan-deep); transform: translateY(-2px); }
+.art-card-main { flex: 1; padding: 18px 18px 12px; text-decoration: none; }
+.art-card-title { font-family: var(--sans); font-size: 16px; font-weight: 600; color: var(--ink); }
+.art-card-host { font-family: var(--mono); font-size: 10.5px; color: var(--cyan); margin-top: 4px; }
+.art-card-note { font-size: 12.5px; color: var(--ink-dim); margin-top: 8px; line-height: 1.5; }
+.art-card-open {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim);
+  margin-top: 14px;
+}
+.art-card:hover .art-card-open { color: var(--cyan); }
+.art-card-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding: 8px 14px;
+}
+.art-card-date { font-family: var(--mono); font-size: 10px; color: var(--ink-faint); }
+
+/* keep the lamp type readable inside the glow */
+.lamp-eyebrow, .lamp-title, .lamp-sub { text-shadow: 0 2px 14px rgba(5, 6, 10, 0.9); }

@@ -1,4 +1,4 @@
-import { pageTabs, type Route } from "../router";
+import { isDrillRoute, pageTabs, type Route } from "../router";
 
 /**
  * Fixed top chrome, shared by every page.
@@ -30,18 +30,22 @@ export default function SiteNav({ route }: { route: Route }) {
       )}
 
       <div className="page-tabs" role="tablist" aria-label="Pages">
-        {pageTabs.map((tab) => (
-          <a
-            key={tab.route}
-            href={tab.href}
-            role="tab"
-            aria-selected={route === tab.route}
-            className={`page-tab${route === tab.route ? " is-on" : ""}`}
-            data-hover
-          >
-            {tab.label}
-          </a>
-        ))}
+        {pageTabs.map((tab) => {
+          // The DRILL tab owns all its sub-pages (dashboard/today/artifacts).
+          const on = route === tab.route || (tab.route === "drill" && isDrillRoute(route));
+          return (
+            <a
+              key={tab.route}
+              href={tab.href}
+              role="tab"
+              aria-selected={on}
+              className={`page-tab${on ? " is-on" : ""}`}
+              data-hover
+            >
+              {tab.label}
+            </a>
+          );
+        })}
       </div>
     </nav>
   );

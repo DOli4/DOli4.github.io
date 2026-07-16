@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 
-export type Route = "home" | "drill" | "shake";
+export type Route = "home" | "drill" | "drill-today" | "drill-artifacts" | "shake";
+
+/** True for every view living behind the drill password gate. */
+export function isDrillRoute(route: Route): boolean {
+  return route === "drill" || route === "drill-today" || route === "drill-artifacts";
+}
 
 export const pageTabs: { route: Route; href: string; label: string }[] = [
   { route: "home", href: "#/", label: "CV" },
@@ -22,6 +27,8 @@ function parse(): Route {
   if (!hash.startsWith("#/")) return "home";
   const slug = hash.slice(2).replace(/\/$/, "");
   if (slug === "drill" || slug === "shake") return slug;
+  if (slug === "drill/today") return "drill-today";
+  if (slug === "drill/artifacts") return "drill-artifacts";
   return "home";
 }
 

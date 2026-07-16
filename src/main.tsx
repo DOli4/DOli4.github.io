@@ -1,11 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.tsx";
-import Drill from "./pages/Drill.tsx";
+import DrillArea from "./pages/drill/DrillArea.tsx";
 import Shake from "./pages/Shake.tsx";
 import SiteNav from "./components/SiteNav.tsx";
 import TronCursor from "./components/TronCursor.tsx";
-import { useRoute } from "./router";
+import { isDrillRoute, useRoute } from "./router";
 import "./styles/tailwind.css";
 import "./styles/dark.css";
 import "./styles/layout.css";
@@ -20,7 +20,7 @@ function Root() {
       {route !== "shake" && <TronCursor />}
       <SiteNav route={route} />
       {route === "home" && <App />}
-      {route === "drill" && <Drill />}
+      {isDrillRoute(route) && <DrillArea route={route} />}
       {route === "shake" && <Shake />}
     </>
   );

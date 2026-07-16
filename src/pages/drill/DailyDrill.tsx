@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import GlitchText from "../components/GlitchText";
-import { decryptDrills, fetchPayload, type Drill as DrillType } from "../lib/drill-crypto";
-import "./drill.css";
+import GlitchText from "../../components/GlitchText";
+import type { Drill as DrillType } from "../../lib/drill-crypto";
 
-const SESSION_KEY = "drill-pass";
 const SAID_KEY = "drill-said";
+/** Dashboard links set this before navigating, so "open that day" lands on it. */
+export const JUMP_KEY = "drill-jump-date";
 
 /** Which must-say words he's ticked, across sessions: { "2026-07-15|0|projection": true } */
 function loadSaid(): Record<string, boolean> {
@@ -15,90 +15,22 @@ function loadSaid(): Record<string, boolean> {
   }
 }
 
-export default function Drill() {
-  const [drills, setDrills] = useState<DrillType[] | null>(null);
-  const [pass, setPass] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-  const [missing, setMissing] = useState(false);
-  const [activeDate, setActiveDate] = useState<string | null>(null);
-
-  async function unlock(password: string, quiet = false) {
-    setBusy(true);
-    setError("");
-    try {
-      const payload = await fetchPayload();
-      if (!payload) {
-        setMissing(true);
-        return;
-      }
-      const result = await decryptDrills(payload, password);
-      setDrills(result);
-      setActiveDate(result[0]?.date ?? null);
-      sessionStorage.setItem(SESSION_KEY, password);
-    } catch {
-      sessionStorage.removeItem(SESSION_KEY);
-      if (!quiet) setError("Wrong password.");
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  // Stay unlocked across reloads within the tab, so a refresh isn't a re-login.
+export default function DailyDrill({ drills }: { drills: DrillType[] }) {
+  // Read the jump target in the initializer, but CLEAR it in an effect:
+  // StrictMode runs initializers twice, so a removeItem here would eat the
+  // key on the first pass and the second pass would land on the wrong day.
+  const [activeDate, setActiveDate] = useState<string | null>(() => {
+    const jump = sessionStorage.getItem(JUMP_KEY);
+    return jump && drills.some((d) => d.date === jump) ? jump : (drills[0]?.date ?? null);
+  });
   useEffect(() => {
-    const saved = sessionStorage.getItem(SESSION_KEY);
-    if (saved) void unlock(saved, true);
+    sessionStorage.removeItem(JUMP_KEY);
   }, []);
-
-  if (missing) {
-    return (
-      <Shell>
-        <p className="drill-empty">
-          No drills published yet. They appear here after a workday with commits.
-        </p>
-      </Shell>
-    );
-  }
-
-  if (!drills) {
-    return (
-      <Shell>
-        <form
-          className="gate"
-          onSubmit={(e) => {
-            e.preventDefault();
-            void unlock(pass);
-          }}
-        >
-          <p className="tag tag-dim">ENCRYPTED · AES-GCM</p>
-          <h1 className="drill-h1">
-            <GlitchText>DRILL</GlitchText>
-          </h1>
-          <p className="gate-sub">
-            Private. The payload is ciphertext until the password decrypts it.
-          </p>
-          <input
-            className="gate-input"
-            type="password"
-            value={pass}
-            onChange={(e) => setPass(e.target.value)}
-            placeholder="password"
-            aria-label="Password"
-            autoFocus
-          />
-          <button className="gate-btn" disabled={busy || !pass}>
-            {busy ? "Decrypting…" : "Unlock"}
-          </button>
-          {error && <p className="gate-err">{error}</p>}
-        </form>
-      </Shell>
-    );
-  }
 
   const drill = drills.find((d) => d.date === activeDate) ?? drills[0];
 
   return (
-    <Shell>
+    <div className="wrap drill-wrap">
       <header className="drill-head">
         <div>
           <p className="tag tag-dim">SPEAK IT · DON'T READ IT</p>
@@ -155,7 +87,9 @@ export default function Drill() {
         <h2 className="drill-h2">
           <span className="drill-num">03</span> From before
         </h2>
-        <p className="drill-hint">Older terms, asked cold. You won't remember to revise — so this is the revision.</p>
+        <p className="drill-hint">
+          Older terms, asked cold. You won't remember to revise — so this is the revision.
+        </p>
         <ul className="recall">
           {drill.fromBefore.map((item, i) => (
             <li key={i}>{item}</li>
@@ -169,15 +103,7 @@ export default function Drill() {
         </h2>
         <p className="ask">{drill.askSenior}</p>
       </section>
-    </Shell>
-  );
-}
-
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <main className="drill-page">
-      <div className="wrap drill-wrap">{children}</div>
-    </main>
+    </div>
   );
 }
 
@@ -204,7 +130,15 @@ function WordOfDay({ drill }: { drill: DrillType }) {
   );
 }
 
-function Question({ q, date, index }: { q: DrillType["questions"][number]; date: string; index: number }) {
+function Question({
+  q,
+  date,
+  index,
+}: {
+  q: DrillType["questions"][number];
+  date: string;
+  index: number;
+}) {
   const [open, setOpen] = useState(false);
   const [said, setSaid] = useState<Record<string, boolean>>(loadSaid);
 
