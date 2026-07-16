@@ -15,6 +15,19 @@ const PROMPT_TIPS: { title: string; steps: string[]; note: string }[] = [
 ];
 
 const LAYOUT_KEY = "intel-layout-v2";
+/** Past news days, archived per browser — news.json only ever holds the
+ *  latest run, so without this yesterday's items would be gone. */
+const NEWS_HIST_KEY = "news-history";
+const NEWS_HIST_DAYS = 30;
+
+function loadNewsHist(): Record<string, News> {
+  try {
+    const raw = JSON.parse(localStorage.getItem(NEWS_HIST_KEY) ?? "{}");
+    return raw && typeof raw === "object" ? raw : {};
+  } catch {
+    return {};
+  }
+}
 
 /** Card with a pop-out switch on its title. */
 function Card({ id, title, popped, setPopped, children }: {
@@ -75,12 +88,23 @@ export default function FloatPanel({ drills }: { drills: Drill[] }) {
   const [openIntel, setOpenIntel] = useState(false);
   const [popped, setPopped] = useState<string[]>([]);
   const [news, setNews] = useState<News | null | "none">(null);
+  const [newsHist, setNewsHist] = useState<Record<string, News>>(loadNewsHist);
+  const [newsDay, setNewsDay] = useState<string | null>(null); // null = newest
   const [boxes, setBoxes] = useState<Record<string, Box>>(() => loadLayout(LAYOUT_KEY));
 
   useEffect(() => {
     fetch("news.json", { cache: "no-store" })
       .then((r) => (r.ok ? r.json() : Promise.reject()))
-      .then((n: News) => setNews(n))
+      .then((n: News) => {
+        setNews(n);
+        // archive the day; keep the newest NEWS_HIST_DAYS. Computed outside
+        // the updater (updaters must stay pure) and best-effort on quota.
+        const merged = { ...loadNewsHist(), [n.date]: n };
+        const keep = Object.keys(merged).sort().reverse().slice(0, NEWS_HIST_DAYS);
+        const next = Object.fromEntries(keep.map((d) => [d, merged[d]]));
+        try { localStorage.setItem(NEWS_HIST_KEY, JSON.stringify(next)); } catch { /* archive is best-effort */ }
+        setNewsHist(next);
+      })
       .catch(() => setNews("none"));
   }, []);
   useEffect(() => { localStorage.setItem(LAYOUT_KEY, JSON.stringify(boxes)); }, [boxes]);
@@ -88,7 +112,12 @@ export default function FloatPanel({ drills }: { drills: Drill[] }) {
   const drillTips = drills
     .map((d) => (d as Drill & { promptTip?: string }).promptTip)
     .filter((t): t is string => !!t);
-  const items = news !== null && news !== "none" ? news.items : [];
+  // What the NEWS window shows: the picked archive day, else the freshest we
+  // have — today's fetch, or the newest archived day when the fetch failed.
+  const histDays = Object.keys(newsHist).sort().reverse();
+  const latest = news !== null && news !== "none" ? news : histDays.length > 0 ? newsHist[histDays[0]] : null;
+  const shown = (newsDay ? newsHist[newsDay] : null) ?? latest;
+  const items = shown ? shown.items : [];
 
   return (
     <>
@@ -107,13 +136,26 @@ export default function FloatPanel({ drills }: { drills: Drill[] }) {
         <GlassWin id="win-news" title="NEWS" onClose={() => setOpenNews(false)}
           boxes={boxes} setBoxes={setBoxes} resizable
           def={{ x: Math.max(12, innerWidth - 420), y: 70, w: 384, h: 460 }}>
-          {news === null && <p className="intel-empty">loading…</p>}
-          {news === "none" && <p className="intel-empty">No news yet — the 16:30 run fetches the day&rsquo;s AI news.</p>}
-          {news !== null && news !== "none" && (
+          {news === null && !shown && <p className="intel-empty">loading…</p>}
+          {news === "none" && !shown && <p className="intel-empty">No news yet — the 16:30 run fetches the day&rsquo;s AI news.</p>}
+          {shown && (
             <>
-              <p className="intel-date">{news.date}</p>
+              {histDays.length > 1 ? (
+                <select
+                  className="drill-date intel-days"
+                  value={shown.date}
+                  onChange={(e) => setNewsDay(e.target.value)}
+                  aria-label="Pick a news day"
+                >
+                  {histDays.map((d) => (
+                    <option key={d} value={d}>{d}</option>
+                  ))}
+                </select>
+              ) : (
+                <p className="intel-date">{shown.date}</p>
+              )}
               {items.map((it, i) => (
-                <Card key={i} id={`n-${i}`} title={it.title} popped={popped} setPopped={setPopped}>
+                <Card key={`${shown.date}-${i}`} id={`n-${shown.date}-${i}`} title={it.title} popped={popped} setPopped={setPopped}>
                   <NewsBody it={it} />
                 </Card>
               ))}
@@ -144,7 +186,10 @@ export default function FloatPanel({ drills }: { drills: Drill[] }) {
         const close = () => setPopped((p) => p.filter((x) => x !== id));
         const def = { x: 120 + k * 40, y: 120 + k * 40, w: 330, h: 340 };
         if (id.startsWith("n-")) {
-          const it = items[Number(id.slice(2))];
+          // day-qualified id "n-<yyyy-mm-dd>-<i>": a popped card stays pinned
+          // to ITS day even when the NEWS window shows another one.
+          const date = id.slice(2, 12);
+          const it = newsHist[date]?.items[Number(id.slice(13))];
           if (!it) return null;
           return (
             <GlassWin key={id} id={id} title={it.title} onClose={close} boxes={boxes} setBoxes={setBoxes} def={def} resizable small>

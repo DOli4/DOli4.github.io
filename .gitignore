@@ -8,3 +8,4 @@ dist-ssr
 # Plaintext interview drills. NEVER commit these - they are generated from work
 # commits and are only ever published as public/drills.enc (AES-GCM ciphertext).
 drill-data/
+*.tsbuildinfo

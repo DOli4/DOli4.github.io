@@ -1435,3 +1435,10 @@
 @media (prefers-reduced-motion: reduce) {
   .is-booting .react-flow__node, .is-booting .react-flow__edges { animation: none; }
 }
+
+/* NEWS window: archived days become a small picker */
+.intel-days {
+  margin-bottom: 10px;
+  font-size: 10.5px;
+  padding: 4px 8px;
+}

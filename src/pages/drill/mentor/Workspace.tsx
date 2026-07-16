@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import GlassWin, { loadLayout, type Box } from "../canvas/GlassWin";
 import { analyseCode, clearApiKey, getApiKey, setApiKey, type MentorChip, type MentorReview } from "../../../lib/mentor-claude";
 import { FINISH_BONUS, FINISH_SCORE } from "./xp";
+import { addHistory, type HistoryEntry } from "./history";
 import type { Challenge } from "./challenges";
 
 const LAYOUT_KEY = "mentor-layout-v1";
@@ -49,14 +50,17 @@ function ChipBody({ chip }: { chip: MentorChip }) {
  */
 export default function Workspace({
   challenge,
+  initial,
   onBack,
   onScored,
 }: {
   challenge: Challenge;
+  /** a past exercise reopened from HISTORY — code + review restored */
+  initial?: HistoryEntry;
   onBack: () => void;
   onScored: (score: number) => void;
 }) {
-  const [code, setCode] = useState("");
+  const [code, setCode] = useState(initial?.code ?? "");
   const [boxes, setBoxes] = useState<Record<string, Box>>(() => loadLayout(LAYOUT_KEY));
   const [closedExamples, setClosedExamples] = useState<string[]>([]);
   const [hasKey, setHasKey] = useState(() => !!getApiKey());
@@ -66,7 +70,15 @@ export default function Workspace({
   const [error, setError] = useState("");
   // Chips get stable uids when a review lands — index-keying would make
   // remaining chips adopt a closed neighbour's persisted box.
-  const [review, setReview] = useState<UidReview | null>(null);
+  const [review, setReview] = useState<UidReview | null>(() =>
+    initial
+      ? {
+          score: initial.score,
+          praise: initial.praise,
+          chips: initial.chips.map((c, i) => ({ ...c, uid: `chip-${initial.id}-${i}` })),
+        }
+      : null,
+  );
   const [pasteHint, setPasteHint] = useState(false);
   const pasteTimer = useRef(0);
   // Persist via effect — updaters must stay pure (StrictMode runs them twice),
@@ -91,6 +103,16 @@ export default function Workspace({
       setReview({ ...result, chips: result.chips.map((c, i) => ({ ...c, uid: `chip-${stamp}-${i}` })) });
       // fresh review = fresh chip positions; drop stale chip boxes
       setBoxes((bs) => Object.fromEntries(Object.entries(bs).filter(([k]) => !k.startsWith("chip-"))));
+      // every exercise lands in the history — the code AND the lesson
+      addHistory({
+        challengeId: challenge.id,
+        challengeTitle: challenge.title,
+        goal: challenge.goal,
+        code,
+        score: result.score,
+        praise: result.praise,
+        chips: result.chips,
+      });
       onScored(result.score);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something broke — try again.");
