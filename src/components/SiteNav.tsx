@@ -9,9 +9,14 @@ import { isDrillRoute, pageTabs, type Route } from "../router";
 export default function SiteNav({ route }: { route: Route }) {
   return (
     <nav className="hud-top">
-      <a className="hud-mark" href="#/" aria-label="Home">
+      <button
+        className="hud-mark"
+        onClick={() => window.dispatchEvent(new Event("mark-menu"))}
+        aria-label="Site menu and theme"
+        data-hover
+      >
         ⟠
-      </a>
+      </button>
 
       {route === "home" ? (
         <div className="hud-links">

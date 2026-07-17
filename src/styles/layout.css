@@ -23,7 +23,14 @@
 .hud-mark {
   font-size: 1.3rem;
   color: var(--ink);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  line-height: 1;
+  transition: color 0.2s var(--ease), transform 0.2s var(--ease);
 }
+.hud-mark:hover { color: var(--cyan); transform: rotate(90deg); }
 
 .hud-links {
   display: flex;
