@@ -1,12 +1,26 @@
 import { useEffect, useRef } from "react";
 
 /**
- * Aether flow — the drill pages' living backdrop. A 2D-canvas flow field:
- * particles drift along a layered-sine angle field leaving short glowing
- * streaks, cyan with violet undertones (the ANOMALY take on the purple
- * "aether" reference). Fixed, pointer-transparent, behind everything.
- * Reduced motion: one static frame, no loop.
+ * Aether flow v2 — the drill pages' living backdrop, now the particle
+ * NETWORK from the aether-flow-hero reference: drifting particles, lines
+ * connecting close neighbours, and a mouse field that pushes particles away
+ * (lines whiten near the cursor). Ported from the 21st.dev component,
+ * adapted to this codebase: TypeScript, transparent clear instead of a black
+ * fill (the page's own void gradient stays visible), full cleanup, and one
+ * calm static frame under prefers-reduced-motion.
  */
+
+type Particle = {
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  size: number;
+};
+
+const PARTICLE_COLOR = "rgba(191, 128, 255, 0.8)";
+const MOUSE_RADIUS = 200;
+
 export default function AetherFlow() {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -15,86 +29,119 @@ export default function AetherFlow() {
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    const g2d = ctx;
 
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let w = 0, h = 0;
-    const size = () => {
-      w = canvas.width = innerWidth;
-      h = canvas.height = innerHeight;
-      // resizing clears the bitmap; in reduced mode nothing repaints, so
-      // redraw the held frame here (no-op before the first step exists)
-      if (reduced && parts.length) step(0);
-    };
-    size();
-    addEventListener("resize", size);
+    const mouse = { x: null as number | null, y: null as number | null };
+    let particles: Particle[] = [];
 
-    type P = { x: number; y: number; px: number; py: number; hue: number; speed: number };
-    const N = 70;
-    const parts: P[] = Array.from({ length: N }, () => spawn());
-    function spawn(): P {
-      const x = Math.random() * w, y = Math.random() * h;
-      return {
-        x, y, px: x, py: y,
-        // mostly cyan, a violet undercurrent — matches the site, nods to aether
-        hue: Math.random() < 0.7 ? 187 : 262,
-        speed: 0.35 + Math.random() * 0.55,
-      };
+    function init() {
+      particles = [];
+      const count = (canvas!.width * canvas!.height) / 9000;
+      for (let i = 0; i < count; i++) {
+        const size = Math.random() * 2 + 1;
+        particles.push({
+          x: Math.random() * (canvas!.width - size * 4) + size * 2,
+          y: Math.random() * (canvas!.height - size * 4) + size * 2,
+          dx: Math.random() * 0.4 - 0.2,
+          dy: Math.random() * 0.4 - 0.2,
+          size,
+        });
+      }
     }
 
-    // cheap layered-sine "noise" — good enough for a drifting angle field
-    const angle = (x: number, y: number, t: number) =>
-      Math.sin(x * 0.0019 + t * 0.00022) * 1.9 +
-      Math.cos(y * 0.0016 - t * 0.00017) * 1.7 +
-      Math.sin((x + y) * 0.0008 + t * 0.0001) * 1.2;
+    const resize = () => {
+      canvas.width = innerWidth;
+      canvas.height = innerHeight;
+      init();
+      if (reduced) render(false); // hold a repainted static frame
+    };
+
+    function render(withMouse: boolean) {
+      const w = canvas!.width, h = canvas!.height;
+      ctx!.clearRect(0, 0, w, h);
+
+      for (const p of particles) {
+        if (p.x > w || p.x < 0) p.dx = -p.dx;
+        if (p.y > h || p.y < 0) p.dy = -p.dy;
+
+        // the mouse field pushes particles away
+        if (withMouse && mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - p.x, dy = mouse.y - p.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < MOUSE_RADIUS + p.size && dist > 0) {
+            const force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS;
+            p.x -= (dx / dist) * force * 5;
+            p.y -= (dy / dist) * force * 5;
+          }
+        }
+
+        p.x += p.dx;
+        p.y += p.dy;
+
+        ctx!.beginPath();
+        ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx!.fillStyle = PARTICLE_COLOR;
+        ctx!.fill();
+      }
+
+      // connect close neighbours; lines whiten near the cursor
+      const threshold = (w / 7) * (h / 7);
+      ctx!.lineWidth = 1;
+      for (let a = 0; a < particles.length; a++) {
+        for (let b = a; b < particles.length; b++) {
+          const ddx = particles[a].x - particles[b].x;
+          const ddy = particles[a].y - particles[b].y;
+          const distSq = ddx * ddx + ddy * ddy;
+          if (distSq < threshold) {
+            const opacity = Math.max(0, Math.min(1, 1 - distSq / 20000));
+            let nearMouse = false;
+            if (withMouse && mouse.x !== null && mouse.y !== null) {
+              nearMouse = Math.hypot(particles[a].x - mouse.x, particles[a].y - mouse.y) < MOUSE_RADIUS;
+            }
+            ctx!.strokeStyle = nearMouse
+              ? `rgba(255, 255, 255, ${opacity})`
+              : `rgba(200, 150, 255, ${opacity})`;
+            ctx!.beginPath();
+            ctx!.moveTo(particles[a].x, particles[a].y);
+            ctx!.lineTo(particles[b].x, particles[b].y);
+            ctx!.stroke();
+          }
+        }
+      }
+    }
 
     let raf = 0;
-    function step(t: number) {
-      g2d.clearRect(0, 0, w, h);
-      g2d.lineCap = "round";
-      for (const p of parts) {
-        const a = angle(p.x, p.y, t);
-        p.px = p.x;
-        p.py = p.y;
-        p.x += Math.cos(a) * p.speed;
-        p.y += Math.sin(a) * p.speed;
-        if (p.x < -20 || p.x > w + 20 || p.y < -20 || p.y > h + 20) {
-          Object.assign(p, spawn());
-          continue;
-        }
-        // a streak along the recent direction — reads as flow without a
-        // persistent trail buffer
-        const dx = p.x - p.px, dy = p.y - p.py;
-        g2d.strokeStyle = `hsla(${p.hue}, 90%, 62%, 0.16)`;
-        g2d.lineWidth = 1.2;
-        g2d.beginPath();
-        g2d.moveTo(p.x - dx * 16, p.y - dy * 16);
-        g2d.lineTo(p.x, p.y);
-        g2d.stroke();
-        g2d.fillStyle = `hsla(${p.hue}, 95%, 70%, 0.35)`;
-        g2d.beginPath();
-        g2d.arc(p.x, p.y, 1.1, 0, Math.PI * 2);
-        g2d.fill();
-      }
-      if (!reduced) raf = requestAnimationFrame(step);
-    }
+    const animate = () => {
+      raf = requestAnimationFrame(animate);
+      render(true);
+    };
+
+    const onMove = (e: MouseEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+    };
+    const onOut = () => {
+      mouse.x = null;
+      mouse.y = null;
+    };
+
+    resize();
+    addEventListener("resize", resize);
 
     if (reduced) {
-      // settle the field a little, then hold one calm frame
-      for (let i = 0; i < 40; i++) parts.forEach((p) => {
-        const a = angle(p.x, p.y, i * 16);
-        p.px = p.x; p.py = p.y;
-        p.x += Math.cos(a) * p.speed * 4;
-        p.y += Math.sin(a) * p.speed * 4;
-      });
-      step(0);
+      render(false); // one calm frame, no loop, no mouse field
     } else {
-      raf = requestAnimationFrame(step);
+      addEventListener("mousemove", onMove, { passive: true });
+      addEventListener("mouseout", onOut, { passive: true });
+      render(true); // paint the first frame synchronously
+      raf = requestAnimationFrame(animate);
     }
 
     return () => {
       cancelAnimationFrame(raf);
-      removeEventListener("resize", size);
+      removeEventListener("resize", resize);
+      removeEventListener("mousemove", onMove);
+      removeEventListener("mouseout", onOut);
     };
   }, []);
 
