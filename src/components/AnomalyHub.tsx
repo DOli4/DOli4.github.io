@@ -4,6 +4,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { THEME_EVENT } from "../lib/theme";
 
 export type HubNode = {
   id: string;
@@ -79,12 +80,17 @@ export default function AnomalyHub({
     });
     composer.addPass(alphaPass);
 
+    // the mass takes its colour from the theme accent (--cyan), live
+    const accentColor = () =>
+      getComputedStyle(document.documentElement).getPropertyValue("--cyan").trim() || "#35e6ff";
     const uniforms = {
       uTime: { value: 0 },
       uAmp: { value: 0.26 },
-      uCyan: { value: new THREE.Color(0x35e6ff) },
+      uCyan: { value: new THREE.Color(accentColor()) },
       uWhite: { value: new THREE.Color(0xdfe8ff) },
     };
+    const onTheme = () => uniforms.uCyan.value.set(accentColor());
+    addEventListener(THEME_EVENT, onTheme);
 
     // Classic Ashima 3D simplex noise — same as the CV hero.
     const noiseGLSL = `
@@ -267,6 +273,7 @@ export default function AnomalyHub({
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      removeEventListener(THEME_EVENT, onTheme);
       wrap.removeEventListener("pointerdown", onDown);
       removeEventListener("pointermove", onMove);
       removeEventListener("pointerup", onUp);
