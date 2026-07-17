@@ -18,8 +18,11 @@ type Particle = {
   size: number;
 };
 
-const PARTICLE_COLOR = "rgba(191, 128, 255, 0.8)";
+const PARTICLE_COLOR = "rgba(80, 160, 255, 0.85)";
+const LINE_COLOR = "120, 180, 255"; // rgb for the connecting lines
 const MOUSE_RADIUS = 200;
+/** the anomaly clears its own space: particles keep out of a ring around it */
+const ANOMALY_PAD = 40;
 
 export default function AetherFlow() {
   const ref = useRef<HTMLCanvasElement>(null);
@@ -33,6 +36,45 @@ export default function AetherFlow() {
     const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
     const mouse = { x: null as number | null, y: null as number | null };
     let particles: Particle[] = [];
+
+    // The anomaly's live screen circle, re-read each frame so it holds
+    // through canvas pan/zoom. Cached element, re-queried if it drops out.
+    let hubEl: Element | null = null;
+    const anomaly = { x: 0, y: 0, r: 0, on: false };
+    const readAnomaly = () => {
+      if (!hubEl || !hubEl.isConnected) hubEl = document.querySelector(".hub");
+      if (!hubEl) { anomaly.on = false; return; }
+      const b = hubEl.getBoundingClientRect();
+      if (b.width === 0) { anomaly.on = false; return; }
+      anomaly.x = b.x + b.width / 2;
+      anomaly.y = b.y + b.height / 2;
+      // the visible mass fills ~50% of the hub box (bloom mask), + a pad
+      anomaly.r = b.width * 0.25 + ANOMALY_PAD;
+      anomaly.on = true;
+    };
+
+    // shared repulsion: push a particle out of a circular field
+    const repel = (p: Particle, cx: number, cy: number, radius: number, strength: number) => {
+      const dx = cx - p.x, dy = cy - p.y;
+      const dist = Math.hypot(dx, dy);
+      if (dist < radius + p.size && dist > 0) {
+        const force = (radius - dist) / radius;
+        p.x -= (dx / dist) * force * strength;
+        p.y -= (dy / dist) * force * strength;
+      }
+    };
+
+    // does the segment a→b pass within radius r of the anomaly centre? (used
+    // to drop lines that would otherwise cross the cleared mass)
+    const segHitsAnomaly = (ax: number, ay: number, bx: number, by: number) => {
+      if (!anomaly.on) return false;
+      const vx = bx - ax, vy = by - ay;
+      const len2 = vx * vx + vy * vy || 1;
+      let t = ((anomaly.x - ax) * vx + (anomaly.y - ay) * vy) / len2;
+      t = Math.max(0, Math.min(1, t));
+      const px = ax + t * vx, py = ay + t * vy;
+      return Math.hypot(px - anomaly.x, py - anomaly.y) < anomaly.r;
+    };
 
     function init() {
       particles = [];
@@ -59,6 +101,7 @@ export default function AetherFlow() {
     function render(withMouse: boolean) {
       const w = canvas!.width, h = canvas!.height;
       ctx!.clearRect(0, 0, w, h);
+      readAnomaly();
 
       for (const p of particles) {
         if (p.x > w || p.x < 0) p.dx = -p.dx;
@@ -66,14 +109,11 @@ export default function AetherFlow() {
 
         // the mouse field pushes particles away
         if (withMouse && mouse.x !== null && mouse.y !== null) {
-          const dx = mouse.x - p.x, dy = mouse.y - p.y;
-          const dist = Math.hypot(dx, dy);
-          if (dist < MOUSE_RADIUS + p.size && dist > 0) {
-            const force = (MOUSE_RADIUS - dist) / MOUSE_RADIUS;
-            p.x -= (dx / dist) * force * 5;
-            p.y -= (dy / dist) * force * 5;
-          }
+          repel(p, mouse.x, mouse.y, MOUSE_RADIUS, 5);
         }
+        // the anomaly holds its own clearing — a stronger nudge so particles
+        // never drift onto the mass
+        if (anomaly.on) repel(p, anomaly.x, anomaly.y, anomaly.r, 6);
 
         p.x += p.dx;
         p.y += p.dy;
@@ -93,6 +133,8 @@ export default function AetherFlow() {
           const ddy = particles[a].y - particles[b].y;
           const distSq = ddx * ddx + ddy * ddy;
           if (distSq < threshold) {
+            // never draw a web strand across the anomaly's clearing
+            if (segHitsAnomaly(particles[a].x, particles[a].y, particles[b].x, particles[b].y)) continue;
             const opacity = Math.max(0, Math.min(1, 1 - distSq / 20000));
             let nearMouse = false;
             if (withMouse && mouse.x !== null && mouse.y !== null) {
@@ -100,7 +142,7 @@ export default function AetherFlow() {
             }
             ctx!.strokeStyle = nearMouse
               ? `rgba(255, 255, 255, ${opacity})`
-              : `rgba(200, 150, 255, ${opacity})`;
+              : `rgba(${LINE_COLOR}, ${opacity})`;
             ctx!.beginPath();
             ctx!.moveTo(particles[a].x, particles[a].y);
             ctx!.lineTo(particles[b].x, particles[b].y);
