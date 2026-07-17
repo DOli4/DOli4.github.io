@@ -1525,3 +1525,53 @@
 
 /* (the anomaly's black bloom disc is fixed at the source: AnomalyHub adds a
    luma-keyed alpha pass after bloom, so the canvas is truly transparent) */
+
+/* --- orbit trace: a comet of light circling each dashboard card ---
+   Replaces the pointer spotlight on the node cards: the cables already run
+   traveling dots, so the cards continue the story — a pulse arrives, then
+   circulates the border. Same border-only mask trick as .spot; the comet is
+   a conic gradient whose start angle animates via a registered property. */
+@property --tr-a {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+.nd { position: relative; }
+.nd-trace {
+  pointer-events: none;
+  position: absolute;
+  inset: -1px;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  /* comet with a fading tail */
+  background: conic-gradient(
+    from var(--tr-a),
+    transparent 0turn 0.68turn,
+    rgba(53, 230, 255, 0.05) 0.74turn,
+    rgba(53, 230, 255, 0.5) 0.88turn,
+    rgba(53, 230, 255, 0.95) 0.955turn,
+    rgba(235, 252, 255, 1) 0.985turn,
+    transparent 1turn
+  ) border-box;
+  -webkit-mask: linear-gradient(transparent, transparent), linear-gradient(#fff, #fff);
+  -webkit-mask-clip: padding-box, border-box;
+  -webkit-mask-composite: source-in;
+  mask: linear-gradient(transparent, transparent), linear-gradient(#fff, #fff);
+  mask-clip: padding-box, border-box;
+  mask-composite: intersect;
+  filter: drop-shadow(0 0 5px rgba(53, 230, 255, 0.7));
+  animation: nd-orbit 7s linear infinite;
+}
+@keyframes nd-orbit {
+  to { --tr-a: 360deg; }
+}
+/* every node orbits at its own pace and phase — alive, never synchronized */
+.react-flow__node:nth-of-type(1) .nd-trace { animation-duration: 6.4s; animation-delay: -1.7s; }
+.react-flow__node:nth-of-type(2) .nd-trace { animation-duration: 7.8s; animation-delay: -4.1s; }
+.react-flow__node:nth-of-type(3) .nd-trace { animation-duration: 6.9s; animation-delay: -2.9s; }
+.react-flow__node:nth-of-type(4) .nd-trace { animation-duration: 8.4s; animation-delay: -6.2s; }
+.react-flow__node:nth-of-type(5) .nd-trace { animation-duration: 7.2s; animation-delay: -0.8s; }
+.react-flow__node:nth-of-type(6) .nd-trace { animation-duration: 8.9s; animation-delay: -5.3s; }
+@media (prefers-reduced-motion: reduce) {
+  .nd-trace { display: none; }
+}

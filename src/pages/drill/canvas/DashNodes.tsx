@@ -24,7 +24,10 @@ function Card({
   wide?: boolean;
 }) {
   return (
-    <div className={`nd spot${wide ? " nd-wide" : ""}`}>
+    <div className={`nd${wide ? " nd-wide" : ""}`}>
+      {/* the orbit trace: a comet of light circling the card border — the
+          same language as the dots traveling the cables */}
+      <span className="nd-trace" aria-hidden />
       {/* click a card to select it - the resize handles appear */}
       <NodeResizer minWidth={190} minHeight={90} lineClassName="nd-rz-line" handleClassName="nd-rz-dot" />
       <div className="nd-hd">
