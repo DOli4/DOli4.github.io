@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { type CSSProperties, useEffect, useMemo, useState } from "react";
 import {
   Background,
   BackgroundVariant,
@@ -97,13 +97,27 @@ export default function Dashboard({ drills, tier }: { drills: Drill[]; tier: Tie
   }, [drills]);
   const pct = stats.mustSayTotal === 0 ? 0 : Math.round((stats.saidCount / stats.mustSayTotal) * 100);
 
+  // Satellites orbit the core on a pentagon (point up), each centered on its
+  // spoke and turned to face inward. --ex/--ey is the vector back to the core:
+  // the entrance keyframe starts each card there and flies it out along the
+  // spoke, staggered clockwise from the top. Core center ≈ (770, 400).
   const [nodes, setNodes, onNodesChange] = useNodesState<Node>([
     { id: "anomaly", type: "anomaly", position: { x: 560, y: 160 }, draggable: false, data: { anchors: 5, chips: hubChips } },
-    { id: "drill", type: "drill", position: { x: 120, y: 60 }, dragHandle: ".nd-hd", data: { drill: latest, count: drills.length, tpos: "right" } },
-    { id: "word", type: "word", position: { x: 90, y: 460 }, dragHandle: ".nd-hd", data: { drill: latest, tpos: "right" } },
-    { id: "stats", type: "stats", position: { x: 1120, y: 40 }, dragHandle: ".nd-hd", data: { stats, tpos: "left" } },
-    { id: "bank", type: "bank", position: { x: 1150, y: 400 }, dragHandle: ".nd-hd", data: { drills, tpos: "left" } },
-    { id: "arts", type: "arts", position: { x: 560, y: 760 }, dragHandle: ".nd-hd", data: { artifacts, tier, onChange: setAllArtifacts, tpos: "top" } },
+    { id: "drill", type: "drill", position: { x: 654, y: -105 }, dragHandle: ".nd-hd",
+      style: { "--ex": "0px", "--ey": "400px", "--nd-delay": "0.10s" } as CSSProperties,
+      data: { drill: latest, count: drills.length, tpos: "bottom" } },
+    { id: "stats", type: "stats", position: { x: 1187, y: 176 }, dragHandle: ".nd-hd",
+      style: { "--ex": "-533px", "--ey": "124px", "--nd-delay": "0.22s" } as CSSProperties,
+      data: { stats, tpos: "left" } },
+    { id: "bank", type: "bank", position: { x: 983, y: 609 }, dragHandle: ".nd-hd",
+      style: { "--ex": "-329px", "--ey": "-324px", "--nd-delay": "0.34s" } as CSSProperties,
+      data: { drills, tpos: "left" } },
+    { id: "arts", type: "arts", position: { x: 301, y: 594 }, dragHandle: ".nd-hd",
+      style: { "--ex": "329px", "--ey": "-324px", "--nd-delay": "0.46s" } as CSSProperties,
+      data: { artifacts, tier, onChange: setAllArtifacts, tpos: "right" } },
+    { id: "word", type: "word", position: { x: 121, y: 186 }, dragHandle: ".nd-hd",
+      style: { "--ex": "533px", "--ey": "124px", "--nd-delay": "0.58s" } as CSSProperties,
+      data: { drill: latest, tpos: "right" } },
   ]);
 
   // Positions live in React Flow's state; data has to follow ours.

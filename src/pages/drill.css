@@ -1305,6 +1305,30 @@
 .hub-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
 .hub-lines line { stroke: rgba(150, 200, 230, 0.5); stroke-width: 1.2; transition: opacity 0.25s; }
 
+/* --- load-in: satellites are born from the anomaly and fly out to orbit ---
+   --ex/--ey (set per node) points back to the core, so each card starts
+   collapsed at the anomaly, then rides its spoke out to its ring position.
+   fill: backwards keeps it hidden through its stagger delay, then hands back
+   to normal styles so hover/resize stay untouched. */
+@media (prefers-reduced-motion: no-preference) {
+  .react-flow__node .nd {
+    animation: nd-emerge 0.85s cubic-bezier(0.16, 0.84, 0.24, 1) var(--nd-delay, 0s) backwards;
+  }
+}
+@keyframes nd-emerge {
+  0% {
+    opacity: 0;
+    transform: translate(var(--ex, 0), var(--ey, 0)) scale(0.18) rotate(-5deg);
+    filter: blur(4px);
+  }
+  55% { opacity: 1; }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) scale(1) rotate(0);
+    filter: blur(0);
+  }
+}
+
 /* --- resizable satellite cards --- */
 .react-flow__node .nd { width: 100%; }
 .react-flow__node[style*="height"] .nd { height: 100%; display: flex; flex-direction: column; }
