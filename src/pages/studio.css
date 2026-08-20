@@ -41,7 +41,10 @@
 .studio-page h1, .studio-page h2, .studio-page h3, .studio-page p,
 .studio-page ul, .studio-page figure { margin: 0; }
 .studio-page ul { padding: 0; list-style: none; }
-.studio-page a { color: inherit; text-decoration: none; }
+.studio-page a { text-decoration: none; }
+/* Zero-specificity colour reset (kills default link blue) so it never
+   outranks the single-class button colour rules below. */
+:where(.studio-page) a { color: inherit; }
 .studio-page em { font-style: italic; }
 .studio-page svg { display: inline-block; vertical-align: middle; }
 .studio-page :focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; border-radius: 8px; }
@@ -90,7 +93,7 @@
 }
 .st-pill svg { transition: transform 0.25s ease; }
 .st-pill-navy {
-  background: var(--navy); color: #fff;
+  background: var(--navy); color: var(--gold-2);
   box-shadow: 0 14px 30px -14px rgba(14, 38, 80, 0.6);
 }
 .st-pill-navy:hover { transform: translateY(-2px); background: var(--navy-2); box-shadow: 0 20px 40px -16px rgba(14, 38, 80, 0.7); }
@@ -236,7 +239,7 @@
 .st-product-price { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .st-choose {
   display: inline-flex; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 600;
-  color: #fff; background: var(--navy); border-radius: 999px; padding: 11px 20px;
+  color: var(--gold-2); background: var(--navy); border-radius: 999px; padding: 11px 20px;
   transition: background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
 }
 .st-choose:hover { background: var(--navy-2); transform: translateY(-2px); box-shadow: 0 14px 26px -14px rgba(14, 38, 80, 0.6); }
