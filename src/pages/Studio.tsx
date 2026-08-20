@@ -17,15 +17,15 @@ const IMG = (id: string) =>
 // a CSS browser mock tinted with the product's accent, so the card reads as a
 // website rather than a stock photo.
 const shop = [
-  { name: "The Landing", cat: "One-pager", price: "from $900",
+  { name: "The Landing", cat: "One-pager", price: "On request",
     blurb: "One page, all conversion. A single sharp story that turns visitors into customers.", accent: "#a9791b", featured: false },
-  { name: "The Portfolio", cat: "Showcase", price: "from $1,400",
+  { name: "The Portfolio", cat: "Showcase", price: "On request",
     blurb: "Your work, framed like art. A gallery that makes people stop and stare.", accent: "#2f6f6a", featured: false },
-  { name: "The Storefront", cat: "E-commerce", price: "from $2,600",
+  { name: "The Storefront", cat: "E-commerce", price: "On request",
     blurb: "Commerce that closes. A store built to sell — fast and frictionless.", accent: "#8a3b2e", featured: false },
-  { name: "The Web App", cat: "Product", price: "from $4,500",
+  { name: "The Web App", cat: "Product", price: "On request",
     blurb: "A real product, built to scale. React + TypeScript, engineered to last.", accent: "#3a4a8a", featured: false },
-  { name: "The Bespoke", cat: "Anything", price: "Custom",
+  { name: "The Bespoke", cat: "Anything", price: "On request",
     blurb: "Anything you can wish for. You dream it, I conjure it — no template, no limits.", accent: "#a9791b", featured: true },
 ];
 
@@ -59,18 +59,21 @@ export default function Studio() {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let cancelled = false;
 
+    // This page is a position:fixed scroll container, so ScrollTrigger must be
+    // told to watch IT — not the window, which never scrolls here.
+    const scroller = root.current;
     const ctx = gsap.context(() => {
       if (reduce) return; // leave everything at rest, fully visible
       gsap.utils.toArray<HTMLElement>("[data-reveal]").forEach((el) => {
         gsap.from(el, {
           y: 42, opacity: 0, duration: 0.9, ease: "power3.out",
-          scrollTrigger: { trigger: el, start: "top 90%" },
+          scrollTrigger: { trigger: el, start: "top 90%", scroller },
         });
       });
       gsap.utils.toArray<HTMLElement>("[data-stagger]").forEach((el) => {
         gsap.from(el.children, {
           y: 30, opacity: 0, duration: 0.7, ease: "power3.out", stagger: 0.08,
-          scrollTrigger: { trigger: el, start: "top 84%" },
+          scrollTrigger: { trigger: el, start: "top 84%", scroller },
         });
       });
     }, root);
@@ -110,8 +113,6 @@ export default function Studio() {
 
   return (
     <div className="studio-page" ref={root}>
-      <div className="st-bg" aria-hidden />
-
       <header className="st-nav">
         <a className="st-brand" href="#/studio">
           Dieter Olivier
@@ -125,7 +126,7 @@ export default function Studio() {
         </nav>
         <div className="st-nav-actions">
           <a className="st-back" href="#/">Back to CV</a>
-          <a className="st-pill st-pill-gold" href={mail("Website commission")}>
+          <a className="st-pill st-pill-navy" href={mail("Website commission")}>
             Commission
           </a>
         </div>
@@ -150,7 +151,7 @@ export default function Studio() {
               Code is magic, after all. Consider me your magician.
             </p>
             <div className="st-hero-cta" data-reveal>
-              <a className="st-pill st-pill-gold" href="#st-shop">
+              <a className="st-pill st-pill-navy" href="#st-shop">
                 Browse the shop
                 <ArrowRight className="size-4" aria-hidden />
               </a>
