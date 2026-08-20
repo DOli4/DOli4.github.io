@@ -1,6 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&display=swap");
+
 /* The corporate hire screen — a clean, white "Trust & Authority" world that
    deliberately breaks from the dark CV. Fully scoped so it never leaks into
-   the rest of the site (and the site's dark styles never leak in). */
+   the rest of the site (and the site's dark styles never leak in).
+   Lexend is the design-system pick for this direction — professional and
+   readable without the over-used-default feel of Inter. */
 
 .hire-screen {
   --navy: #1e3a8a;
@@ -18,8 +22,8 @@
   background: var(--bg);
   color: var(--ink);
   cursor: auto; /* body sets cursor:none for the dark site — undo it here */
-  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
-    Arial, sans-serif;
+  font-family: "Lexend", system-ui, -apple-system, "Segoe UI", Helvetica, Arial,
+    sans-serif;
   -webkit-font-smoothing: antialiased;
   animation: hire-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -47,6 +51,18 @@
 .hire-screen p,
 .hire-screen ul {
   margin: 0;
+}
+/* The dark site sets a display font on bare h1/h2/h3 — that element rule would
+   otherwise beat the container's inherited font. Force Lexend through here. */
+.hire-screen h1,
+.hire-screen h2,
+.hire-screen h3,
+.hire-screen p,
+.hire-screen a,
+.hire-screen li,
+.hire-screen dl,
+.hire-screen button {
+  font-family: inherit;
 }
 .hire-screen ul {
   padding: 0;

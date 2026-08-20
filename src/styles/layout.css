@@ -353,59 +353,6 @@
 }
 
 /* ================= Work ================= */
-.work-list {
-  border-top: 1px solid var(--line);
-}
-.work-row {
-  display: grid;
-  grid-template-columns: 60px 1fr 200px;
-  gap: 28px;
-  align-items: start;
-  padding: 34px 12px;
-  border-bottom: 1px solid var(--line);
-  transition: background 0.3s var(--ease), padding-left 0.3s var(--ease);
-}
-.work-row:hover {
-  background: #0a1216;
-  padding-left: 24px;
-}
-.work-idx {
-  color: var(--ink-faint) !important;
-  padding-top: 6px;
-}
-.work-h {
-  font-size: 1.9rem;
-  font-weight: 400;
-  margin: 0 0 10px;
-  transition: color 0.3s var(--ease);
-}
-.work-row:hover .work-h {
-  color: var(--cyan);
-}
-.work-blurb {
-  color: var(--ink-dim);
-  margin: 0;
-  max-width: 60ch;
-}
-.work-tags {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: flex-end;
-}
-.work-tags li {
-  font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.08em;
-  color: var(--ink-dim);
-  border: 1px solid var(--line-bright);
-  padding: 4px 9px;
-  border-radius: 2px;
-}
-
 /* Work carousel — the 3D orbit that replaced the static list. */
 .work-carousel {
   padding: 24px 0 8px;
@@ -493,13 +440,6 @@
   .contact-cols {
     grid-template-columns: 1fr;
     gap: 32px;
-  }
-  .work-row {
-    grid-template-columns: 40px 1fr;
-  }
-  .work-tags {
-    grid-column: 1 / -1;
-    justify-content: flex-start;
   }
   .hud-links {
     gap: 16px;
