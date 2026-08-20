@@ -406,6 +406,48 @@
   border-radius: 2px;
 }
 
+/* Work carousel — the 3D orbit that replaced the static list. */
+.work-carousel {
+  padding: 24px 0 8px;
+}
+
+/* ================= Hire teaser ================= */
+.hire-teaser-lede {
+  color: var(--ink-dim);
+  max-width: 52ch;
+  margin: 18px 0 8px;
+}
+.hire-teaser-flow {
+  margin: 8px auto 4px;
+  max-width: 720px;
+}
+.hire-teaser-cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+.hire-teaser-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--mono);
+  font-size: 0.82rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink);
+  border: 1px solid color-mix(in srgb, var(--accent) 60%, transparent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  padding: 12px 22px;
+  border-radius: 999px;
+  transition: transform 0.25s var(--ease), background 0.25s var(--ease),
+    box-shadow 0.25s var(--ease);
+}
+.hire-teaser-btn:hover {
+  transform: translateY(-2px);
+  background: color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 14px 30px -14px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+
 /* ================= Contact ================= */
 .contact-title {
   font-size: clamp(2.6rem, 8vw, 6rem);

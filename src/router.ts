@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export type Route = "home" | "drill" | "drill-today" | "drill-artifacts" | "drill-mentor" | "shake";
+export type Route = "home" | "hire" | "drill" | "drill-today" | "drill-artifacts" | "drill-mentor" | "shake";
 
 /** True for every view living behind the drill password gate. */
 export function isDrillRoute(route: Route): boolean {
@@ -32,10 +32,13 @@ export const pageTabs: { route: Route; href: string; label: string }[] = CV_ONLY
  * so the browser's native scroll-to-id keeps working untouched.
  */
 function parse(): Route {
-  if (CV_ONLY) return "home";
   const hash = window.location.hash;
   if (!hash.startsWith("#/")) return "home";
   const slug = hash.slice(2).replace(/\/$/, "");
+  // The corporate "hire me" screen is public even while the site is locked down.
+  if (slug === "hire" || slug.startsWith("hire/")) return "hire";
+  // Everything else (the drill dashboard, shake) stays behind the CV-only lock.
+  if (CV_ONLY) return "home";
   if (slug === "drill" || slug === "shake") return slug;
   if (slug === "drill/today") return "drill-today";
   if (slug === "drill/artifacts") return "drill-artifacts";
@@ -61,4 +64,21 @@ export function useRoute(): Route {
   }, []);
 
   return route;
+}
+
+/** The capability slug from "#/hire/<slug>", or null on the bare "#/hire". */
+export function hireSlug(): string | null {
+  const m = window.location.hash.match(/^#\/hire\/([\w-]+)/);
+  return m ? m[1] : null;
+}
+
+/** Live hire slug — re-reads on hashchange so switching capabilities re-renders. */
+export function useHireSlug(): string | null {
+  const [slug, setSlug] = useState<string | null>(hireSlug);
+  useEffect(() => {
+    const on = () => setSlug(hireSlug());
+    window.addEventListener("hashchange", on);
+    return () => window.removeEventListener("hashchange", on);
+  }, []);
+  return slug;
 }

@@ -4,7 +4,9 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import AnomalousMatter from "./components/AnomalousMatter";
 import GlitchText from "./components/GlitchText";
 import ThermodynamicGrid from "./components/ui/interactive-thermodynamic-grid";
-import { about, skills, projects, profile } from "./content";
+import { CircularCarousel } from "./components/ui/circular-carousel";
+import { CoverflowCarousel } from "./components/ui/coverflow-carousel";
+import { about, skills, projects, profile, capabilities } from "./content";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -173,21 +175,56 @@ export default function App() {
                 <GlitchText>Work</GlitchText>
               </h2>
             </div>
-            <div className="work-list" data-stagger>
-              {projects.map((project, i) => (
-                <article className="work-row" key={project.title} data-hover>
-                  <span className="work-idx tag">{String(i + 1).padStart(2, "0")}</span>
-                  <div className="work-main">
-                    <h3 className="work-h">{project.title}</h3>
-                    <p className="work-blurb">{project.blurb}</p>
-                  </div>
-                  <ul className="work-tags">
-                    {project.tags.map((t) => (
-                      <li key={t}>{t}</li>
-                    ))}
-                  </ul>
-                </article>
-              ))}
+            {/* The projects now orbit as 3D cards — the cards are what move,
+                the void behind them stays put. */}
+            <div className="work-carousel" data-reveal>
+              <CircularCarousel
+                items={projects.map((project, i) => ({
+                  id: String(i),
+                  title: project.title,
+                  description: project.blurb,
+                  tag: project.tags[0],
+                }))}
+                autoPlayInterval={5000}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* HIRE — a bright preview of the corporate pitch. Tap a card or the
+            button to step into the full white "what you get" screen. */}
+        <section id="hire" className="section panel hire-teaser">
+          <div className="wrap">
+            <div className="sec-head" data-reveal>
+              <span className="section-num">04 — OFFER</span>
+              <h2 className="sec-title">
+                <GlitchText>Hire me</GlitchText>
+              </h2>
+            </div>
+            <p className="hire-teaser-lede" data-reveal>
+              A preview of what you actually get. Swipe through — then step into
+              the full pitch.
+            </p>
+            <div className="hire-teaser-flow" data-reveal>
+              <CoverflowCarousel
+                slides={capabilities.map((c) => ({
+                  src: c.image,
+                  alt: c.title,
+                  title: c.title,
+                  subtitle: c.subtitle,
+                }))}
+                showNavigation
+                cardWidth="clamp(150px, 20vw, 230px)"
+                label="What you get"
+                onActivate={(i) => {
+                  window.location.hash = `#/hire/${capabilities[i].slug}`;
+                }}
+              />
+            </div>
+            <div className="hire-teaser-cta" data-reveal>
+              <a className="hire-teaser-btn" href="#/hire" data-hover>
+                See what you get →
+              </a>
             </div>
           </div>
         </section>
@@ -196,7 +233,7 @@ export default function App() {
         <section id="contact" className="section panel contact-x">
           <div className="wrap">
             <div className="sec-head" data-reveal>
-              <span className="section-num">04 — UPLINK</span>
+              <span className="section-num">05 — UPLINK</span>
               <h2 className="sec-title contact-title">
                 <GlitchText>Get in touch.</GlitchText>
               </h2>

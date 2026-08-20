@@ -1,0 +1,328 @@
+/* The corporate hire screen — a clean, white "Trust & Authority" world that
+   deliberately breaks from the dark CV. Fully scoped so it never leaks into
+   the rest of the site (and the site's dark styles never leak in). */
+
+.hire-screen {
+  --navy: #1e3a8a;
+  --navy-soft: #2749a8;
+  --ink: #0f172a; /* slate-900 */
+  --muted: #64748b; /* slate-500 */
+  --line: #e2e8f0; /* slate-200 */
+  --bg: #f8fafc; /* slate-50 */
+  --card: #ffffff;
+
+  position: fixed;
+  inset: 0;
+  z-index: 5000; /* above the dark HUD + cursor */
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--ink);
+  cursor: auto; /* body sets cursor:none for the dark site — undo it here */
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  animation: hire-in 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes hire-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Local reset — preflight is off globally, so browser defaults would leak in. */
+.hire-screen *,
+.hire-screen *::before,
+.hire-screen *::after {
+  box-sizing: border-box;
+}
+.hire-screen h1,
+.hire-screen h2,
+.hire-screen h3,
+.hire-screen p,
+.hire-screen ul {
+  margin: 0;
+}
+.hire-screen ul {
+  padding: 0;
+  list-style: none;
+}
+.hire-screen a {
+  color: inherit;
+  text-decoration: none;
+}
+.hire-screen button {
+  font: inherit;
+  cursor: pointer;
+}
+.hire-screen :focus-visible {
+  outline: 2px solid var(--navy);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Top bar */
+.hire-top {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px clamp(20px, 5vw, 56px);
+  background: rgba(248, 250, 252, 0.85);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+.hire-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--navy);
+  transition: gap 0.2s ease;
+}
+.hire-back:hover {
+  gap: 12px;
+}
+.hire-brand {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+}
+
+/* Content column */
+.hire-main {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: clamp(40px, 7vw, 88px) clamp(20px, 5vw, 56px) 96px;
+}
+.hire-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+.hire-title {
+  margin-top: 12px;
+  font-size: clamp(30px, 5vw, 52px);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.hire-lede {
+  margin-top: 16px;
+  max-width: 46ch;
+  font-size: clamp(15px, 2vw, 18px);
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* Capability pills */
+.hire-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 36px;
+}
+.hire-pill {
+  padding: 9px 16px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--muted);
+  transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease,
+    transform 0.15s ease, box-shadow 0.2s ease;
+}
+.hire-pill:hover {
+  color: var(--ink);
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+}
+.hire-pill.is-on {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgba(30, 58, 138, 0.6);
+}
+
+/* Detail card */
+.hire-detail {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(24px, 4vw, 48px);
+  align-items: center;
+  margin-top: 40px;
+  padding: clamp(24px, 3.5vw, 44px);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 30px 60px -40px rgba(15, 23, 42, 0.35);
+  animation: hire-in 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hire-cap-sub {
+  font-size: 12.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--navy-soft);
+}
+.hire-cap-title {
+  margin-top: 10px;
+  font-size: clamp(22px, 3.2vw, 32px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.01em;
+}
+.hire-cap-pitch {
+  margin-top: 14px;
+  font-size: 15.5px;
+  line-height: 1.62;
+  color: #334155; /* slate-700 */
+}
+.hire-points {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 22px;
+}
+.hire-points li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+.hire-points li svg {
+  flex: none;
+  margin-top: 2px;
+  color: #059669; /* emerald-600 */
+}
+
+/* Prev / next */
+.hire-nav {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 28px;
+}
+.hire-navbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--ink);
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.hire-navbtn:hover {
+  border-color: #cbd5e1;
+  background: #f1f5f9;
+}
+.hire-count {
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+
+/* Visual */
+.hire-visual {
+  aspect-ratio: 4 / 3;
+  border-radius: 18px;
+  overflow: hidden;
+  background: #eef2f7;
+}
+.hire-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* CTA */
+.hire-cta {
+  margin-top: 56px;
+  padding: clamp(28px, 4vw, 48px);
+  text-align: center;
+  background: linear-gradient(180deg, #ffffff, #f1f5f9);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+}
+.hire-cta-title {
+  font-size: clamp(20px, 3vw, 26px);
+  font-weight: 700;
+}
+.hire-cta-sub {
+  margin-top: 8px;
+  font-size: 14.5px;
+  color: var(--muted);
+}
+.hire-cta-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 22px;
+}
+.hire-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  transition: transform 0.15s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.hire-btn:hover {
+  transform: translateY(-2px);
+  border-color: #cbd5e1;
+  box-shadow: 0 12px 24px -14px rgba(15, 23, 42, 0.4);
+}
+.hire-btn-primary {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+.hire-btn-primary:hover {
+  background: var(--navy-soft);
+  box-shadow: 0 14px 28px -12px rgba(30, 58, 138, 0.7);
+}
+
+@media (max-width: 760px) {
+  .hire-detail {
+    grid-template-columns: 1fr;
+  }
+  .hire-visual {
+    order: -1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hire-screen,
+  .hire-detail {
+    animation: none;
+  }
+  .hire-back:hover {
+    gap: 8px;
+  }
+}
