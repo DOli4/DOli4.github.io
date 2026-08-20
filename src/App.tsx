@@ -12,7 +12,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 // Static — hoisted so a re-render can't hand FlipDiskMatrix a new array
 // reference and restart the flip animation.
-const STUDIO_WORDS = ["PROFESSIONAL", "LOOK", "STUDIO"];
+const STUDIO_WORDS = ["BUILD", "PROFESSIONAL", "LOOKING", "WEBSITES"];
 
 export default function App() {
   const root = useRef<HTMLDivElement>(null);
@@ -201,22 +201,23 @@ export default function App() {
             <div className="sec-head" data-reveal>
               <span className="section-num">04 — SIDEBAND</span>
               <h2 className="sec-title">
-                <GlitchText>I also build websites.</GlitchText>
+                <GlitchText>Code is magic.</GlitchText>
               </h2>
             </div>
             <p className="studio-cta-lede" data-reveal>
-              Beyond the fleet software — I design and build clean, expensive-looking
-              websites. A look into a professional look:
+              Beyond the fleet software, I build professional, custom websites —
+              anything you can dream up. Code is magic; think of me as your
+              magician. Tap the board to step into the studio.
             </p>
             <div className="studio-cta-row" data-reveal>
               <FlipDiskMatrix
                 words={STUDIO_WORDS}
                 href="#/studio"
-                ariaLabel="A look into a professional look — open the web design studio"
+                ariaLabel="Build a professional looking website — open the web design studio"
               />
             </div>
             <p className="studio-cta-hint" data-reveal>
-              click the board →
+              tap the board →
             </p>
           </div>
         </section>

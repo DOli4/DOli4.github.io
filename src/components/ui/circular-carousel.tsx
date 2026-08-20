@@ -22,8 +22,8 @@ export interface CircularCarouselProps {
 }
 
 const VISIBLE_COUNT = 5;
-const RADIUS_X = 460;
-const RADIUS_Y = 80;
+const RADIUS_X = 300;
+const RADIUS_Y = 90;
 
 function getItemPosition(index: number, activeIndex: number, total: number) {
   const offset = index - activeIndex;
@@ -118,7 +118,7 @@ export function CircularCarousel({
       )}
     >
       {/* Circular track */}
-      <div className="relative h-[420px] w-full max-w-4xl overflow-hidden">
+      <div className="relative h-[380px] w-full max-w-4xl overflow-hidden">
         <AnimatePresence mode="popLayout">
           {items.map((item, i) => {
             const pos = getItemPosition(i, activeIndex, total);
@@ -148,7 +148,7 @@ export function CircularCarousel({
                 aria-selected={isActive}
                 role="option"
                 className={cn(
-                  "absolute left-1/2 top-1/2 flex h-52 w-80 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-start justify-between rounded-3xl border p-6 backdrop-blur-2xl transition-shadow duration-300",
+                  "absolute left-1/2 top-1/2 flex h-44 w-64 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-start justify-between rounded-3xl border p-5 backdrop-blur-2xl transition-shadow duration-300",
                   isActive
                     ? "border-white/25 bg-white/[0.1] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)] ring-1 ring-white/10"
                     : "border-white/10 bg-white/[0.05] shadow-[0_12px_40px_-12px_rgba(0,0,0,0.5)] hover:border-white/20 hover:bg-white/[0.08]",
@@ -164,14 +164,14 @@ export function CircularCarousel({
                   <h3
                     className={cn(
                       "font-semibold leading-tight transition-colors duration-300",
-                      isActive ? "text-white text-xl" : "text-white/85 text-lg",
+                      isActive ? "text-white text-lg" : "text-white/85 text-base",
                     )}
                   >
                     {item.title}
                   </h3>
                   <p
                     className={cn(
-                      "mt-2 line-clamp-3 text-[13px] leading-relaxed transition-colors duration-300",
+                      "mt-1.5 line-clamp-2 text-xs leading-relaxed transition-colors duration-300",
                       isActive ? "text-white/65" : "text-white/45",
                     )}
                   >
@@ -190,7 +190,7 @@ export function CircularCarousel({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="absolute inset-x-0 top-0 h-[420px] flex flex-col items-center justify-end pb-8 pointer-events-none"
+        className="absolute inset-x-0 top-0 h-[380px] flex flex-col items-center justify-end pb-6 pointer-events-none"
       >
         <span className="text-5xl font-bold tracking-tight text-white/45">
           {String(activeIndex + 1).padStart(2, "0")}

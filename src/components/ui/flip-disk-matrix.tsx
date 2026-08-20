@@ -10,12 +10,13 @@ import { cn } from "@/lib/utils";
  * a link so the whole board is the button.
  *
  * Words are rasterised through a tiny offscreen canvas (one pixel per dot), so
- * any short string works; the font auto-shrinks to fit the grid width.
+ * any short string works; the font auto-shrinks to fit the grid width. Lit
+ * discs get a soft glow + specular highlight so the board reads as glossy
+ * hardware rather than flat pixels.
  */
 export interface FlipDiskMatrixProps {
   words: string[];
   href: string;
-  /** Grid size. Defaults suit a wide, short banner. */
   cols?: number;
   rows?: number;
   /** On-dot colour. Defaults to the live theme accent, falling back to gold. */
@@ -24,42 +25,49 @@ export interface FlipDiskMatrixProps {
   className?: string;
 }
 
-const CELL = 16; // device-independent px per dot at 1x
+const CELL = 13; // device-independent px per dot at 1x
 
 function wordToGrid(word: string, cols: number, rows: number): boolean[] {
   const off = document.createElement("canvas");
-  off.width = cols;
-  off.height = rows;
+  // Rasterise at 2× then threshold — cleaner letter edges than a 1px render.
+  const S = 2;
+  off.width = cols * S;
+  off.height = rows * S;
   const octx = off.getContext("2d", { willReadFrequently: true });
   if (!octx) return new Array(cols * rows).fill(false);
 
   octx.fillStyle = "#000";
-  octx.fillRect(0, 0, cols, rows);
+  octx.fillRect(0, 0, cols * S, rows * S);
   octx.fillStyle = "#fff";
   octx.textAlign = "center";
   octx.textBaseline = "middle";
 
-  // Shrink the font until the word fits the grid width (minus a 1-dot margin).
-  let size = rows;
-  const font = (s: number) => `bold ${s}px "Arial Narrow", Arial, sans-serif`;
+  let size = rows * S;
+  const font = (s: number) => `800 ${s}px "Arial Narrow", Arial, sans-serif`;
   octx.font = font(size);
-  while (octx.measureText(word).width > cols - 2 && size > 1) {
-    size -= 0.5;
+  while (octx.measureText(word).width > (cols - 2) * S && size > 2) {
+    size -= 1;
     octx.font = font(size);
   }
-  octx.fillText(word, cols / 2, rows / 2 + 0.5);
+  octx.fillText(word, (cols * S) / 2, (rows * S) / 2 + S);
 
-  const data = octx.getImageData(0, 0, cols, rows).data;
+  const data = octx.getImageData(0, 0, cols * S, rows * S).data;
   const grid: boolean[] = new Array(cols * rows);
-  for (let i = 0; i < cols * rows; i++) grid[i] = data[i * 4] > 128; // red channel
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      // Sample the centre of each dot's SxS block.
+      const px = (r * S + Math.floor(S / 2)) * cols * S + (c * S + Math.floor(S / 2));
+      grid[r * cols + c] = data[px * 4] > 110;
+    }
+  }
   return grid;
 }
 
 export function FlipDiskMatrix({
   words,
   href,
-  cols = 48,
-  rows = 9,
+  cols = 60,
+  rows = 11,
   color,
   ariaLabel,
   className,
@@ -69,11 +77,10 @@ export function FlipDiskMatrix({
   const [word, setWord] = useState(0);
   const hoverRef = useRef(false);
 
-  // Advance through the words on a gentle loop; hover nudges to the next.
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce || words.length < 2) return;
-    const id = setInterval(() => setWord((w) => (w + 1) % words.length), 2600);
+    const id = setInterval(() => setWord((w) => (w + 1) % words.length), 2800);
     return () => clearInterval(id);
   }, [words.length]);
 
@@ -88,8 +95,6 @@ export function FlipDiskMatrix({
     ctx.scale(dpr, dpr);
 
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    // The accent only changes on a (rare) theme switch, which re-runs this
-    // effect via the word cycle anyway — so read it once, not every frame.
     const onColor =
       color ||
       getComputedStyle(wrapRef.current ?? canvas)
@@ -98,22 +103,19 @@ export function FlipDiskMatrix({
       "#d0a638";
 
     const target = wordToGrid(words[word] ?? "", cols, rows);
-    // progress[i] eases 0..1 toward its target; the per-column start delay
-    // makes the flip sweep across the board instead of all at once. Reduced
-    // motion snaps straight to the target — one frame, no loop.
     const progress = new Float32Array(cols * rows);
     if (reduce) for (let i = 0; i < progress.length; i++) progress[i] = target[i] ? 1 : 0;
     const start = performance.now();
     let raf = 0;
+    const r = CELL * 0.4;
 
     const draw = (now: number) => {
       ctx.clearRect(0, 0, cols * CELL, rows * CELL);
-      const r = CELL * 0.42;
-      const speed = hoverRef.current ? 0.28 : 0.16;
+      const speed = hoverRef.current ? 0.3 : 0.17;
       let moving = false;
 
       for (let c = 0; c < cols; c++) {
-        const gate = reduce ? 0 : c * 12; // ms before this column starts flipping
+        const gate = reduce ? 0 : c * 11; // per-column start delay → flip wave
         const live = now - start > gate;
         for (let row = 0; row < rows; row++) {
           const i = row * cols + c;
@@ -121,23 +123,40 @@ export function FlipDiskMatrix({
           if (live && !reduce) progress[i] += (want - progress[i]) * speed;
           if (Math.abs(want - progress[i]) > 0.01) moving = true;
           const p = progress[i];
-
           const cx = c * CELL + CELL / 2;
           const cy = row * CELL + CELL / 2;
-          // Off discs are faint; on discs bloom to full accent as they flip.
-          ctx.beginPath();
-          ctx.arc(cx, cy, r * (0.62 + 0.38 * p), 0, Math.PI * 2);
+
           if (p < 0.04) {
-            ctx.fillStyle = "rgba(255,255,255,0.06)";
-          } else {
-            ctx.globalAlpha = 0.14 + 0.86 * p;
-            ctx.fillStyle = onColor;
+            // Resting disc — faint, so the whole board is visible like hardware.
+            ctx.beginPath();
+            ctx.arc(cx, cy, r * 0.9, 0, Math.PI * 2);
+            ctx.fillStyle = "rgba(255,255,255,0.05)";
+            ctx.fill();
+            continue;
           }
+
+          // Lit disc: soft glow, accent fill that blooms with the flip, then a
+          // small specular highlight top-left — glossy, not flat.
+          ctx.globalAlpha = 0.18 * p;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * 1.5, 0, Math.PI * 2);
+          ctx.fillStyle = onColor;
+          ctx.fill();
+
+          ctx.globalAlpha = 0.2 + 0.8 * p;
+          ctx.beginPath();
+          ctx.arc(cx, cy, r * (0.55 + 0.45 * p), 0, Math.PI * 2);
+          ctx.fillStyle = onColor;
+          ctx.fill();
+
+          ctx.globalAlpha = 0.5 * p;
+          ctx.beginPath();
+          ctx.arc(cx - r * 0.28, cy - r * 0.3, r * 0.32, 0, Math.PI * 2);
+          ctx.fillStyle = "rgba(255,255,255,0.9)";
           ctx.fill();
           ctx.globalAlpha = 1;
         }
       }
-      // Idle once every disc has settled — no perpetual 60fps loop.
       raf = moving ? requestAnimationFrame(draw) : 0;
     };
     draw(performance.now());
