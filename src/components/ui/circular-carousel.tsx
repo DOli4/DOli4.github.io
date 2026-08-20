@@ -22,8 +22,8 @@ export interface CircularCarouselProps {
 }
 
 const VISIBLE_COUNT = 5;
-const RADIUS_X = 320;
-const RADIUS_Y = 120;
+const RADIUS_X = 460;
+const RADIUS_Y = 80;
 
 function getItemPosition(index: number, activeIndex: number, total: number) {
   const offset = index - activeIndex;
@@ -33,7 +33,9 @@ function getItemPosition(index: number, activeIndex: number, total: number) {
   if (offset > half) adjustedOffset = offset - total;
   if (offset < -half) adjustedOffset = offset + total;
 
-  if (Math.abs(adjustedOffset) > half * 2) return null;
+  // Only the active card and its two immediate neighbours — keeps the arc
+  // clean instead of fanning faint far cards out behind everything.
+  if (Math.abs(adjustedOffset) > 1) return null;
 
   const angle = (adjustedOffset / VISIBLE_COUNT) * Math.PI;
   const x = Math.sin(angle) * RADIUS_X;
@@ -116,7 +118,7 @@ export function CircularCarousel({
       )}
     >
       {/* Circular track */}
-      <div className="relative h-[380px] w-full max-w-3xl">
+      <div className="relative h-[420px] w-full max-w-4xl overflow-hidden">
         <AnimatePresence mode="popLayout">
           {items.map((item, i) => {
             const pos = getItemPosition(i, activeIndex, total);
@@ -146,7 +148,7 @@ export function CircularCarousel({
                 aria-selected={isActive}
                 role="option"
                 className={cn(
-                  "absolute left-1/2 top-1/2 flex h-48 w-72 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-start justify-between rounded-3xl border p-6 backdrop-blur-2xl transition-shadow duration-300",
+                  "absolute left-1/2 top-1/2 flex h-52 w-80 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-start justify-between rounded-3xl border p-6 backdrop-blur-2xl transition-shadow duration-300",
                   isActive
                     ? "border-white/25 bg-white/[0.1] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)] ring-1 ring-white/10"
                     : "border-white/10 bg-white/[0.05] shadow-[0_12px_40px_-12px_rgba(0,0,0,0.5)] hover:border-white/20 hover:bg-white/[0.08]",
@@ -188,12 +190,12 @@ export function CircularCarousel({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="absolute inset-x-0 top-0 h-[380px] flex flex-col items-center justify-center pointer-events-none"
+        className="absolute inset-x-0 top-0 h-[420px] flex flex-col items-center justify-end pb-8 pointer-events-none"
       >
-        <span className="text-6xl font-bold tracking-tight text-white/90">
+        <span className="text-5xl font-bold tracking-tight text-white/45">
           {String(activeIndex + 1).padStart(2, "0")}
         </span>
-        <span className="mt-1 text-xs text-white/40">
+        <span className="mt-1 text-xs text-white/35">
           of {String(total).padStart(2, "0")}
         </span>
       </motion.div>
