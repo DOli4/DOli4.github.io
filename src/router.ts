@@ -7,10 +7,20 @@ export function isDrillRoute(route: Route): boolean {
   return route === "drill" || route === "drill-today" || route === "drill-artifacts" || route === "drill-mentor";
 }
 
-export const pageTabs: { route: Route; href: string; label: string }[] = [
-  { route: "home", href: "#/", label: "CV" },
-  { route: "drill", href: "#/drill", label: "DASHBOARD" },
-];
+/**
+ * Public lockdown. While true the live site is CV-only: every route resolves
+ * to home and the DASHBOARD tab is hidden, so the drill dashboard and shake
+ * page are unreachable (even by typing #/drill). The code still ships — flip
+ * this one flag back to false to restore them.
+ */
+export const CV_ONLY = true;
+
+export const pageTabs: { route: Route; href: string; label: string }[] = CV_ONLY
+  ? []
+  : [
+      { route: "home", href: "#/", label: "CV" },
+      { route: "drill", href: "#/drill", label: "DASHBOARD" },
+    ];
 
 /**
  * Hash routing, deliberately.
@@ -22,6 +32,7 @@ export const pageTabs: { route: Route; href: string; label: string }[] = [
  * so the browser's native scroll-to-id keeps working untouched.
  */
 function parse(): Route {
+  if (CV_ONLY) return "home";
   const hash = window.location.hash;
   if (!hash.startsWith("#/")) return "home";
   const slug = hash.slice(2).replace(/\/$/, "");

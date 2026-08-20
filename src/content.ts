@@ -3,8 +3,8 @@
 
 export const profile = {
   name: "Dieter Olivier",
-  tagline: "Software engineer — building calm, considered things for the web and mobile.",
-  location: "South Africa",
+  tagline: "Full-stack developer with a frontend heart — I've owned an entire mobile UI and the services behind it.",
+  location: "Pretoria, South Africa",
   email: "Oli4Dieter@gmail.com",
   linkedin: {
     label: "dieter-olivier",
@@ -17,28 +17,29 @@ export const profile = {
 };
 
 export const about = [
-  "I'm a full-stack engineer who leans toward the frontend — the part where code meets the person using it.",
-  "I like work that feels unhurried and well-made: interfaces that are quiet until you need them, and systems underneath that hold up when things get busy. Most of my days are spent in React, React Native and TypeScript, with a solid stretch of Java and Spring Boot behind the scenes.",
+  "I'm a full-stack engineer who leans toward the frontend — the part where code meets the person using it. I spent my final university year working full-time in industry, shipping production features across a Java / Spring Boot backend, an Angular web portal, and a React Native mobile app.",
+  "On the mobile side I was handed mockups for two screens and grew them into a complete, theme-consistent interface across the whole app — a design system and reusable component library built from scratch, with custom hooks, React Context and React Navigation.",
+  "I care about how things feel: interfaces that stay quiet until you need them, and systems underneath that hold up when the load spikes. Performance, code quality, and building things that scale rather than break. Bachelor of Computing, 22 distinctions.",
 ];
 
 export type SkillGroup = { title: string; items: string[] };
 
 export const skills: SkillGroup[] = [
   {
-    title: "Frontend",
-    items: ["React", "TypeScript", "Tailwind", "Framer Motion", "Vite", "Three.js"],
-  },
-  {
-    title: "Mobile",
-    items: ["React Native", "Expo", "Native modules", "Offline-first"],
+    title: "Frontend & Mobile",
+    items: ["React", "React Native", "Expo", "TypeScript", "Angular", "NgRx", "SCSS", "Design systems"],
   },
   {
     title: "Backend",
-    items: ["Java", "Spring Boot", "REST APIs", "PostgreSQL", "Microservices"],
+    items: ["Java", "Spring Boot", "Spring Data JPA", "REST APIs", "Microservices", "PostgreSQL", "Node.js", "Express"],
   },
   {
-    title: "Craft & tooling",
-    items: ["Git", "Docker", "Testing", "CI/CD", "SonarQube", "Accessibility"],
+    title: "Cloud & DevOps",
+    items: ["Cloudflare", "AWS (Cognito · S3 · SES)", "Docker", "Jenkins CI/CD", "Azure DevOps", "Git"],
+  },
+  {
+    title: "Also",
+    items: ["Python", "C#", "MongoDB", "Unity", "Testing", "Accessibility"],
   },
 ];
 
@@ -50,21 +51,27 @@ export type Project = {
 
 export const projects: Project[] = [
   {
-    title: "Mobile portal app",
+    title: "Mobile UI & design system",
     blurb:
-      "A cross-platform React Native app for a fleet & asset platform — everyday tools people actually reach for, with an offline-friendly experience and a focus on feeling fast.",
-    tags: ["React Native", "TypeScript", "Mobile"],
+      "Two mockups became a full app. I extended the look and feel into a complete, theme-consistent interface, building a design system and reusable component library from scratch — custom hooks, shared state, and navigation — while reworking nearly every screen.",
+    tags: ["React Native", "Design system", "TypeScript"],
   },
   {
-    title: "Core services & APIs",
+    title: "Full-stack e-commerce backend",
     blurb:
-      "Backend services in Java / Spring Boot powering contracts, maintenance and user domains. Well-tested, well-measured, and built to scale quietly.",
-    tags: ["Java", "Spring Boot", "Microservices"],
+      "A scalable Node.js / Express / MongoDB backend with sharding and replication behind a clean RESTful API — built to stay quick and correct as the data grows.",
+    tags: ["Node.js", "MongoDB", "REST"],
   },
   {
-    title: "This little site",
+    title: "Community web platform",
     blurb:
-      "A hand-drawn SVG scene, gentle motion, and a palette borrowed from a golden-hour hillside. Built with React + Vite, because a CV can be a calm place too.",
-    tags: ["React", "Vite", "SVG"],
+      "A responsive full-stack platform designed and built solo, end to end — front and back — on Node.js, Express, MongoDB and EJS.",
+    tags: ["Node.js", "Express", "Full-stack"],
+  },
+  {
+    title: "AI interview simulator",
+    blurb:
+      "Led a ten-person team building a VR mock-interview platform in Python and Unity for the Meta Quest 3. Final-year capstone, scored a distinction.",
+    tags: ["Python", "Unity", "Team lead"],
   },
 ];
