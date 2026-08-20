@@ -64,7 +64,7 @@ export default function App() {
         <header className="hero-x">
           <div className="wrap hero-x-inner">
             <p className="tag" data-reveal>
-              SOFTWARE ENGINEER · ANOMALY-CLASS
+              SOFTWARE DEVELOPER · ANOMALY-CLASS
             </p>
             <h1 className="hero-x-title" data-reveal>
               <GlitchText>DIETER</GlitchText>

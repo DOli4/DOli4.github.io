@@ -17,7 +17,7 @@ export const profile = {
 };
 
 export const about = [
-  "I'm a full-stack engineer who leans toward the frontend — the part where code meets the person using it. I spent my final university year working full-time in industry, shipping production features across a Java / Spring Boot backend, an Angular web portal, and a React Native mobile app.",
+  "I'm a full-stack developer who leans toward the frontend — the part where code meets the person using it. I spent my final university year working full-time in industry, shipping production features across a Java / Spring Boot backend, an Angular web portal, and a React Native mobile app.",
   "On the mobile side I was handed mockups for two screens and grew them into a complete, theme-consistent interface across the whole app — a design system and reusable component library built from scratch, with custom hooks, React Context and React Navigation.",
   "I care about how things feel: interfaces that stay quiet until you need them, and systems underneath that hold up when the load spikes. Performance, code quality, and building things that scale rather than break. Bachelor of Computing, 22 distinctions.",
 ];
