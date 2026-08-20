@@ -22,8 +22,8 @@ export interface CircularCarouselProps {
 }
 
 const VISIBLE_COUNT = 5;
-const RADIUS_X = 220;
-const RADIUS_Y = 100;
+const RADIUS_X = 320;
+const RADIUS_Y = 120;
 
 function getItemPosition(index: number, activeIndex: number, total: number) {
   const offset = index - activeIndex;
@@ -116,7 +116,7 @@ export function CircularCarousel({
       )}
     >
       {/* Circular track */}
-      <div className="relative h-[280px] w-full max-w-lg">
+      <div className="relative h-[380px] w-full max-w-3xl">
         <AnimatePresence mode="popLayout">
           {items.map((item, i) => {
             const pos = getItemPosition(i, activeIndex, total);
@@ -146,15 +146,15 @@ export function CircularCarousel({
                 aria-selected={isActive}
                 role="option"
                 className={cn(
-                  "absolute left-1/2 top-1/2 flex h-32 w-48 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-start justify-between rounded-2xl border border-white/10 bg-gradient-to-b from-zinc-800/90 to-zinc-900/90 p-4 backdrop-blur-sm transition-shadow duration-300",
+                  "absolute left-1/2 top-1/2 flex h-48 w-72 -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-start justify-between rounded-3xl border p-6 backdrop-blur-2xl transition-shadow duration-300",
                   isActive
-                    ? "shadow-[0_20px_60px_-12px_rgba(0,0,0,0.5)]"
-                    : "shadow-[0_8px_24px_-4px_rgba(0,0,0,0.3)] hover:shadow-[0_12px_32px_-4px_rgba(0,0,0,0.4)]",
+                    ? "border-white/25 bg-white/[0.1] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.7)] ring-1 ring-white/10"
+                    : "border-white/10 bg-white/[0.05] shadow-[0_12px_40px_-12px_rgba(0,0,0,0.5)] hover:border-white/20 hover:bg-white/[0.08]",
                 )}
                 style={{ transformOrigin: "center center" }}
               >
                 {item.tag && (
-                  <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-white/70">
+                  <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-white/75">
                     {item.tag}
                   </span>
                 )}
@@ -162,17 +162,15 @@ export function CircularCarousel({
                   <h3
                     className={cn(
                       "font-semibold leading-tight transition-colors duration-300",
-                      isActive
-                        ? "text-white text-base"
-                        : "text-white/80 text-sm",
+                      isActive ? "text-white text-xl" : "text-white/85 text-lg",
                     )}
                   >
                     {item.title}
                   </h3>
                   <p
                     className={cn(
-                      "mt-1 line-clamp-2 text-xs leading-relaxed transition-colors duration-300",
-                      isActive ? "text-white/60" : "text-white/40",
+                      "mt-2 line-clamp-3 text-[13px] leading-relaxed transition-colors duration-300",
+                      isActive ? "text-white/65" : "text-white/45",
                     )}
                   >
                     {item.description}
@@ -190,9 +188,9 @@ export function CircularCarousel({
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, ease: "easeOut" }}
-        className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none"
+        className="absolute inset-x-0 top-0 h-[380px] flex flex-col items-center justify-center pointer-events-none"
       >
-        <span className="text-5xl font-bold tracking-tight text-white/90">
+        <span className="text-6xl font-bold tracking-tight text-white/90">
           {String(activeIndex + 1).padStart(2, "0")}
         </span>
         <span className="mt-1 text-xs text-white/40">

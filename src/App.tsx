@@ -5,10 +5,14 @@ import AnomalousMatter from "./components/AnomalousMatter";
 import GlitchText from "./components/GlitchText";
 import ThermodynamicGrid from "./components/ui/interactive-thermodynamic-grid";
 import { CircularCarousel } from "./components/ui/circular-carousel";
-import { CoverflowCarousel } from "./components/ui/coverflow-carousel";
-import { about, skills, projects, profile, capabilities } from "./content";
+import { FlipDiskMatrix } from "./components/ui/flip-disk-matrix";
+import { about, skills, projects, profile } from "./content";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Static — hoisted so a re-render can't hand FlipDiskMatrix a new array
+// reference and restart the flip animation.
+const STUDIO_WORDS = ["PROFESSIONAL", "LOOK", "STUDIO"];
 
 export default function App() {
   const root = useRef<HTMLDivElement>(null);
@@ -191,41 +195,29 @@ export default function App() {
           </div>
         </section>
 
-        {/* HIRE — a bright preview of the corporate pitch. Tap a card or the
-            button to step into the full white "what you get" screen. */}
-        <section id="hire" className="section panel hire-teaser">
+        {/* STUDIO — the doorway to the polished, white web-design demo page. */}
+        <section id="studio-cta" className="section panel studio-cta">
           <div className="wrap">
             <div className="sec-head" data-reveal>
-              <span className="section-num">04 — OFFER</span>
+              <span className="section-num">04 — SIDEBAND</span>
               <h2 className="sec-title">
-                <GlitchText>Hire me</GlitchText>
+                <GlitchText>I also build websites.</GlitchText>
               </h2>
             </div>
-            <p className="hire-teaser-lede" data-reveal>
-              A preview of what you actually get. Swipe through — then step into
-              the full pitch.
+            <p className="studio-cta-lede" data-reveal>
+              Beyond the fleet software — I design and build clean, expensive-looking
+              websites. A look into a professional look:
             </p>
-            <div className="hire-teaser-flow" data-reveal>
-              <CoverflowCarousel
-                slides={capabilities.map((c) => ({
-                  src: c.image,
-                  alt: c.title,
-                  title: c.title,
-                  subtitle: c.subtitle,
-                }))}
-                showNavigation
-                cardWidth="clamp(150px, 20vw, 230px)"
-                label="What you get"
-                onActivate={(i) => {
-                  window.location.hash = `#/hire/${capabilities[i].slug}`;
-                }}
+            <div className="studio-cta-row" data-reveal>
+              <FlipDiskMatrix
+                words={STUDIO_WORDS}
+                href="#/studio"
+                ariaLabel="A look into a professional look — open the web design studio"
               />
             </div>
-            <div className="hire-teaser-cta" data-reveal>
-              <a className="hire-teaser-btn" href="#/hire" data-hover>
-                See what you get →
-              </a>
-            </div>
+            <p className="studio-cta-hint" data-reveal>
+              click the board →
+            </p>
           </div>
         </section>
 

@@ -84,9 +84,12 @@ export function CoverflowCarousel({
     pos: number;
     v: number;
     t: number;
+    pressed: number | null;
   } | null>(null);
 
   const [selected, setSelected] = React.useState(0);
+  /** Mirrors `selected` for firing onSelect outside the (pure) state updater. */
+  const selectedRef = React.useRef(0);
 
   /** Nearest whole card, folded back into 0..count-1. */
   const indexAt = React.useCallback(
@@ -138,10 +141,11 @@ export function CoverflowCarousel({
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       targetRef.current = target;
       const nextIndex = indexAt(target);
-      setSelected((prev) => {
-        if (prev !== nextIndex) onSelect?.(nextIndex);
-        return nextIndex;
-      });
+      setSelected(nextIndex);
+      if (selectedRef.current !== nextIndex) {
+        selectedRef.current = nextIndex;
+        onSelect?.(nextIndex);
+      }
 
       const step = () => {
         const remaining = target - posRef.current;
@@ -191,12 +195,18 @@ export function CoverflowCarousel({
     event.currentTarget.setPointerCapture(event.pointerId);
     targetRef.current = posRef.current;
     movedRef.current = 0;
+    // Which card the press landed on — a tap on a side card should bring that
+    // card to the centre, not activate whatever happens to be centred.
+    const pressedEl = (event.target as HTMLElement).closest<HTMLElement>(
+      "[data-cf-index]",
+    );
     dragRef.current = {
       id: event.pointerId,
       x: event.clientX,
       pos: posRef.current,
       v: 0,
       t: performance.now(),
+      pressed: pressedEl ? Number(pressedEl.dataset.cfIndex) : null,
     };
   };
 
@@ -216,7 +226,10 @@ export function CoverflowCarousel({
     drag.t = now;
 
     const index = indexAt(posRef.current);
-    if (index !== selected) setSelected(index);
+    if (index !== selected) {
+      selectedRef.current = index;
+      setSelected(index);
+    }
     paint();
   };
 
@@ -224,10 +237,17 @@ export function CoverflowCarousel({
     const drag = dragRef.current;
     if (!drag || drag.id !== event.pointerId) return;
     dragRef.current = null;
-    // A gesture that barely moved is a tap — activate the centred card.
+    // A gesture that barely moved is a tap.
     if (movedRef.current < 6) {
-      onActivate?.(indexAt(posRef.current));
-      settle(clamp(Math.round(posRef.current)));
+      const centered = indexAt(posRef.current);
+      // Tapping the centred card opens it; tapping a side card just brings
+      // that card to the centre — no surprise navigation.
+      if (drag.pressed === null || drag.pressed === centered) {
+        onActivate?.(centered);
+        settle(clamp(Math.round(posRef.current)));
+      } else {
+        goTo(drag.pressed);
+      }
       return;
     }
     // Let a flick carry, but never more than two cards.
@@ -312,6 +332,7 @@ export function CoverflowCarousel({
                 ref={(node) => {
                   cardRefs.current[index] = node;
                 }}
+                data-cf-index={index}
                 role="group"
                 aria-roledescription="slide"
                 aria-label={`${index + 1} of ${count}`}

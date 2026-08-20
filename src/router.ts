@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-export type Route = "home" | "hire" | "drill" | "drill-today" | "drill-artifacts" | "drill-mentor" | "shake";
+export type Route = "home" | "studio" | "drill" | "drill-today" | "drill-artifacts" | "drill-mentor" | "shake";
 
 /** True for every view living behind the drill password gate. */
 export function isDrillRoute(route: Route): boolean {
@@ -8,19 +8,17 @@ export function isDrillRoute(route: Route): boolean {
 }
 
 /**
- * Public lockdown. While true the live site is CV-only: every route resolves
- * to home and the DASHBOARD tab is hidden, so the drill dashboard and shake
- * page are unreachable (even by typing #/drill). The code still ships — flip
- * this one flag back to false to restore them.
+ * Public lockdown. While true the private drill dashboard and shake page are
+ * unreachable (even by typing #/drill). The two public pages — the CV and the
+ * web-design studio — are always open. Flip this to false to restore drill.
  */
 export const CV_ONLY = true;
 
-export const pageTabs: { route: Route; href: string; label: string }[] = CV_ONLY
-  ? []
-  : [
-      { route: "home", href: "#/", label: "CV" },
-      { route: "drill", href: "#/drill", label: "DASHBOARD" },
-    ];
+/** The two public pages, shown as tabs in the top HUD on the CV. */
+export const pageTabs: { route: Route; href: string; label: string }[] = [
+  { route: "home", href: "#/", label: "CV" },
+  { route: "studio", href: "#/studio", label: "STUDIO" },
+];
 
 /**
  * Hash routing, deliberately.
@@ -35,8 +33,8 @@ function parse(): Route {
   const hash = window.location.hash;
   if (!hash.startsWith("#/")) return "home";
   const slug = hash.slice(2).replace(/\/$/, "");
-  // The corporate "hire me" screen is public even while the site is locked down.
-  if (slug === "hire" || slug.startsWith("hire/")) return "hire";
+  // The web-design studio page is public even while the site is locked down.
+  if (slug === "studio") return "studio";
   // Everything else (the drill dashboard, shake) stays behind the CV-only lock.
   if (CV_ONLY) return "home";
   if (slug === "drill" || slug === "shake") return slug;
@@ -64,21 +62,4 @@ export function useRoute(): Route {
   }, []);
 
   return route;
-}
-
-/** The capability slug from "#/hire/<slug>", or null on the bare "#/hire". */
-export function hireSlug(): string | null {
-  const m = window.location.hash.match(/^#\/hire\/([\w-]+)/);
-  return m ? m[1] : null;
-}
-
-/** Live hire slug — re-reads on hashchange so switching capabilities re-renders. */
-export function useHireSlug(): string | null {
-  const [slug, setSlug] = useState<string | null>(hireSlug);
-  useEffect(() => {
-    const on = () => setSlug(hireSlug());
-    window.addEventListener("hashchange", on);
-    return () => window.removeEventListener("hashchange", on);
-  }, []);
-  return slug;
 }
