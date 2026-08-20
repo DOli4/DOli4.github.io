@@ -4,7 +4,6 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowRight, ArrowUpRight, Check, Sparkles, Wand2 } from "lucide-react";
-import { CoverflowCarousel } from "../components/ui/coverflow-carousel";
 import { profile } from "../content";
 import "./studio.css";
 
@@ -34,10 +33,14 @@ const spells = [
   { k: "04", t: "The reveal", d: "Launched, tuned and handed over, with everything documented to grow on." },
 ];
 
-const work = [
-  { src: "/work/car.webp", alt: "Widebody sports car under studio light", title: "Momentum", subtitle: "Image by Cash Macanaya" },
-  { src: "/work/ocean.webp", alt: "Golden-hour ocean waves", title: "Tide", subtitle: "Image by Callum Mullin" },
-  { src: "/work/glass.webp", alt: "Sculptural glass form", title: "Prism", subtitle: "Image by Resource Database" },
+// Full-bleed image bands — the photo is the background, the words sit on top.
+const bands = [
+  { img: "/work/car.webp", eyebrow: "Performance", h: "Fast, and built to last.",
+    sub: "Optimised, accessible, and engineered to perform under pressure.", credit: "Image by Cash Macanaya" },
+  { img: "/work/ocean.webp", eyebrow: "Resilience", h: "Calm under load.",
+    sub: "Smooth when the traffic surges — resilient by design.", credit: "Image by Callum Mullin" },
+  { img: "/work/glass.webp", eyebrow: "Craft", h: "Crafted, not assembled.",
+    sub: "Shaped by hand, detail by detail. No templates, ever.", credit: "Image by Resource Database" },
 ];
 
 const promises = [
@@ -263,24 +266,29 @@ export default function Studio() {
           </div>
         </section>
 
-        {/* WORK */}
-        <section id="st-work" className="st-section st-work">
+        {/* WORK — full-bleed image bands, words over the photo */}
+        <section id="st-work" className="st-section">
           <header className="st-sec-head" data-reveal>
             <span className="st-sec-num">03 — The spellbook</span>
             <h2 className="st-h2">A look that reads as expensive.</h2>
           </header>
-          <div className="st-work-flow" data-reveal>
-            <CoverflowCarousel
-              slides={work}
-              showCaption
-              showNavigation
-              showPagination
-              cardWidth="clamp(220px, 34vw, 400px)"
-              rotate={40}
-              label="Selected work"
-            />
-          </div>
         </section>
+        <div className="st-bands">
+          {bands.map((b) => (
+            <section
+              className="st-band"
+              key={b.h}
+              style={{ backgroundImage: `url(${b.img})` }}
+            >
+              <div className="st-band-inner" data-reveal>
+                <p className="st-band-eyebrow">{b.eyebrow}</p>
+                <h3 className="st-band-h">{b.h}</h3>
+                <p className="st-band-sub">{b.sub}</p>
+              </div>
+              <span className="st-band-credit">{b.credit}</span>
+            </section>
+          ))}
+        </div>
 
         {/* PROMISE */}
         <section id="st-promise" className="st-section">

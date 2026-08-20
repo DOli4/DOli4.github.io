@@ -254,8 +254,37 @@
 .st-step-t { margin-top: 8px; font-size: 1.2rem; font-weight: 700; color: var(--ink); }
 .st-step-d { margin-top: 8px; font-size: 0.95rem; color: var(--ink-2); }
 
-/* ---- Work ---- */
-.st-work-flow { margin-top: 48px; }
+/* ---- Work — full-bleed image bands ---- */
+.st-bands { margin-top: 52px; }
+.st-band {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  min-height: 64vh;
+  padding: clamp(40px, 6vw, 84px) clamp(24px, 6vw, 96px);
+  background-size: cover;
+  background-position: center;
+  overflow: hidden;
+  color: #fff;
+}
+/* Legibility scrim — dark toward the bottom where the words sit. */
+.st-band::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(8, 16, 34, 0.12) 0%, rgba(8, 16, 34, 0.08) 38%, rgba(6, 12, 28, 0.86) 100%);
+}
+.st-band-inner { position: relative; width: 100%; max-width: 1360px; margin-inline: auto; }
+.st-band-eyebrow { font-size: 0.82rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold-2); }
+.st-band-h {
+  margin-top: 12px; font-family: "Playfair Display", serif; font-weight: 600;
+  font-size: clamp(2.1rem, 4.8vw, 3.8rem); line-height: 1.03; letter-spacing: -0.015em;
+  text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+}
+.st-band-sub { margin-top: 14px; max-width: 46ch; font-size: clamp(1rem, 1.4vw, 1.15rem); color: rgba(255, 255, 255, 0.86); }
+.st-band-credit {
+  position: absolute; right: clamp(20px, 6vw, 96px); bottom: clamp(18px, 3vw, 34px);
+  font-size: 0.76rem; letter-spacing: 0.05em; color: rgba(255, 255, 255, 0.65);
+}
 
 /* ---- Promise ---- */
 .st-promise-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 52px; }
