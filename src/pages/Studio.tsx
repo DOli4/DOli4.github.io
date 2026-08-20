@@ -10,8 +10,6 @@ import "./studio.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const IMG = (id: string) =>
-  `https://images.unsplash.com/photo-${id}?w=900&h=900&fit=crop&q=75&auto=format`;
 
 // The "shop" — websites you can buy, packaged as products. Each mini preview is
 // a CSS browser mock tinted with the product's accent, so the card reads as a
@@ -37,12 +35,9 @@ const spells = [
 ];
 
 const work = [
-  { src: IMG("1441974231531-c6227db76b6e"), alt: "Editorial brand site", title: "Lumen", subtitle: "Editorial studio" },
-  { src: IMG("1500534314209-a25ddb2bd429"), alt: "Product marketplace", title: "Carza", subtitle: "Car marketplace" },
-  { src: IMG("1519681393784-d120267933ba"), alt: "Luxury landing page", title: "Aurora", subtitle: "Luxury rental" },
-  { src: IMG("1470071459604-3b5ec3a7fe05"), alt: "Fintech dashboard", title: "Meridian", subtitle: "Fintech" },
-  { src: IMG("1465101162946-4377e57745c3"), alt: "Fashion lookbook", title: "Vanta", subtitle: "Fashion lookbook" },
-  { src: IMG("1493246507139-91e8fad9978e"), alt: "Wellness brand", title: "Halo", subtitle: "Wellness brand" },
+  { src: "/work/car.webp", alt: "Widebody sports car under studio light", title: "Momentum", subtitle: "Image by Cash Macanaya" },
+  { src: "/work/ocean.webp", alt: "Golden-hour ocean waves", title: "Tide", subtitle: "Image by Callum Mullin" },
+  { src: "/work/glass.webp", alt: "Sculptural glass form", title: "Prism", subtitle: "Image by Resource Database" },
 ];
 
 const promises = [
