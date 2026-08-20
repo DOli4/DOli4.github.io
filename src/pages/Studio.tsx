@@ -191,18 +191,6 @@ export default function Studio() {
           </div>
         </section>
 
-        {/* MARQUEE */}
-        <div className="st-marquee" aria-hidden>
-          <div className="st-marquee-track">
-            {Array.from({ length: 2 }).map((_, k) => (
-              <span key={k}>
-                Landing pages <b>✦</b> Web apps <b>✦</b> E-commerce <b>✦</b> Design systems
-                <b>✦</b> Animation <b>✦</b> SEO <b>✦</b> Brand sites <b>✦</b>
-              </span>
-            ))}
-          </div>
-        </div>
-
         {/* SHOP */}
         <section id="st-shop" className="st-section">
           <header className="st-sec-head" data-reveal>
