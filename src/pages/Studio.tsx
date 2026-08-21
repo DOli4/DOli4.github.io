@@ -23,7 +23,7 @@ gsap.registerPlugin(ScrollTrigger);
 // website rather than a stock photo.
 const shop = [
   { name: "The Landing", cat: "One-pager", price: "On request",
-    blurb: "One page, all conversion. A single sharp story that turns visitors into customers.", accent: "#a9791b", featured: false },
+    blurb: "One page, all conversion. A single sharp story that turns visitors into customers.", accent: "#2f7d4f", featured: false },
   { name: "The Portfolio", cat: "Showcase", price: "On request",
     blurb: "Your work, framed like art. A gallery that makes people stop and stare.", accent: "#2f6f6a", featured: false },
   { name: "The Storefront", cat: "E-commerce", price: "On request",

@@ -45,6 +45,11 @@
 /* Zero-specificity colour reset (kills default link blue) so it never
    outranks the single-class button colour rules below. */
 :where(.studio-page) a { color: inherit; }
+
+/* Ease the accent recolour when a product theme is chosen via "Choose". */
+.st-eyebrow, .st-sec-num, .st-brand-tag, .st-h1 em, .st-step-k,
+.st-stat strong, .st-final-mark { transition: color 0.45s ease; }
+.st-mock-btn { transition: background 0.45s ease; }
 .studio-page em { font-style: italic; }
 .studio-page svg { display: inline-block; vertical-align: middle; }
 .studio-page :focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; border-radius: 8px; }
