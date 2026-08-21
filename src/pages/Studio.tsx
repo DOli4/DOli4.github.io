@@ -1,9 +1,17 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowRight, ArrowUpRight, Check, Sparkles, Wand2 } from "lucide-react";
+import {
+  ArrowRight,
+  ArrowUpRight,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Sparkles,
+  Wand2,
+} from "lucide-react";
 import { profile } from "../content";
 import "./studio.css";
 
@@ -50,8 +58,72 @@ const promises = [
   { t: "One pair of hands", d: "Design and build, front to back. Nothing lost in translation between a designer and a dev." },
 ];
 
+/** A single hero-style image stage you flip through (RIVR-ish), the words
+ *  and glass cards laid over the photo — not three photos stacked. */
+function WorkShowcase({ mail }: { mail: (s: string) => string }) {
+  const [i, setI] = useState(0);
+  const total = bands.length;
+  const cur = bands[i];
+  const go = (d: number) => setI((p) => (p + d + total) % total);
+  const photographer = cur.credit.replace(/^Image by\s*/, "");
+
+  return (
+    <div className="st-show">
+      <div className="st-show-stage" style={{ backgroundImage: `url(${cur.img})` }}>
+        <button className="st-show-arrow st-show-prev" onClick={() => go(-1)} aria-label="Previous image">
+          <ChevronLeft className="size-5" aria-hidden />
+        </button>
+        <button className="st-show-arrow st-show-next" onClick={() => go(1)} aria-label="Next image">
+          <ChevronRight className="size-5" aria-hidden />
+        </button>
+
+        <div className="st-show-center" key={i}>
+          <span className="st-show-pill">
+            <Sparkles className="size-3.5" aria-hidden /> {cur.eyebrow}
+          </span>
+          <h3 className="st-show-h">{cur.h}</h3>
+          <p className="st-show-sub">{cur.sub}</p>
+        </div>
+
+        <div className="st-show-card st-show-card-l">
+          <strong>22</strong>
+          <span>distinctions</span>
+          <a className="st-show-cardbtn" href={mail("Website commission")}>
+            <ArrowUpRight className="size-3.5" aria-hidden /> Commission
+          </a>
+        </div>
+        <div className="st-show-card st-show-card-r" key={photographer}>
+          <span>Photograph</span>
+          <strong>{photographer}</strong>
+        </div>
+
+        <div className="st-show-dots">
+          {bands.map((_, k) => (
+            <button
+              key={k}
+              className={k === i ? "is-on" : ""}
+              onClick={() => setI(k)}
+              aria-label={`Image ${k + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Studio() {
   const root = useRef<HTMLDivElement>(null);
+
+  // Pressing "Choose" retints the whole page to that product's accent — a live
+  // preview of the look. Deriving lighter/darker shades via color-mix.
+  const applyTheme = (accent: string) => {
+    const el = root.current;
+    if (!el) return;
+    el.style.setProperty("--gold", accent);
+    el.style.setProperty("--gold-2", `color-mix(in srgb, ${accent} 66%, white)`);
+    el.style.setProperty("--gold-ink", `color-mix(in srgb, ${accent} 82%, black)`);
+  };
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -195,7 +267,7 @@ export default function Studio() {
         <section id="st-shop" className="st-section">
           <header className="st-sec-head" data-reveal>
             <span className="st-sec-num">01 — The shop</span>
-            <h2 className="st-h2">Pick your spell.</h2>
+            <h2 className="st-h2">Choose your build.</h2>
             <p className="st-sec-lede">
               Websites, packaged. Choose one — or commission something entirely
               your own.
@@ -226,10 +298,15 @@ export default function Studio() {
                   <p className="st-product-blurb">{p.blurb}</p>
                   <div className="st-product-foot">
                     <span className="st-product-price">{p.price}</span>
-                    <a className="st-choose" href={mail(`Website: ${p.name}`)}>
+                    <button
+                      type="button"
+                      className="st-choose"
+                      onClick={() => applyTheme(p.accent)}
+                      title="Preview this look across the site"
+                    >
                       Choose
                       <ArrowUpRight className="size-4" aria-hidden />
-                    </a>
+                    </button>
                   </div>
                 </div>
               </article>
@@ -254,29 +331,16 @@ export default function Studio() {
           </div>
         </section>
 
-        {/* WORK — full-bleed image bands, words over the photo */}
+        {/* WORK — one image stage you flip through, words over the photo */}
         <section id="st-work" className="st-section">
           <header className="st-sec-head" data-reveal>
-            <span className="st-sec-num">03 — The spellbook</span>
+            <span className="st-sec-num">03 — Selected work</span>
             <h2 className="st-h2">A look that reads as expensive.</h2>
           </header>
+          <div data-reveal>
+            <WorkShowcase mail={mail} />
+          </div>
         </section>
-        <div className="st-bands">
-          {bands.map((b) => (
-            <section
-              className="st-band"
-              key={b.h}
-              style={{ backgroundImage: `url(${b.img})` }}
-            >
-              <div className="st-band-inner" data-reveal>
-                <p className="st-band-eyebrow">{b.eyebrow}</p>
-                <h3 className="st-band-h">{b.h}</h3>
-                <p className="st-band-sub">{b.sub}</p>
-              </div>
-              <span className="st-band-credit">{b.credit}</span>
-            </section>
-          ))}
-        </div>
 
         {/* PROMISE */}
         <section id="st-promise" className="st-section">
