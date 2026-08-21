@@ -5,14 +5,9 @@ import AnomalousMatter from "./components/AnomalousMatter";
 import GlitchText from "./components/GlitchText";
 import ThermodynamicGrid from "./components/ui/interactive-thermodynamic-grid";
 import { CircularCarousel } from "./components/ui/circular-carousel";
-import { FlipDiskMatrix } from "./components/ui/flip-disk-matrix";
 import { about, skills, projects, profile } from "./content";
 
 gsap.registerPlugin(ScrollTrigger);
-
-// Static — hoisted so a re-render can't hand FlipDiskMatrix a new array
-// reference and restart the flip animation.
-const STUDIO_WORDS = ["BUILD", "PROFESSIONAL", "LOOKING", "WEBSITES"];
 
 export default function App() {
   const root = useRef<HTMLDivElement>(null);
@@ -195,38 +190,11 @@ export default function App() {
           </div>
         </section>
 
-        {/* STUDIO — the doorway to the polished, white web-design demo page. */}
-        <section id="studio-cta" className="section panel studio-cta">
-          <div className="wrap">
-            <div className="sec-head" data-reveal>
-              <span className="section-num">04 — SIDEBAND</span>
-              <h2 className="sec-title">
-                <GlitchText>I build websites, too.</GlitchText>
-              </h2>
-            </div>
-            <p className="studio-cta-lede" data-reveal>
-              Beyond the fleet software, I design and build professional, custom
-              websites — anything you can imagine. Tap the board to step into the
-              studio.
-            </p>
-            <div className="studio-cta-row" data-reveal>
-              <FlipDiskMatrix
-                words={STUDIO_WORDS}
-                href="#/studio"
-                ariaLabel="Build a professional looking website — open the web design studio"
-              />
-            </div>
-            <p className="studio-cta-hint" data-reveal>
-              tap the board →
-            </p>
-          </div>
-        </section>
-
         {/* CONTACT */}
         <section id="contact" className="section panel contact-x">
           <div className="wrap">
             <div className="sec-head" data-reveal>
-              <span className="section-num">05 — UPLINK</span>
+              <span className="section-num">04 — UPLINK</span>
               <h2 className="sec-title contact-title">
                 <GlitchText>Get in touch.</GlitchText>
               </h2>

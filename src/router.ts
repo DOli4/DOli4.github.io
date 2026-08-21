@@ -8,17 +8,15 @@ export function isDrillRoute(route: Route): boolean {
 }
 
 /**
- * Public lockdown. While true the private drill dashboard and shake page are
- * unreachable (even by typing #/drill). The two public pages — the CV and the
- * web-design studio — are always open. Flip this to false to restore drill.
+ * Public lockdown. While true, only the CV is reachable — the drill dashboard,
+ * shake, and the web-design studio are all blocked (even by typing the URL).
+ * The studio code still ships; re-open it by restoring the `studio` line in
+ * parse() and adding its tab back below.
  */
 export const CV_ONLY = true;
 
-/** The two public pages, shown as tabs in the top HUD on the CV. */
-export const pageTabs: { route: Route; href: string; label: string }[] = [
-  { route: "home", href: "#/", label: "CV" },
-  { route: "studio", href: "#/studio", label: "STUDIO" },
-];
+/** Public page tabs in the top HUD. Empty while the site is CV-only. */
+export const pageTabs: { route: Route; href: string; label: string }[] = [];
 
 /**
  * Hash routing, deliberately.
@@ -33,9 +31,8 @@ function parse(): Route {
   const hash = window.location.hash;
   if (!hash.startsWith("#/")) return "home";
   const slug = hash.slice(2).replace(/\/$/, "");
-  // The web-design studio page is public even while the site is locked down.
-  if (slug === "studio") return "studio";
-  // Everything else (the drill dashboard, shake) stays behind the CV-only lock.
+  // While locked down, everything (studio, drill, shake) resolves to the CV.
+  // To re-open the studio: `if (slug === "studio") return "studio";` here.
   if (CV_ONLY) return "home";
   if (slug === "drill" || slug === "shake") return slug;
   if (slug === "drill/today") return "drill-today";
