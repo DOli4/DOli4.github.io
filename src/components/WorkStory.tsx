@@ -1,5 +1,6 @@
 import React from "react";
 import FlowArt, { FlowSection } from "./ui/story-scroll";
+import GlitchText from "./GlitchText";
 import { profile } from "../content";
 
 /**
@@ -109,7 +110,7 @@ export default function WorkStory() {
             <h2 className="text-[clamp(3rem,11vw,12rem)] font-bold leading-[0.85] uppercase tracking-tight">
               {p.title.map((line, i) => (
                 <React.Fragment key={i}>
-                  {line}
+                  <GlitchText>{line}</GlitchText>
                   {i < p.title.length - 1 && <br />}
                 </React.Fragment>
               ))}
@@ -131,11 +132,11 @@ export default function WorkStory() {
         <hr className="my-[2vw] border-none border-t" style={{ borderColor: `${GOLD}55` }} />
         <div>
           <h2 className="text-[clamp(3rem,11vw,12rem)] font-bold leading-[0.85] uppercase tracking-tight">
-            Ready
+            <GlitchText>Ready</GlitchText>
             <br />
-            To
+            <GlitchText>To</GlitchText>
             <br />
-            Begin?
+            <GlitchText>Begin?</GlitchText>
           </h2>
         </div>
         <hr className="my-[2vw] border-none border-t" style={{ borderColor: `${GOLD}55` }} />
