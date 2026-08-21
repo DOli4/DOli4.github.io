@@ -4,10 +4,49 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import AnomalousMatter from "./components/AnomalousMatter";
 import GlitchText from "./components/GlitchText";
 import ThermodynamicGrid from "./components/ui/interactive-thermodynamic-grid";
-import { CircularCarousel } from "./components/ui/circular-carousel";
-import { about, skills, projects, profile } from "./content";
+import { HeroParallax } from "./components/ui/hero-parallax";
+import { about, skills, profile } from "./content";
 
 gsap.registerPlugin(ScrollTrigger);
+
+// Tiles for the parallax work gallery. A visual montage — his studio photos
+// plus stock — titled with real projects and stack. Swap in project shots later.
+const U = (id: string) =>
+  `https://images.unsplash.com/photo-${id}?w=600&h=600&fit=crop&q=70&auto=format`;
+const TILE_IMAGES = [
+  "/work/car.webp",
+  "/work/ocean.webp",
+  "/work/glass.webp",
+  U("1470071459604-3b5ec3a7fe05"),
+  U("1500534314209-a25ddb2bd429"),
+  U("1441974231531-c6227db76b6e"),
+  U("1519681393784-d120267933ba"),
+  U("1465101162946-4377e57745c3"),
+  U("1493246507139-91e8fad9978e"),
+  U("1501785888041-af3ef285b470"),
+];
+const TILE_TITLES = [
+  "Mobile UI & design system",
+  "Full-stack e-commerce backend",
+  "Community web platform",
+  "AI interview simulator",
+  "React Native",
+  "Spring Boot",
+  "PostgreSQL",
+  "TypeScript",
+  "Angular",
+  "AWS · Cloud",
+  "Docker",
+  "CI/CD",
+  "Design systems",
+  "REST APIs",
+  "Performance",
+];
+const WORK_TILES = TILE_TITLES.map((title, i) => ({
+  title,
+  link: "https://github.com/DOli4",
+  thumbnail: TILE_IMAGES[i % TILE_IMAGES.length],
+}));
 
 export default function App() {
   const root = useRef<HTMLDivElement>(null);
@@ -165,29 +204,9 @@ export default function App() {
           </div>
         </section>
 
-        {/* WORK */}
-        <section id="work" className="section panel">
-          <div className="wrap">
-            <div className="sec-head" data-reveal>
-              <span className="section-num">03 — ARTIFACTS</span>
-              <h2 className="sec-title">
-                <GlitchText>Work</GlitchText>
-              </h2>
-            </div>
-            {/* The projects now orbit as 3D cards — the cards are what move,
-                the void behind them stays put. */}
-            <div className="work-carousel" data-reveal>
-              <CircularCarousel
-                items={projects.map((project, i) => ({
-                  id: String(i),
-                  title: project.title,
-                  description: project.blurb,
-                  tag: project.tags[0],
-                }))}
-                autoPlayInterval={5000}
-              />
-            </div>
-          </div>
+        {/* WORK — scroll-driven parallax gallery (full-bleed) */}
+        <section id="work">
+          <HeroParallax products={WORK_TILES} />
         </section>
 
         {/* CONTACT */}
