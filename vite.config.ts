@@ -10,6 +10,8 @@ export default defineConfig({
   server: process.env.PORT ? { port: Number(process.env.PORT), strictPort: true } : undefined,
   plugins: [react()],
   resolve: {
+    // Keep a single React instance — @gsap/react's useGSAP breaks with a duplicate.
+    dedupe: ["react", "react-dom", "gsap"],
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
