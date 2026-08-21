@@ -72,7 +72,7 @@ const panels: Panel[] = [
     title: ["The", "Promise"],
     intro: "Why hand your work to me.",
     columns: [
-      { label: "Custom, always", text: "No templates, no page-builders. Every project starts from a blank page — yours alone." },
+      { label: "Your users first", text: "I care deeply about your customers' experience — every screen designed to feel effortless, intuitive, and worth coming back to." },
       { label: "One pair of hands", text: "Design and build, front to back. Nothing lost between a designer and a developer." },
       { label: "22 distinctions", text: "A three-year Bachelor of Computing, the final year full-time in industry." },
     ],
