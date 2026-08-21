@@ -31,7 +31,7 @@ const shop = [
   { name: "The Web App", cat: "Product", price: "On request",
     blurb: "A real product, built to scale. React + TypeScript, engineered to last.", accent: "#3a4a8a", featured: false },
   { name: "The Bespoke", cat: "Anything", price: "On request",
-    blurb: "Anything you can wish for. You dream it, I conjure it — no template, no limits.", accent: "#a9791b", featured: true },
+    blurb: "Anything you can wish for. You dream it, I build it — no template, no limits.", accent: "#a9791b", featured: true },
 ];
 
 const spells = [
@@ -217,8 +217,8 @@ export default function Studio() {
               Websites with UI &amp; UX <em>development.</em>
             </h1>
             <p className="st-lede" data-reveal>
-              I conjure custom websites from scratch — anything you can dream up.
-              Code is magic, after all. Consider me your magician.
+              I design and build custom websites from scratch — anything you can
+              imagine, made to look expensive and load fast.
             </p>
             <div className="st-hero-cta" data-reveal>
               <a className="st-pill st-pill-navy" href="#st-shop">
@@ -317,7 +317,7 @@ export default function Studio() {
         {/* PROCESS */}
         <section id="st-process" className="st-section">
           <header className="st-sec-head" data-reveal>
-            <span className="st-sec-num">02 — How the magic works</span>
+            <span className="st-sec-num">02 — How it works</span>
             <h2 className="st-h2">Four moves, no smoke.</h2>
           </header>
           <div className="st-steps" data-stagger>
@@ -346,7 +346,7 @@ export default function Studio() {
         <section id="st-promise" className="st-section">
           <header className="st-sec-head" data-reveal>
             <span className="st-sec-num">04 — The promise</span>
-            <h2 className="st-h2">Why hand it to a magician.</h2>
+            <h2 className="st-h2">Why work with me.</h2>
           </header>
           <div className="st-promise-grid" data-stagger>
             {promises.map((p) => (
@@ -382,7 +382,7 @@ export default function Studio() {
         {/* FINAL CTA */}
         <section className="st-final" data-reveal>
           <span className="st-final-mark" aria-hidden><Sparkles className="size-6" /></span>
-          <h2 className="st-final-h">Ready to make magic?</h2>
+          <h2 className="st-final-h">Ready to build something?</h2>
           <p className="st-final-p">
             Tell me what you want to build. I&rsquo;ll turn it into a website worth
             bookmarking.
@@ -394,7 +394,7 @@ export default function Studio() {
         </section>
 
         <footer className="st-foot">
-          <span>© {new Date().getFullYear()} Dieter Olivier — conjured from scratch</span>
+          <span>© {new Date().getFullYear()} Dieter Olivier — built from scratch</span>
           <a href="#/">Back to CV</a>
         </footer>
       </main>

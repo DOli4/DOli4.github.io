@@ -201,13 +201,13 @@ export default function App() {
             <div className="sec-head" data-reveal>
               <span className="section-num">04 — SIDEBAND</span>
               <h2 className="sec-title">
-                <GlitchText>Code is magic.</GlitchText>
+                <GlitchText>I build websites, too.</GlitchText>
               </h2>
             </div>
             <p className="studio-cta-lede" data-reveal>
-              Beyond the fleet software, I build professional, custom websites —
-              anything you can dream up. Code is magic; think of me as your
-              magician. Tap the board to step into the studio.
+              Beyond the fleet software, I design and build professional, custom
+              websites — anything you can imagine. Tap the board to step into the
+              studio.
             </p>
             <div className="studio-cta-row" data-reveal>
               <FlipDiskMatrix
