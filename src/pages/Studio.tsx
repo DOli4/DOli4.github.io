@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import {
@@ -20,18 +20,30 @@ gsap.registerPlugin(ScrollTrigger);
 
 // The "shop" — websites you can buy, packaged as products. Each mini preview is
 // a CSS browser mock tinted with the product's accent, so the card reads as a
-// website rather than a stock photo.
+// website rather than a stock photo. Accents stay in the gold family — warm
+// metallic variations, not a rainbow — to hold the charcoal+gold theme.
 const shop = [
   { name: "The Landing", cat: "One-pager", price: "On request",
-    blurb: "One page, all conversion. A single sharp story that turns visitors into customers.", accent: "#2f7d4f", featured: false },
+    blurb: "One page, all conversion. A single sharp story that turns visitors into customers.", accent: "#8a6a2f", featured: false },
   { name: "The Portfolio", cat: "Showcase", price: "On request",
-    blurb: "Your work, framed like art. A gallery that makes people stop and stare.", accent: "#2f6f6a", featured: false },
+    blurb: "Your work, framed like art. A gallery that makes people stop and stare.", accent: "#b08d57", featured: false },
   { name: "The Storefront", cat: "E-commerce", price: "On request",
-    blurb: "Commerce that closes. A store built to sell — fast and frictionless.", accent: "#8a3b2e", featured: false },
+    blurb: "Commerce that closes. A store built to sell — fast and frictionless.", accent: "#a8862e", featured: false },
   { name: "The Web App", cat: "Product", price: "On request",
-    blurb: "A real product, built to scale. React + TypeScript, engineered to last.", accent: "#3a4a8a", featured: false },
+    blurb: "A real product, built to scale. React + TypeScript, engineered to last.", accent: "#9c7b3f", featured: false },
   { name: "The Bespoke", cat: "Anything", price: "On request",
-    blurb: "Anything you can wish for. You dream it, I build it — no template, no limits.", accent: "#a9791b", featured: true },
+    blurb: "Anything you can wish for. You dream it, I build it — no template, no limits.", accent: "#eccd74", featured: true },
+];
+
+// The reel — a pinned horizontal-scroll gallery. Each image sits on a glow
+// that bleeds into the page's own charcoal gradient and is edge-masked so it
+// melts into the background rather than sitting in a hard rectangle.
+// ponytail: placeholder set is the 3 images already in /public/work; swap in
+// real project shots (see chat) and this list is the only thing to extend.
+const reel = [
+  { img: "/work/car.webp", tag: "Performance", name: "Built to last", glow: "rgba(201,162,39,0.35)" },
+  { img: "/work/ocean.webp", tag: "Resilience", name: "Calm under load", glow: "rgba(120,150,160,0.25)" },
+  { img: "/work/glass.webp", tag: "Craft", name: "Shaped by hand", glow: "rgba(201,162,39,0.3)" },
 ];
 
 const spells = [
@@ -112,8 +124,68 @@ function WorkShowcase({ mail }: { mail: (s: string) => string }) {
   );
 }
 
+/** Pinned horizontal-scroll gallery. Desktop: GSAP drives the track sideways
+ *  while the section is pinned to the (custom-scrolling) page. Small screens
+ *  and reduced-motion skip the pin entirely and fall back to a native
+ *  swipeable snap-scroll strip — pinning a horizontal section on mobile
+ *  fights the vertical scroll gesture, so it's not worth forcing. */
+function HorizontalReel({ scrollerRef }: { scrollerRef: RefObject<HTMLDivElement | null> }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [native, setNative] = useState(false);
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const narrow = window.innerWidth < 860;
+    const scroller = scrollerRef.current;
+    if (reduce || narrow || !scroller || !wrapRef.current || !trackRef.current) {
+      setNative(true);
+      return;
+    }
+    const wrap = wrapRef.current;
+    const track = trackRef.current;
+    const ctx = gsap.context(() => {
+      const distance = () => track.scrollWidth - wrap.clientWidth;
+      gsap.to(track, {
+        x: () => -distance(),
+        ease: "none",
+        scrollTrigger: {
+          trigger: wrap,
+          start: "top top",
+          end: () => `+=${distance()}`,
+          scrub: 0.6,
+          pin: true,
+          scroller,
+          invalidateOnRefresh: true,
+        },
+      });
+    });
+    return () => ctx.revert();
+  }, [scrollerRef]);
+
+  return (
+    <div className="st-reel-wrap" ref={wrapRef}>
+      <div className={`st-reel${native ? " is-native" : ""}`}>
+        <div className="st-reel-track" ref={trackRef}>
+          {reel.map((r) => (
+            <figure className="st-reel-card" key={r.name}>
+              <span className="st-reel-glow" style={{ backgroundImage: `radial-gradient(circle, ${r.glow}, transparent 70%)` }} aria-hidden />
+              <img src={r.img} alt={r.name} loading="lazy" />
+              <figcaption className="st-reel-tag">
+                <span>{r.tag}</span>
+                <strong>{r.name}</strong>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Studio() {
   const root = useRef<HTMLDivElement>(null);
+  const tiltRef = useRef<HTMLDivElement>(null);
 
   // Pressing "Choose" retints the whole page to that product's accent — a live
   // preview of the look. Deriving lighter/darker shades via color-mix.
@@ -178,6 +250,31 @@ export default function Studio() {
     return () => { cancelled = true; ctx.revert(); io?.disconnect(); };
   }, []);
 
+  // Hero browser mock leans very slightly toward the cursor — a cheap "alive"
+  // touch that layers on top of the constant float animation instead of
+  // fighting it, since it drives a *different* element's transform.
+  useEffect(() => {
+    const el = tiltRef.current;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!el || reduce) return;
+    const setX = gsap.quickTo(el, "rotateY", { duration: 0.7, ease: "power3.out" });
+    const setY = gsap.quickTo(el, "rotateX", { duration: 0.7, ease: "power3.out" });
+    const onMove = (e: PointerEvent) => {
+      const r = el.getBoundingClientRect();
+      const px = (e.clientX - (r.left + r.width / 2)) / r.width;
+      const py = (e.clientY - (r.top + r.height / 2)) / r.height;
+      setX(px * 10);
+      setY(py * -8);
+    };
+    const onLeave = () => { setX(0); setY(0); };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerleave", onLeave);
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
+
   const mail = (subject: string) =>
     `mailto:${profile.email}?subject=${encodeURIComponent(subject)}`;
 
@@ -189,6 +286,7 @@ export default function Studio() {
           <span className="st-brand-tag">ATELIER</span>
         </a>
         <nav className="st-links" aria-label="Sections">
+          <a href="#st-reel">Reel</a>
           <a href="#st-shop">Shop</a>
           <a href="#st-work">Work</a>
           <a href="#st-process">Process</a>
@@ -238,35 +336,50 @@ export default function Studio() {
           </div>
 
           <div className="st-hero-visual">
-            <div className="st-browser" data-float>
-              <div className="st-browser-bar">
-                <i /><i /><i />
-                <span className="st-url">dieterolivier.studio</span>
-              </div>
-              <div className="st-browser-body">
-                <div className="st-mock-nav">
-                  <span className="st-mock-logo" />
-                  <span className="st-mock-links"><b /><b /><b /></span>
-                  <span className="st-mock-cta" />
+            <div className="st-hero-tilt" ref={tiltRef}>
+              <div className="st-browser" data-float>
+                <div className="st-browser-bar">
+                  <i /><i /><i />
+                  <span className="st-url">dieterolivier.studio</span>
                 </div>
-                <div className="st-mock-hero">
-                  <div className="st-mock-h1" />
-                  <div className="st-mock-h2" />
-                  <div className="st-mock-p" />
-                  <div className="st-mock-btn" />
+                <div className="st-browser-body">
+                  <div className="st-mock-nav">
+                    <span className="st-mock-logo" />
+                    <span className="st-mock-links"><b /><b /><b /></span>
+                    <span className="st-mock-cta" />
+                  </div>
+                  <div className="st-mock-hero">
+                    <div className="st-mock-h1" />
+                    <div className="st-mock-h2" />
+                    <div className="st-mock-p" />
+                    <div className="st-mock-btn" />
+                  </div>
+                  <div className="st-mock-orb" />
+                  <div className="st-mock-card st-mock-card-a" />
+                  <div className="st-mock-card st-mock-card-b" />
                 </div>
-                <div className="st-mock-orb" />
-                <div className="st-mock-card st-mock-card-a" />
-                <div className="st-mock-card st-mock-card-b" />
               </div>
             </div>
           </div>
         </section>
 
+        {/* REEL — pinned horizontal-scroll gallery, the site's signature moment */}
+        <section id="st-reel" className="st-section">
+          <header className="st-sec-head" data-reveal>
+            <span className="st-sec-num">01 — The reel</span>
+            <h2 className="st-h2">Scroll down. Then sideways.</h2>
+            <p className="st-sec-lede">
+              A few of the surfaces I&rsquo;ve shipped, melting into the page
+              itself.
+            </p>
+          </header>
+          <HorizontalReel scrollerRef={root} />
+        </section>
+
         {/* SHOP */}
         <section id="st-shop" className="st-section">
           <header className="st-sec-head" data-reveal>
-            <span className="st-sec-num">01 — The shop</span>
+            <span className="st-sec-num">02 — The shop</span>
             <h2 className="st-h2">Choose your build.</h2>
             <p className="st-sec-lede">
               Websites, packaged. Choose one — or commission something entirely
@@ -317,7 +430,7 @@ export default function Studio() {
         {/* PROCESS */}
         <section id="st-process" className="st-section">
           <header className="st-sec-head" data-reveal>
-            <span className="st-sec-num">02 — How it works</span>
+            <span className="st-sec-num">03 — How it works</span>
             <h2 className="st-h2">Four moves, no smoke.</h2>
           </header>
           <div className="st-steps" data-stagger>
@@ -334,7 +447,7 @@ export default function Studio() {
         {/* WORK — one image stage you flip through, words over the photo */}
         <section id="st-work" className="st-section">
           <header className="st-sec-head" data-reveal>
-            <span className="st-sec-num">03 — Selected work</span>
+            <span className="st-sec-num">04 — Selected work</span>
             <h2 className="st-h2">A look that reads as expensive.</h2>
           </header>
           <div data-reveal>
@@ -345,7 +458,7 @@ export default function Studio() {
         {/* PROMISE */}
         <section id="st-promise" className="st-section">
           <header className="st-sec-head" data-reveal>
-            <span className="st-sec-num">04 — The promise</span>
+            <span className="st-sec-num">05 — The promise</span>
             <h2 className="st-h2">Why work with me.</h2>
           </header>
           <div className="st-promise-grid" data-stagger>

@@ -32,7 +32,9 @@ function parse(): Route {
   if (!hash.startsWith("#/")) return "home";
   const slug = hash.slice(2).replace(/\/$/, "");
   // While locked down, everything (studio, drill, shake) resolves to the CV.
-  // To re-open the studio: `if (slug === "studio") return "studio";` here.
+  // The studio concept now lives at its own site (atelier), not here — see
+  // https://github.com/DOli4/atelier. To re-open this in-repo copy anyway:
+  // `if (slug === "studio") return "studio";` here.
   if (CV_ONLY) return "home";
   if (slug === "drill" || slug === "shake") return slug;
   if (slug === "drill/today") return "drill-today";

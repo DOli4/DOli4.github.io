@@ -1,31 +1,40 @@
 @import url("https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&display=swap");
 
 /* ============================================================
-   Studio — a luxury "website store". Navy + white + gold.
-   Pure white background, shadows only behind elements.
+   Studio — an obsidian "atelier". Charcoal-black + fine gold.
+   Deep moody gradients, hairline gold rules, frosted-glass cards.
    Playfair Display (display) + Manrope (sans). Fully scoped.
    ============================================================ */
 
 .studio-page {
-  --bg: #ffffff;
-  --ink: #0d1a36;      /* deep navy — text & headings */
-  --ink-2: #34446b;
-  --muted: #79859f;
-  --line: #e7ebf3;
-  --navy: #0e2650;     /* primary navy */
-  --navy-2: #12336c;
-  --gold: #b8860b;
-  --gold-2: #d8b447;
-  --gold-ink: #90650a; /* darker gold for small text — AA on white */
-  --gold-soft: #f7efd6;
-  --card: #ffffff;
+  --bg-0: #050403;      /* deepest black, page floor */
+  --bg-1: #0c0a08;      /* base charcoal */
+  --bg-2: #16120e;      /* elevated charcoal (stats border block) */
+  --ink: #f2e9da;       /* warm ivory — headings & body */
+  --ink-2: #beb1a0;     /* secondary warm grey */
+  --muted: #8a7d6c;
+  --line: rgba(201, 162, 39, 0.14);       /* fine gold hairline */
+  --line-strong: rgba(201, 162, 39, 0.3);
+  --panel: #171310;      /* opaque charcoal surface (mock chrome etc.) */
+  --panel-2: #1f1a15;
+  --card: rgba(23, 19, 16, 0.6);          /* glass card fill */
+  --card-strong: rgba(20, 17, 14, 0.82);
+  --card-border: rgba(201, 162, 39, 0.22);
+  --gold: #c9a227;
+  --gold-2: #eccd74;
+  --gold-ink: #e0bd52;   /* brighter gold for small text on dark — AA */
+  --gold-soft: rgba(201, 162, 39, 0.1);
+  --ink-on-gold: #1b1510;
 
   position: fixed;
   inset: 0;
   z-index: 5000;
   overflow-y: auto;
   overflow-x: hidden;
-  background: var(--bg);
+  background:
+    radial-gradient(60% 50% at 82% -6%, rgba(201, 162, 39, 0.1), transparent 60%),
+    radial-gradient(55% 45% at 8% 106%, rgba(201, 162, 39, 0.06), transparent 60%),
+    linear-gradient(180deg, var(--bg-1), var(--bg-0) 60%, #030201);
   color: var(--ink);
   cursor: auto;
   font-family: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -42,17 +51,14 @@
 .studio-page ul, .studio-page figure { margin: 0; }
 .studio-page ul { padding: 0; list-style: none; }
 .studio-page a { text-decoration: none; }
-/* Zero-specificity colour reset (kills default link blue) so it never
-   outranks the single-class button colour rules below. */
 :where(.studio-page) a { color: inherit; }
 
-/* Ease the accent recolour when a product theme is chosen via "Choose". */
 .st-eyebrow, .st-sec-num, .st-brand-tag, .st-h1 em, .st-step-k,
 .st-stat strong, .st-final-mark { transition: color 0.45s ease; }
 .st-mock-btn { transition: background 0.45s ease; }
 .studio-page em { font-style: italic; }
 .studio-page svg { display: inline-block; vertical-align: middle; }
-.studio-page :focus-visible { outline: 2px solid var(--navy); outline-offset: 3px; border-radius: 8px; }
+.studio-page :focus-visible { outline: 2px solid var(--gold-2); outline-offset: 3px; border-radius: 8px; }
 
 .studio-page main { position: relative; z-index: 1; }
 
@@ -61,23 +67,25 @@
   position: sticky; top: 0; z-index: 20;
   display: flex; align-items: center; justify-content: space-between; gap: 24px;
   padding: 16px clamp(24px, 5vw, 80px);
-  background: rgba(255, 255, 255, 0.82);
-  backdrop-filter: saturate(1.2) blur(16px);
+  background: rgba(8, 7, 6, 0.66);
+  backdrop-filter: saturate(1.3) blur(16px);
+  -webkit-backdrop-filter: saturate(1.3) blur(16px);
   border-bottom: 1px solid var(--line);
 }
 .st-brand {
   display: inline-flex; align-items: baseline; gap: 10px;
   font-family: "Playfair Display", serif; font-size: 1.2rem; font-weight: 600;
+  color: var(--ink);
 }
 .st-brand-tag {
   font-family: "Manrope", sans-serif; font-size: 0.58rem; font-weight: 700;
   letter-spacing: 0.22em; color: var(--gold-ink);
-  border: 1px solid var(--gold-2); border-radius: 999px; padding: 2px 8px;
+  border: 1px solid var(--line-strong); border-radius: 999px; padding: 2px 8px;
 }
 .st-links { display: flex; gap: 30px; font-size: 0.94rem; font-weight: 500; color: var(--ink-2); }
 .st-links a { position: relative; transition: color 0.2s ease; }
 .st-links a::after {
-  content: ""; position: absolute; left: 0; bottom: -5px; width: 100%; height: 2px;
+  content: ""; position: absolute; left: 0; bottom: -5px; width: 100%; height: 1px;
   background: var(--gold); transform: scaleX(0); transform-origin: left;
   transition: transform 0.25s ease;
 }
@@ -95,23 +103,26 @@
   transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.25s ease, background 0.25s ease, color 0.2s ease, border-color 0.2s ease;
   will-change: transform;
+  cursor: pointer;
 }
 .st-pill svg { transition: transform 0.25s ease; }
 .st-pill-navy {
-  background: var(--navy); color: var(--gold-2);
-  box-shadow: 0 14px 30px -14px rgba(14, 38, 80, 0.6);
+  background: var(--card-strong); color: var(--gold-2);
+  border-color: var(--line-strong);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 14px 30px -18px rgba(0, 0, 0, 0.8);
 }
-.st-pill-navy:hover { transform: translateY(-2px); background: var(--navy-2); box-shadow: 0 20px 40px -16px rgba(14, 38, 80, 0.7); }
+.st-pill-navy:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 20px 40px -18px rgba(0, 0, 0, 0.85); }
 .st-pill-navy:hover svg { transform: translateX(3px); }
 .st-pill-gold {
   background: linear-gradient(180deg, var(--gold-2), var(--gold));
-  color: var(--navy); font-weight: 700;
-  box-shadow: 0 14px 30px -14px rgba(184, 134, 11, 0.6);
+  color: var(--ink-on-gold); font-weight: 700;
+  box-shadow: 0 14px 30px -14px rgba(201, 162, 39, 0.45);
 }
-.st-pill-gold:hover { transform: translateY(-2px); box-shadow: 0 22px 42px -16px rgba(184, 134, 11, 0.75); }
+.st-pill-gold:hover { transform: translateY(-2px); box-shadow: 0 22px 42px -16px rgba(201, 162, 39, 0.55); }
 .st-pill-gold:hover svg { transform: translateX(3px); }
-.st-pill-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
-.st-pill-ghost:hover { transform: translateY(-2px); border-color: var(--navy); box-shadow: 0 14px 28px -16px rgba(13, 26, 54, 0.25); }
+.st-pill-ghost { background: transparent; color: var(--ink); border-color: var(--line-strong); }
+.st-pill-ghost:hover { transform: translateY(-2px); border-color: var(--gold); box-shadow: 0 14px 28px -18px rgba(0, 0, 0, 0.7); }
 .st-pill-lg { font-size: 1.02rem; padding: 16px 30px; }
 
 /* ---- Hero ---- */
@@ -125,7 +136,7 @@
 .st-spark {
   position: absolute; color: var(--gold-2); font-size: 22px; opacity: 0;
   animation: st-twinkle 3.4s ease-in-out infinite;
-  text-shadow: 0 0 12px rgba(216, 180, 71, 0.6);
+  text-shadow: 0 0 14px rgba(236, 205, 116, 0.55);
 }
 .st-spark-1 { left: 46%; top: 14%; font-size: 28px; animation-delay: 0.2s; }
 .st-spark-2 { left: 5%; top: 62%; animation-delay: 1.1s; }
@@ -142,7 +153,7 @@
   margin-top: 22px; font-family: "Playfair Display", serif; font-weight: 600;
   font-size: clamp(2.6rem, 5.8vw, 4.8rem); line-height: 1.02; letter-spacing: -0.02em; color: var(--ink);
 }
-.st-h1 em { color: var(--gold); font-style: italic; }
+.st-h1 em { color: var(--gold-2); font-style: italic; }
 .st-lede { margin-top: 24px; max-width: 48ch; font-size: clamp(1.02rem, 1.4vw, 1.2rem); color: var(--ink-2); }
 .st-hero-cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
 .st-hero-meta { display: flex; gap: 44px; margin-top: 46px; padding-top: 28px; border-top: 1px solid var(--line); }
@@ -150,40 +161,44 @@
 .st-hero-meta strong { font-family: "Playfair Display", serif; font-size: 1.3rem; font-weight: 600; color: var(--ink); }
 .st-hero-meta span { font-size: 0.82rem; color: var(--muted); }
 
-/* ---- Hero browser mock ---- */
+/* ---- Hero browser mock (glass, tilts toward the cursor) ---- */
 .st-hero-visual { perspective: 1600px; }
+.st-hero-tilt { transform-style: preserve-3d; will-change: transform; }
 .st-browser {
   transform: rotateY(-14deg) rotateX(6deg); transform-style: preserve-3d;
-  border-radius: 18px; overflow: hidden; background: #fff; border: 1px solid var(--line);
-  box-shadow: 0 50px 100px -36px rgba(13, 26, 54, 0.4), 0 14px 34px -20px rgba(13, 26, 54, 0.3);
+  border-radius: 18px; overflow: hidden;
+  background: var(--card-strong);
+  border: 1px solid var(--card-border);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 60px 120px -40px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.02) inset;
 }
 [data-float] { animation: st-float 7s ease-in-out infinite; }
 @keyframes st-float {
   0%, 100% { transform: rotateY(-14deg) rotateX(6deg) translateY(0); }
   50% { transform: rotateY(-11deg) rotateX(5deg) translateY(-14px); }
 }
-.st-browser-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; background: #f4f6fb; border-bottom: 1px solid var(--line); }
-.st-browser-bar i { width: 11px; height: 11px; border-radius: 999px; background: #d5dbe8; }
-.st-browser-bar i:nth-child(1) { background: #ff5f57; }
-.st-browser-bar i:nth-child(2) { background: #febc2e; }
-.st-browser-bar i:nth-child(3) { background: #28c840; }
-.st-url { margin-left: 12px; font-size: 0.72rem; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
+.st-browser-bar { display: flex; align-items: center; gap: 7px; padding: 12px 16px; background: rgba(0, 0, 0, 0.28); border-bottom: 1px solid var(--line); }
+.st-browser-bar i { width: 11px; height: 11px; border-radius: 999px; background: #3a332a; }
+.st-browser-bar i:nth-child(1) { background: #6b4a3d; }
+.st-browser-bar i:nth-child(2) { background: var(--gold); }
+.st-browser-bar i:nth-child(3) { background: #4a5a45; }
+.st-url { margin-left: 12px; font-size: 0.72rem; color: var(--ink-2); background: rgba(0, 0, 0, 0.35); border: 1px solid var(--line); border-radius: 999px; padding: 3px 12px; }
 .st-browser-body {
   position: relative; height: 360px; padding: 24px; overflow: hidden;
-  background: linear-gradient(180deg, #ffffff, #f7f9fd);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
 }
 .st-mock-nav { display: flex; align-items: center; justify-content: space-between; }
-.st-mock-logo { width: 74px; height: 12px; border-radius: 6px; background: var(--navy); }
+.st-mock-logo { width: 74px; height: 12px; border-radius: 6px; background: var(--gold-2); }
 .st-mock-links { display: flex; gap: 12px; }
-.st-mock-links b { width: 34px; height: 8px; border-radius: 6px; background: #d3dae8; }
-.st-mock-cta { width: 66px; height: 24px; border-radius: 999px; background: var(--navy); }
+.st-mock-links b { width: 34px; height: 8px; border-radius: 6px; background: rgba(242, 233, 218, 0.14); }
+.st-mock-cta { width: 66px; height: 24px; border-radius: 999px; background: var(--gold); }
 .st-mock-hero { margin-top: 50px; max-width: 60%; }
-.st-mock-h1 { height: 22px; width: 90%; border-radius: 8px; background: var(--navy); }
-.st-mock-h2 { height: 22px; width: 62%; border-radius: 8px; background: var(--navy); margin-top: 10px; }
-.st-mock-p { height: 10px; width: 78%; border-radius: 6px; background: #ccd4e4; margin-top: 18px; }
+.st-mock-h1 { height: 22px; width: 90%; border-radius: 8px; background: rgba(242, 233, 218, 0.22); }
+.st-mock-h2 { height: 22px; width: 62%; border-radius: 8px; background: rgba(242, 233, 218, 0.22); margin-top: 10px; }
+.st-mock-p { height: 10px; width: 78%; border-radius: 6px; background: rgba(242, 233, 218, 0.1); margin-top: 18px; }
 .st-mock-btn { height: 30px; width: 120px; border-radius: 999px; background: var(--gold); margin-top: 22px; }
-.st-mock-orb { position: absolute; right: -40px; top: 96px; width: 210px; height: 210px; border-radius: 50%; background: conic-gradient(from 200deg, var(--gold), #eacf82, var(--navy-2), var(--gold)); filter: blur(9px); opacity: 0.8; }
-.st-mock-card { position: absolute; border-radius: 14px; background: rgba(255, 255, 255, 0.85); border: 1px solid var(--line); box-shadow: 0 22px 44px -22px rgba(13, 26, 54, 0.35); backdrop-filter: blur(8px); }
+.st-mock-orb { position: absolute; right: -40px; top: 96px; width: 210px; height: 210px; border-radius: 50%; background: conic-gradient(from 200deg, var(--gold), #7a5f22, #241d12, var(--gold)); filter: blur(14px); opacity: 0.55; }
+.st-mock-card { position: absolute; border-radius: 14px; background: rgba(20, 17, 14, 0.55); border: 1px solid var(--card-border); box-shadow: 0 22px 44px -22px rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .st-mock-card-a { right: 26px; bottom: 30px; width: 156px; height: 82px; }
 .st-mock-card-b { right: 124px; bottom: 100px; width: 100px; height: 62px; opacity: 0.94; }
 
@@ -194,34 +209,35 @@
 .st-h2 { margin-top: 12px; font-family: "Playfair Display", serif; font-weight: 600; font-size: clamp(2rem, 3.8vw, 3.3rem); line-height: 1.05; letter-spacing: -0.015em; color: var(--ink); }
 .st-sec-lede { margin-top: 16px; max-width: 56ch; font-size: 1.05rem; color: var(--ink-2); }
 
-/* ---- Shop ---- */
+/* ---- Shop (glass product cards) ---- */
 .st-shop-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; margin-top: 52px; }
 .st-product {
   display: flex; flex-direction: column; overflow: hidden;
-  background: var(--card); border: 1px solid var(--line); border-radius: 24px;
-  box-shadow: 0 30px 60px -40px rgba(13, 26, 54, 0.4);
+  background: var(--card); border: 1px solid var(--card-border); border-radius: 24px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 30px 60px -40px rgba(0, 0, 0, 0.85);
   transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.32s ease, border-color 0.32s ease;
 }
-.st-product:hover { transform: translateY(-10px); border-color: var(--gold-2); box-shadow: 0 46px 84px -38px rgba(13, 26, 54, 0.5); }
-.st-product.is-featured { border-color: var(--gold-2); box-shadow: 0 36px 72px -38px rgba(184, 134, 11, 0.45); }
+.st-product:hover { transform: translateY(-10px); border-color: var(--gold); box-shadow: 0 46px 84px -38px rgba(0, 0, 0, 0.9); }
+.st-product.is-featured { border-color: var(--gold); box-shadow: 0 36px 72px -38px rgba(201, 162, 39, 0.28); }
 
 /* mini website preview inside each product card, tinted by --pa */
 .st-product-preview {
   position: relative; height: 210px; padding: 22px; overflow: hidden;
-  background: linear-gradient(180deg, #ffffff, color-mix(in srgb, var(--pa) 8%, #fff));
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2), color-mix(in srgb, var(--pa) 14%, #0c0a08));
   border-bottom: 1px solid var(--line);
 }
 .st-mini-bar { position: absolute; top: 16px; left: 22px; display: inline-flex; gap: 5px; }
-.st-mini-bar i { width: 8px; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--pa) 35%, #ccd4e4); }
-.st-mini-h { position: absolute; top: 60px; left: 22px; width: 58%; height: 18px; border-radius: 6px; background: color-mix(in srgb, var(--pa) 78%, var(--navy)); }
-.st-mini-p { position: absolute; top: 90px; left: 22px; width: 42%; height: 10px; border-radius: 5px; background: #d3dae8; }
+.st-mini-bar i { width: 8px; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--pa) 45%, #3a332a); }
+.st-mini-h { position: absolute; top: 60px; left: 22px; width: 58%; height: 18px; border-radius: 6px; background: color-mix(in srgb, var(--pa) 82%, #eee); }
+.st-mini-p { position: absolute; top: 90px; left: 22px; width: 42%; height: 10px; border-radius: 5px; background: rgba(242, 233, 218, 0.16); }
 .st-mini-btn { position: absolute; top: 116px; left: 22px; width: 84px; height: 28px; border-radius: 999px; background: var(--pa); }
-.st-mini-orb { position: absolute; right: -38px; bottom: -38px; width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(from 160deg, var(--pa), color-mix(in srgb, var(--pa) 35%, #fff), var(--pa)); filter: blur(7px); opacity: 0.7; transition: transform 0.5s ease; }
+.st-mini-orb { position: absolute; right: -38px; bottom: -38px; width: 150px; height: 150px; border-radius: 50%; background: conic-gradient(from 160deg, var(--pa), color-mix(in srgb, var(--pa) 35%, #0c0a08), var(--pa)); filter: blur(10px); opacity: 0.6; transition: transform 0.5s ease; }
 .st-product:hover .st-mini-orb { transform: scale(1.15) rotate(20deg); }
 .st-mini-badge {
   position: absolute; top: 16px; right: 16px; display: inline-flex; align-items: center; gap: 5px;
   font-size: 0.66rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-  color: #fff; background: var(--pa); padding: 5px 11px; border-radius: 999px;
+  color: var(--ink-on-gold); background: var(--pa); padding: 5px 11px; border-radius: 999px;
 }
 .st-product-body { display: flex; flex-direction: column; flex: 1; padding: 24px 26px 26px; }
 .st-product-cat { font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
@@ -231,22 +247,75 @@
 .st-product-price { font-size: 0.9rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); }
 .st-choose {
   display: inline-flex; align-items: center; gap: 7px; font-size: 0.9rem; font-weight: 600;
-  color: var(--gold-2); background: var(--navy); border-radius: 999px; padding: 11px 20px;
-  transition: background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease;
+  color: var(--gold-2); background: var(--panel); border: 1px solid var(--card-border); border-radius: 999px; padding: 11px 20px;
+  transition: background 0.22s ease, transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  cursor: pointer;
 }
-.st-choose:hover { background: var(--navy-2); transform: translateY(-2px); box-shadow: 0 14px 26px -14px rgba(14, 38, 80, 0.6); }
+.st-choose:hover { background: var(--panel-2); border-color: var(--gold); transform: translateY(-2px); box-shadow: 0 14px 26px -14px rgba(0, 0, 0, 0.8); }
 .st-choose:hover svg { transform: translate(2px, -2px); }
 .st-choose svg { transition: transform 0.22s ease; }
-.st-product.is-featured .st-choose { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: var(--navy); }
+.st-product.is-featured .st-choose { background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: var(--ink-on-gold); border-color: transparent; }
 
 /* ---- Process ---- */
 .st-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 52px; }
-.st-step { padding: 30px 26px 32px; border-top: 2px solid var(--gold); background: #fbfcfe; border-radius: 0 0 16px 16px; }
-.st-step-k { font-family: "Playfair Display", serif; font-size: 1.7rem; font-weight: 600; color: var(--gold); }
+.st-step { padding: 30px 26px 32px; border-top: 1px solid var(--gold); background: var(--card); border-radius: 0 0 16px 16px; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.st-step-k { font-family: "Playfair Display", serif; font-size: 1.7rem; font-weight: 600; color: var(--gold-2); }
 .st-step-t { margin-top: 8px; font-size: 1.2rem; font-weight: 700; color: var(--ink); }
 .st-step-d { margin-top: 8px; font-size: 0.95rem; color: var(--ink-2); }
 
-/* ---- Work — one image stage you flip through ---- */
+/* ---- Reel — pinned horizontal scroll gallery ----
+   Each image sits on a radial glow that bleeds into the page's own
+   charcoal gradient, masked at the edges so it "melts" into the
+   background instead of ending in a hard rectangle. A glass tag card
+   floats on top. Falls back to a native swipeable strip on small
+   screens / reduced motion (no pin). */
+.st-reel-wrap { position: relative; margin-top: 52px; }
+.st-reel { overflow: hidden; }
+.st-reel-track {
+  display: flex; gap: clamp(20px, 3vw, 40px);
+  width: max-content;
+  padding: 24px clamp(24px, 5vw, 80px) 24px 0;
+}
+.st-reel-card {
+  position: relative;
+  width: clamp(280px, 42vw, 560px);
+  aspect-ratio: 4 / 5;
+  display: flex; align-items: flex-end;
+  flex-shrink: 0;
+}
+.st-reel-glow {
+  position: absolute; inset: -18%;
+  filter: blur(40px);
+  opacity: 0.7;
+  z-index: 0;
+}
+.st-reel-card img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 28px;
+  z-index: 1;
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 42%, black 62%, transparent 96%);
+  mask-image: radial-gradient(120% 100% at 50% 42%, black 62%, transparent 96%);
+}
+.st-reel-tag {
+  position: relative; z-index: 2;
+  margin: 0 20px 20px; padding: 14px 20px;
+  display: flex; flex-direction: column; gap: 3px;
+  background: var(--card-strong); border: 1px solid var(--card-border); border-radius: 16px;
+  backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 24px 50px -28px rgba(0, 0, 0, 0.85);
+}
+.st-reel-tag span { font-size: 0.68rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold-ink); }
+.st-reel-tag strong { font-family: "Playfair Display", serif; font-size: 1.15rem; font-weight: 600; color: var(--ink); }
+.st-reel-hint { margin-top: 14px; font-size: 0.82rem; color: var(--muted); }
+
+/* Mobile / reduced-motion: no GSAP pin, just a native snap-scroll strip */
+.st-reel.is-native { overflow-x: auto; overscroll-behavior-x: contain; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
+.st-reel.is-native .st-reel-card { scroll-snap-align: center; }
+.st-reel.is-native::-webkit-scrollbar { height: 6px; }
+.st-reel.is-native::-webkit-scrollbar-thumb { background: var(--line-strong); border-radius: 999px; }
+
+/* ---- Work — one image stage you flip through (glass over full-bleed photo) ---- */
 .st-show { margin-top: 48px; }
 .st-show-stage {
   position: relative;
@@ -257,61 +326,66 @@
   overflow: hidden;
   background-size: cover;
   background-position: center;
-  box-shadow: 0 54px 110px -50px rgba(13, 26, 54, 0.6);
+  box-shadow: 0 54px 130px -50px rgba(0, 0, 0, 0.9);
   color: #fff;
 }
 .st-show-stage::before {
   content: ""; position: absolute; inset: 0;
-  background: radial-gradient(85% 75% at 50% 42%, rgba(6, 12, 28, 0.32), rgba(6, 12, 28, 0.66));
+  background: radial-gradient(85% 75% at 50% 42%, rgba(5, 4, 3, 0.4), rgba(5, 4, 3, 0.78));
+}
+.st-show-stage::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  border: 1px solid var(--card-border); border-radius: 28px;
 }
 .st-show-center { position: relative; z-index: 2; text-align: center; max-width: 760px; animation: st-show-in 0.5s ease; }
 @keyframes st-show-in { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
 .st-show-pill {
   display: inline-flex; align-items: center; gap: 7px;
-  background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 999px;
+  background: rgba(20, 17, 14, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border); border-radius: 999px;
   padding: 8px 16px; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--gold-2);
 }
 .st-show-h {
   margin-top: 20px; font-family: "Playfair Display", serif; font-weight: 600;
   font-size: clamp(2.4rem, 5.6vw, 4.4rem); line-height: 1.01; letter-spacing: -0.02em;
-  text-shadow: 0 4px 44px rgba(0, 0, 0, 0.4);
+  text-shadow: 0 4px 44px rgba(0, 0, 0, 0.55);
 }
-.st-show-sub { margin: 16px auto 0; max-width: 46ch; font-size: clamp(1rem, 1.4vw, 1.15rem); color: rgba(255, 255, 255, 0.88); }
+.st-show-sub { margin: 16px auto 0; max-width: 46ch; font-size: clamp(1rem, 1.4vw, 1.15rem); color: rgba(242, 233, 218, 0.86); }
 
 .st-show-arrow {
   position: absolute; top: 50%; transform: translateY(-50%); z-index: 3;
   width: 46px; height: 46px; display: inline-flex; align-items: center; justify-content: center;
-  border-radius: 999px; background: rgba(255, 255, 255, 0.16); backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.32); color: #fff;
-  transition: background 0.2s ease, transform 0.2s ease;
+  border-radius: 999px; background: rgba(20, 17, 14, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--card-border); color: #fff; cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
 }
-.st-show-arrow:hover { background: rgba(255, 255, 255, 0.3); }
+.st-show-arrow:hover { background: rgba(20, 17, 14, 0.6); border-color: var(--gold); }
 .st-show-prev { left: clamp(14px, 2vw, 26px); }
 .st-show-next { right: clamp(14px, 2vw, 26px); }
 
 .st-show-card {
   position: absolute; z-index: 3;
-  background: rgba(255, 255, 255, 0.13); backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.24); border-radius: 18px;
+  background: rgba(20, 17, 14, 0.45); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid var(--card-border); border-radius: 18px;
   padding: 18px 20px;
-  box-shadow: 0 22px 46px -24px rgba(0, 0, 0, 0.55);
+  box-shadow: 0 22px 46px -24px rgba(0, 0, 0, 0.7);
 }
 .st-show-card-l { left: clamp(16px, 3vw, 34px); bottom: clamp(16px, 3vw, 34px); }
 .st-show-card-r { right: clamp(16px, 3vw, 34px); bottom: clamp(16px, 3vw, 34px); text-align: right; }
-.st-show-card strong { display: block; font-family: "Playfair Display", serif; font-size: 1.7rem; font-weight: 600; }
-.st-show-card span { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255, 255, 255, 0.75); }
+.st-show-card strong { display: block; font-family: "Playfair Display", serif; font-size: 1.7rem; font-weight: 600; color: var(--gold-2); }
+.st-show-card span { font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(242, 233, 218, 0.75); }
 .st-show-cardbtn {
   display: inline-flex; align-items: center; gap: 5px; margin-top: 12px;
-  font-size: 0.8rem; font-weight: 700; color: var(--navy);
+  font-size: 0.8rem; font-weight: 700; color: var(--ink-on-gold);
   background: var(--gold-2); border-radius: 999px; padding: 7px 14px;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
-.st-show-cardbtn:hover { filter: brightness(1.06); transform: translateY(-1px); }
+.st-show-cardbtn:hover { filter: brightness(1.08); transform: translateY(-1px); }
 
 .st-show-dots { position: absolute; z-index: 3; bottom: clamp(16px, 3vw, 28px); left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
-.st-show-dots button { width: 8px; height: 8px; border-radius: 999px; background: rgba(255, 255, 255, 0.45); transition: width 0.25s ease, background 0.25s ease; }
-.st-show-dots button.is-on { width: 26px; background: #fff; }
+.st-show-dots button { width: 8px; height: 8px; border-radius: 999px; background: rgba(242, 233, 218, 0.4); transition: width 0.25s ease, background 0.25s ease; cursor: pointer; }
+.st-show-dots button.is-on { width: 26px; background: var(--gold-2); }
 
 @media (max-width: 680px) {
   .st-show-card-r { display: none; }
@@ -320,8 +394,8 @@
 
 /* ---- Promise ---- */
 .st-promise-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; margin-top: 52px; }
-.st-promise-card { padding: 30px 26px 32px; background: var(--card); border: 1px solid var(--line); border-radius: 20px; box-shadow: 0 26px 54px -40px rgba(13, 26, 54, 0.4); }
-.st-promise-mark { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 13px; background: var(--navy); color: #fff; }
+.st-promise-card { padding: 30px 26px 32px; background: var(--card); border: 1px solid var(--card-border); border-radius: 20px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: 0 26px 54px -40px rgba(0, 0, 0, 0.85); }
+.st-promise-mark { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 13px; background: linear-gradient(180deg, var(--gold-2), var(--gold)); color: var(--ink-on-gold); }
 .st-promise-t { margin-top: 20px; font-size: 1.2rem; font-weight: 700; color: var(--ink); }
 .st-promise-d { margin-top: 8px; font-size: 0.95rem; color: var(--ink-2); }
 
@@ -331,19 +405,22 @@
   max-width: 1200px; margin: clamp(64px, 8vw, 110px) auto 0; padding: 48px clamp(24px, 5vw, 80px);
   text-align: center; border-block: 1px solid var(--line);
 }
-.st-stat strong { display: block; font-family: "Playfair Display", serif; font-size: clamp(2.6rem, 5vw, 3.6rem); font-weight: 600; color: var(--gold); font-variant-numeric: tabular-nums; }
+.st-stat strong { display: block; font-family: "Playfair Display", serif; font-size: clamp(2.6rem, 5vw, 3.6rem); font-weight: 600; color: var(--gold-2); font-variant-numeric: tabular-nums; }
 .st-stat span { font-size: 0.88rem; color: var(--muted); }
 
-/* ---- Final CTA (navy panel — a dark punctuation on the white page) ---- */
+/* ---- Final CTA (deep glass panel — a lit moment on the black page) ---- */
 .st-final {
   position: relative; max-width: 1120px; margin: clamp(64px, 8vw, 120px) auto 0;
   padding: clamp(56px, 6vw, 92px) clamp(28px, 5vw, 72px); text-align: center; overflow: hidden;
-  background: var(--navy); color: #fff; border-radius: 30px;
-  box-shadow: 0 50px 110px -54px rgba(13, 26, 54, 0.7);
+  background:
+    radial-gradient(70% 90% at 50% -10%, rgba(201, 162, 39, 0.16), transparent 65%),
+    var(--panel);
+  color: var(--ink); border: 1px solid var(--card-border); border-radius: 30px;
+  box-shadow: 0 60px 130px -54px rgba(0, 0, 0, 0.95);
 }
 .st-final-mark { display: inline-flex; color: var(--gold-2); }
-.st-final-h { margin-top: 12px; font-family: "Playfair Display", serif; font-weight: 600; font-size: clamp(2.2rem, 4.6vw, 3.4rem); line-height: 1.04; letter-spacing: -0.015em; color: #fff; }
-.st-final-p { margin-top: 16px; max-width: 46ch; margin-inline: auto; color: #b9c4dc; }
+.st-final-h { margin-top: 12px; font-family: "Playfair Display", serif; font-weight: 600; font-size: clamp(2.2rem, 4.6vw, 3.4rem); line-height: 1.04; letter-spacing: -0.015em; color: var(--ink); }
+.st-final-p { margin-top: 16px; max-width: 46ch; margin-inline: auto; color: var(--ink-2); }
 .st-final .st-pill { margin-top: 30px; }
 
 /* ---- Footer ---- */
@@ -374,5 +451,6 @@
 @media (prefers-reduced-motion: reduce) {
   .studio-page, [data-float], .st-spark, .st-show-center { animation: none !important; }
   .st-browser { transform: none; }
+  .st-hero-tilt { transform: none !important; }
   .st-spark { opacity: 0.5; }
 }
